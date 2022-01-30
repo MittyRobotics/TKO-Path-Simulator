@@ -2,6 +2,7 @@ package com.amhsrobotics.pathsim;
 
 
 import com.amhsrobotics.pathsim.templates.*;
+import com.amhsrobotics.pathsim.templates.Renderer;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -14,6 +15,7 @@ public class PathFollowingSim {
     private static JFrame frame;
     private static ImagePanel panel;
     private static UIPanel uiPanel;
+    private static Renderer renderer;
 
     public static final int UI_WIDTH = 300;
 
@@ -48,6 +50,9 @@ public class PathFollowingSim {
                     panel.repaint();
 
                     uiPanel.setBounds(frame.getWidth() - UI_WIDTH, 0, UI_WIDTH, frame.getHeight());
+                    renderer.setBounds(0, 0, frame.getWidth() - UI_WIDTH, frame.getHeight());
+                    renderer.repaint();
+                    uiPanel.repaint();
                 }
             });
         } catch (Exception e) {
@@ -58,10 +63,15 @@ public class PathFollowingSim {
         uiPanel.setBackground(new Color(35, 35, 35));
         uiPanel.setBounds(frame.getWidth() - UI_WIDTH, 0, UI_WIDTH, frame.getHeight());
 
+
+        renderer = new Renderer();
+        renderer.setBackground(new Color(0, 0, 0, 0));
+        renderer.setBounds(0, 0, frame.getWidth() - UI_WIDTH, frame.getHeight());
         //render
 
         frame.setLayout(null);
 
+        frame.getContentPane().add(renderer);
         frame.getContentPane().add(panel);
         frame.getContentPane().add(uiPanel);
 
