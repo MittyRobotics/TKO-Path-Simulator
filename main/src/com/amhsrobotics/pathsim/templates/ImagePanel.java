@@ -14,12 +14,18 @@ public class ImagePanel extends JPanel {
     private BufferedImage img;
 
     private double zoom, mousex, mousey, centerx, centery, xc, yc;
+    private double maxzoom, minzoom;
+
+    private final double MAX_ZOOM_RELATIVE = 2.2;
+    private final double MIN_ZOOM_RELATIVE = 0.12;
 
     public ImagePanel(BufferedImage img) {
         super();
         this.img = img;
         xc = 0;
         yc = 0;
+
+        resetZoomBounds();
         setZoom(0.2);
 
         this.addMouseWheelListener(new ZoomListener());
@@ -43,7 +49,7 @@ public class ImagePanel extends JPanel {
     }
 
     public void setZoom(double zoom) {
-        this.zoom = zoom;
+        this.zoom = Math.min(maxzoom, Math.max(minzoom, zoom));;
 
         this.repaint();
     }
@@ -53,20 +59,36 @@ public class ImagePanel extends JPanel {
         return new Dimension();
     }
 
+    public void resetZoomBounds() {
+        maxzoom = (PathFollowingSim.getMainFrame().getWidth() / 1440.) * MAX_ZOOM_RELATIVE;
+        minzoom = (PathFollowingSim.getMainFrame().getWidth() / 1440.) * MIN_ZOOM_RELATIVE;
+
+        setZoom(zoom);
+    }
+
+    public void boundXY() {
+        int maxx = (int) (img.getWidth() * zoom / 2);
+        int maxy = (int) (img.getHeight() * zoom / 2);
+        xc = Math.min(maxx, Math.max(xc, -maxx));
+        yc = Math.min(maxy, Math.max(yc, -maxy));
+    }
+
     public class ZoomListener implements MouseWheelListener {
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             double newzoom = zoom + e.getWheelRotation() / 100.;
-            newzoom = Math.min(1.5, Math.max(0.2, newzoom));
+            newzoom = Math.min(maxzoom, Math.max(minzoom, newzoom));
 
             mousex = e.getLocationOnScreen().x - PathFollowingSim.getMainFrame().getX();
             mousey = e.getLocationOnScreen().y - PathFollowingSim.getMainFrame().getY() - 28; //fix header
 
 
             double factor = 1 - newzoom / zoom;
-//
+
             xc += (mousex - centerx) * factor;
             yc += (mousey - centery) * factor;
+
+            boundXY();
 
             setZoom(newzoom);
 
@@ -82,6 +104,8 @@ public class ImagePanel extends JPanel {
 //            System.out.println("hi");
             xc += e.getX() - prevX;
             yc += e.getY() - prevY;
+
+            boundXY();
             repaint();
 
 
