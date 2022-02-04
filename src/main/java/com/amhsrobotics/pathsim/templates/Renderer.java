@@ -74,9 +74,6 @@ public class Renderer {
 
         int cur = 0;
 
-        System.out.println(centery);
-        System.out.println(height);
-
         double centerynew = Math.max(Math.min(centery, height-20), 0);
         double centerxnew = Math.max(Math.min(centerx, width), 30);
 
