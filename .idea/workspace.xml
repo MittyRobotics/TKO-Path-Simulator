@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="20083ba9-0645-4b4e-8c7c-f1cec60478db" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/core/assets/field.g3db" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/PathSim.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/tools/CamController2D$1.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/tools/CamController2D.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/tools/CamController3D$CameraGestureListener.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/tools/CamController3D.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/tools/Renderer2D.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/classes/java/main/com/github/mittyrobotics/tools/Renderer3D.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/libs/core-1.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/tmp/compileJava/source-classes-mapping.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/build/tmp/jar/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/PathSim.gwt.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/com/github/mittyrobotics/PathSim.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/com/github/mittyrobotics/tools/CamController2D.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/com/github/mittyrobotics/tools/CamController3D.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/com/github/mittyrobotics/tools/Renderer2D.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/src/com/github/mittyrobotics/tools/Renderer3D.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/build/classes/java/main/com/github/mittyrobotics/desktop/DesktopLauncher.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/build/libs/desktop-1.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/build/resources/main/field.g3db" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/build/tmp/compileJava/source-classes-mapping.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/build/tmp/jar/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/desktop/src/com/github/mittyrobotics/desktop/DesktopLauncher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build.gradle" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/classes/java/main/com/github/mittyrobotics/client/HtmlLauncher.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB24B8F" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB29E73" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB2A027" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB2A214" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB2A312" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB2A3DA" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/cache/gwt-unitCache/gwt-unitCache-7a87e060bbf129386b7ae772459fb9f87297c332-FF35F588CF7564DE259004F02565B00E-0000017F0AB2A4E0" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/extra/html/rpcPolicyManifest/manifest.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/extra/html/soycReport/splitPoints0.xml.gz" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/extra/html/symbolMaps/F9E836727817453D708B627532C1E872.symbolMap" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/badlogic/gdx/backends/gwt/preloader/PreloaderBundleImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/badlogic/gwtref/client/IReflectionCacheGenerated.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/i18n/client/constants/NumberConstantsImpl_.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/i18n/client/impl/LocaleInfoImpl_.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/i18n/client/impl/LocaleInfoImpl_shared.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/lang/com_00046github_00046mittyrobotics_00046GdxDefinition__EntryMethodHolder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/user/client/DocumentModeAsserter_DocumentModeProperty.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/useragent/client/UserAgentImplGecko1_8.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/gen/com/google/gwt/useragent/client/UserAgentImplSafari.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/WEB-INF/deploy/html/rpcPolicyManifest/manifest.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/WEB-INF/deploy/html/symbolMaps/F9E836727817453D708B627532C1E872.symbolMap" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/F9E836727817453D708B627532C1E872.cache.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/clear.cache.gif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/compilation-mappings.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/chrome.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/chrome_rtl.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/corner.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/corner_ie6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/hborder.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/hborder_ie6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/ie6/corner_dialog_topleft.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/ie6/corner_dialog_topright.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/ie6/hborder_blue_shadow.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/ie6/hborder_gray_shadow.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/ie6/vborder_blue_shadow.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/ie6/vborder_gray_shadow.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/splitPanelThumb.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/vborder.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/gwt/chrome/images/vborder_ie6.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/html.devmode.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/html.nocache.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/out/html/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/gwt/work/com.github.mittyrobotics.GdxDefinition/compiler/permutation-0.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/libs/html-1.0.war" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/tmp/compileJava/source-classes-mapping.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/tmp/draftWar/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/build/tmp/war/MANIFEST.MF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/src/com/github/mittyrobotics/GdxDefinition.gwt.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/src/com/github/mittyrobotics/GdxDefinitionSuperdev.gwt.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/src/com/github/mittyrobotics/client/HtmlLauncher.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/classes/com/github/mittyrobotics/client/HtmlLauncher.class" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/core-1.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/gdx-1.10.0-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/gdx-1.10.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/gdx-backend-gwt-1.10.0-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/gdx-backend-gwt-1.10.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/jsinterop-annotations-1.0.2-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/jsinterop-annotations-1.0.2.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/sac-1.3.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/validation-api-1.0.0.GA-sources.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/validation-api-1.0.0.GA.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/WEB-INF/web.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/arial-15-bc7179c1b449823bfa67d42e1a3ae1f8.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/arial-15-de712246b57ebc33dd87592e7d03af58.fnt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/assets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/default.fragment-e1c018bd48044c8b67c7bbc53145e540.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/default.vertex-28b7e77ea3f282ebd5b066ba256692c3.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/depth.fragment-8341d5ce47fc398da575c9e294b6821b.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/depth.vertex-98a450f1f747c05eedb7122779187316.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/field-20ff342f463ef3b28938ff7b40aec4c7.g3db" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/particles.fragment-b90524761fdf09b0a836056d590c30b8.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/assets/particles.vertex-f25b8b2fae10b9bfa09bfdd484923148.glsl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/refresh.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/war/styles.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/webapp/WEB-INF/web.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/webapp/index.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/webapp/refresh.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/html/webapp/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/dependencies-accessors/dependencies-accessors.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1/dependencies-accessors/dependencies-accessors.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/dependencies-accessors/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/executionHistory/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/executionHistory/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/fileChanges/last-build.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/sha1-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/7.1/fileHashes/fileHashes.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/md5-checksums.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/7.1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/cache.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/checksums/checksums.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gradle/vcs-1/gc.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/img/FIELD_RENDER.png" beforeDir="false" afterPath="$PROJECT_DIR$/core/assets/FIELD_RENDER.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/img/title1.png" beforeDir="false" afterPath="$PROJECT_DIR$/core/assets/title1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/assets/img/title2.png" beforeDir="false" afterPath="$PROJECT_DIR$/core/assets/title2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/distributions/TKO-Path-Sim.tar" beforeDir="false" afterPath="$PROJECT_DIR$/html/war/WEB-INF/lib/gwt-user-2.8.2.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/resources/main/img/FIELD_RENDER.png" beforeDir="false" afterPath="$PROJECT_DIR$/desktop/build/resources/main/FIELD_RENDER.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/resources/main/img/title1.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/resources/main/img/title2.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/scripts/TKO-Path-Sim" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/scripts/TKO-Path-Sim.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/compileJava/previous-compilation-data.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/tmp/jar/MANIFEST.MF" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/amhsrobotics/pathsim/PathFollowingSim.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/amhsrobotics/pathsim/templates/ImagePanel.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/amhsrobotics/pathsim/templates/Renderer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/amhsrobotics/pathsim/templates/UIPanel.java" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build setup" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="documentation" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="gretty" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="help" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="TKO-Path-Simulator" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="ide" type="c8890929:TasksNode$1" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="ProjectId" id="24jDzuc9LTn3ysMh6JDKqg4umxF" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/build.gradle" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.0" />
+    <property name="settings.editor.selected.configurable" value="MTConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/core/assets" />
+    </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Desktop" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="11" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <option name="MAIN_CLASS_NAME" value="com.github.mittyrobotics.desktop.DesktopLauncher" />
+      <module name="TKO-Path-Simulator.desktop.main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/core/assets/" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="20083ba9-0645-4b4e-8c7c-f1cec60478db" name="Changes" comment="" />
+      <created>1644135367264</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1644135367264</updated>
+      <workItem from="1644135368696" duration="811000" />
+      <workItem from="1644363265155" duration="17434000" />
+      <workItem from="1644514885762" duration="2338000" />
+      <workItem from="1644737534719" duration="695000" />
+      <workItem from="1644854938713" duration="598000" />
+      <workItem from="1644967941214" duration="154000" />
+      <workItem from="1644969705066" duration="849000" />
+      <workItem from="1645141765809" duration="9872000" />
+      <workItem from="1645233528608" duration="11021000" />
+    </task>
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-security" />
+    <option featureType="dependencySupport" implementationName="java:org.jcraft:jorbis" />
+    <option featureType="dependencySupport" implementationName="java:commons-codec:commons-codec" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty.websocket:websocket-client" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-jndi" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx" />
+    <option featureType="dependencySupport" implementationName="java:org.ow2.asm:asm-tree" />
+    <option featureType="dependencySupport" implementationName="java:net.java.jutils:jutils" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty.toolchain:jetty-schemas" />
+    <option featureType="dependencySupport" implementationName="java:xalan:xalan" />
+    <option featureType="dependencySupport" implementationName="java:xml-apis:xml-apis" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-servlet" />
+    <option featureType="dependencySupport" implementationName="java:javax.validation:validation-api" />
+    <option featureType="dependencySupport" implementationName="java:com.google.gwt:gwt-codeserver" />
+    <option featureType="dependencySupport" implementationName="java:org.lwjgl.lwjgl:lwjgl-platform" />
+    <option featureType="dependencySupport" implementationName="java:net.sourceforge.htmlunit:htmlunit-core-js" />
+    <option featureType="dependencySupport" implementationName="java:com.google.code.gson:gson" />
+    <option featureType="dependencySupport" implementationName="java:tapestry:tapestry" />
+    <option featureType="dependencySupport" implementationName="java:javax.websocket:javax.websocket-api" />
+    <option featureType="dependencySupport" implementationName="java:commons-io:commons-io" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-xml" />
+    <option featureType="dependencySupport" implementationName="java:xerces:xercesImpl" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-annotations" />
+    <option featureType="dependencySupport" implementationName="java:net.sourceforge.cssparser:cssparser" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx-freetype" />
+    <option featureType="dependencySupport" implementationName="java:com.google.gwt:gwt-dev" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-servlets" />
+    <option featureType="dependencySupport" implementationName="java:org.lwjgl.lwjgl:lwjgl_util" />
+    <option featureType="dependencySupport" implementationName="java:org.mortbay.jasper:apache-el" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-continuation" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx-backend-lwjgl" />
+    <option featureType="dependencySupport" implementationName="java:colt:colt" />
+    <option featureType="dependencySupport" implementationName="java:commons-logging:commons-logging" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-webapp" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-server" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-http" />
+    <option featureType="dependencySupport" implementationName="java:org.apache.httpcomponents:httpcore" />
+    <option featureType="dependencySupport" implementationName="java:org.apache.commons:commons-lang3" />
+    <option featureType="dependencySupport" implementationName="java:com.google.gwt:gwt-user" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-plus" />
+    <option featureType="dependencySupport" implementationName="java:xalan:serializer" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx-backend-headless" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx-tools" />
+    <option featureType="dependencySupport" implementationName="java:org.ow2.asm:asm-commons" />
+    <option featureType="dependencySupport" implementationName="java:commons-collections:commons-collections" />
+    <option featureType="dependencySupport" implementationName="java:org.ow2.asm:asm" />
+    <option featureType="dependencySupport" implementationName="java:org.w3c.css:sac" />
+    <option featureType="dependencySupport" implementationName="java:ant:ant" />
+    <option featureType="dependencySupport" implementationName="java:org.lwjgl.lwjgl:lwjgl" />
+    <option featureType="dependencySupport" implementationName="java:com.google.code.findbugs:jsr305" />
+    <option featureType="dependencySupport" implementationName="java:org.apache.httpcomponents:httpmime" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx-backend-gwt" />
+    <option featureType="dependencySupport" implementationName="java:com.ibm.icu:icu4j" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-io" />
+    <option featureType="dependencySupport" implementationName="java:org.mortbay.jasper:apache-jsp" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty.websocket:websocket-api" />
+    <option featureType="dependencySupport" implementationName="java:org.ow2.asm:asm-util" />
+    <option featureType="dependencySupport" implementationName="java:org.apache.httpcomponents:httpclient" />
+    <option featureType="dependencySupport" implementationName="java:net.sourceforge.htmlunit:htmlunit" />
+    <option featureType="dependencySupport" implementationName="java:javax.annotation:javax.annotation-api" />
+    <option featureType="dependencySupport" implementationName="java:net.sourceforge.nekohtml:nekohtml" />
+    <option featureType="dependencySupport" implementationName="java:net.java.jinput:jinput-platform" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:jetty-util" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty:apache-jsp" />
+    <option featureType="dependencySupport" implementationName="java:net.java.jinput:jinput" />
+    <option featureType="dependencySupport" implementationName="java:javax.servlet:javax.servlet-api" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.jlayer:jlayer" />
+    <option featureType="dependencySupport" implementationName="java:com.badlogicgames.gdx:gdx-platform" />
+    <option featureType="dependencySupport" implementationName="java:com.google.jsinterop:jsinterop-annotations" />
+    <option featureType="dependencySupport" implementationName="java:org.eclipse.jetty.websocket:websocket-common" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

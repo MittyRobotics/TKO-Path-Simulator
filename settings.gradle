@@ -1,3 +1,1 @@
-rootProject.name = 'TKO-Path-Sim'
-include 'assets'
-
+include 'desktop', 'core', 'html'

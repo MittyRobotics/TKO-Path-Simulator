@@ -1,49 +1,76 @@
-apply plugin: 'application'
+buildscript {
 
-def osName = System.getProperty('os.name').toLowerCase(Locale.ROOT)
-
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
-mainClassName = 'com.amhsrobotics.pathsim.PathFollowingSim'
-sourceCompatibility = 8.0
-
-import org.gradle.internal.os.OperatingSystem
-
-run {
-    workingDir = rootProject.file('assets').path
-    setIgnoreExitValue(true)
-}
-
-sourceSets {
-    main {
-        resources {
-            srcDirs "assets"
-        }
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        google()
     }
-}
-
-rootProject.tasks.named("processResources") {
-    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-}
-
-jar {
-// sets the name of the .jar file this produces to the name of the game or app.
-    archiveBaseName.set("TKO Path Sim")
-// the duplicatesStrategy will matter starting in Gradle 7.0; this setting works.
-    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-    dependsOn configurations.runtimeClasspath
-    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-// these "exclude" lines remove some unnecessary duplicate files in the output JAR.
-    exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
     dependencies {
-        exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
+        classpath 'org.wisepersist:gwt-gradle-plugin:1.0.13'
+        classpath 'org.gretty:gretty:3.0.2'
     }
-// setting the manifest makes the JAR runnable.
-    manifest {
-        attributes 'Main-Class': project.mainClassName
+}
+
+allprojects {
+    apply plugin: "eclipse"
+
+    version = '1.0'
+    ext {
+        appName = "TKO Path Simulator"
+        gdxVersion = '1.10.0'
+        roboVMVersion = '2.3.12'
+        box2DLightsVersion = '1.5'
+        ashleyVersion = '1.7.3'
+        aiVersion = '1.8.2'
+        gdxControllersVersion = '2.1.0'
     }
 
-// this last step may help on some OSes that need extra instruction to make runnable JARs.
-    doLast {
-        file(archiveFile).setExecutable(true, false)
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven {url "https://jitpack.io"}
+    }
+}
+
+project(":desktop") {
+    apply plugin: "java-library"
+
+    dependencies {
+        implementation project(":core")
+        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+
+    }
+}
+
+project(":core") {
+    apply plugin: "java-library"
+
+    dependencies {
+        api "com.badlogicgames.gdx:gdx:$gdxVersion"
+        api 'com.github.MittyRobotics:path-following:1.1.0'
+    }
+}
+
+project(":html") {
+    apply plugin: "java-library"
+    apply plugin: "gwt"
+    apply plugin: "war"
+    apply plugin: "org.gretty"
+
+
+    dependencies {
+        implementation project(":core")
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+        api "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+        api "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+
     }
 }
