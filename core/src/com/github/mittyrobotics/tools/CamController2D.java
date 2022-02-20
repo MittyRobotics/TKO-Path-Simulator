@@ -11,8 +11,8 @@ public class CamController2D extends GestureDetector {
     private double ZOOM_RATIO = 0.05;
     public static int width, height;
 
-    private final double MAX_ZOOM_RELATIVE = 1.5;
-    private final double MIN_ZOOM_RELATIVE = 0.1;
+    private final double MAX_ZOOM_RELATIVE = 1.7;
+    private final double MIN_ZOOM_RELATIVE = 0.12;
 
 
     public CamController2D(Renderer2D renderer, int width, int height) {

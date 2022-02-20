@@ -30,7 +30,7 @@ public class Renderer2D {
         batch = new SpriteBatch();
         xc = 0;
         yc = 0;
-        zoom = 0.11;
+        zoom = 0.15;
 
         camController = new CamController2D(this, width, height);
 
@@ -49,7 +49,7 @@ public class Renderer2D {
 
     public void render () {
 
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
 
         if(loading && PathSim.assets.update()) {
@@ -71,6 +71,9 @@ public class Renderer2D {
 
             shapeRenderer.setColor(0.15f, 0.15f, 0.15f, 1f);
             shapeRenderer.rect(width, 0, PathSim.RIGHT_WIDTH, height);
+
+            shapeRenderer.setColor(Color.GREEN);
+            shapeRenderer.circle((int) centerx, (int) centery, 2);
 
             shapeRenderer.end();
 
