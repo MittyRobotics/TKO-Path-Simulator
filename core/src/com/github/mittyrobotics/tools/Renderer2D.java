@@ -25,6 +25,8 @@ public class Renderer2D {
     public BitmapFont font;
     public ShaderProgram fontShader;
 
+    public UI ui;
+
     public Renderer2D() {
 
         width = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
@@ -44,8 +46,8 @@ public class Renderer2D {
         right = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
 
 
-        Texture texture = new Texture(Gdx.files.internal("font/futura12.png"));
-        texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        Texture texture = new Texture(Gdx.files.internal("font/futura12.png"), true);
+        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
 
         font = new BitmapFont(Gdx.files.internal("font/futura12.fnt"), new TextureRegion(texture), false);
 
@@ -53,6 +55,8 @@ public class Renderer2D {
         if (!fontShader.isCompiled()) {
             Gdx.app.error("fontShader", "compilation failed:\n" + fontShader.getLog());
         }
+
+        ui = new UI();
 
     }
 
@@ -136,7 +140,10 @@ public class Renderer2D {
             batch.draw(title2, right + 40, Gdx.graphics.getHeight() - 210, 220, (int) (220. * title2.getHeight() / title2.getWidth()));
             batch.end();
 
+            ui.update(Gdx.graphics.getDeltaTime());
+
         }
+
     }
 
     public void drawGrid(ShapeRenderer renderer, double centerx, double centery, int width, int height, double increment, float transparency) {
@@ -179,14 +186,20 @@ public class Renderer2D {
         cur = 0;
         for(double i = centery + increment; i <= height; i += increment) {
             cur += t;
-            String temp = " ".repeat(3-(cur+"").length());
+            String temp = "";
+            for(int j = 0; j < 3-(cur+"").length(); j++) {
+                temp += " ";
+            }
             font.draw(batch, temp + cur, (int) centerxnew - 26, (int) (i+6));
         }
 
         cur = 0;
         for(double i = centery - increment; i >= 0; i -= increment) {
             cur -= t;
-            String temp = " ".repeat(3-(cur+"").length());
+            String temp = "";
+            for(int j = 0; j < 3-(cur+"").length(); j++) {
+                temp += " ";
+            }
             font.draw(batch, temp + cur, (int) centerxnew - 26, (int) (i+6));
         }
     }

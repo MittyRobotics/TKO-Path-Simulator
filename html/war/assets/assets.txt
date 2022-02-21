@@ -2,7 +2,14 @@ d:assets:assets:0:application/unknown:1
 b:field.g3db:field-20ff342f463ef3b28938ff7b40aec4c7.g3db:10203534:application/unknown:1
 i:title2.png:title2-9b3f454d1f6e2caf7d71c124e03daad9.png:14983:image/png:1
 i:title1.png:title1-491ff75253bf53c85ab6cbad64790731.png:104331:image/png:1
-i:FIELD_RENDER.png:FIELD_RENDER-eeb4bbf89d8667bfa42615e6d7b082b0.png:12470461:image/png:1
+i:FIELD_RENDER.png:FIELD_RENDER-f5eaeddacef037d2e1dfa6bbc6b11461.png:12886567:image/png:1
+d:font:font:0:application/unknown:1
+b:font/font.vert:font/font-cda03bbe3d977a202e93cd96a0a6ca1c.vert:268:application/unknown:1
+i:font/futura12.png:font/futura12-7dada211cdde644632b00e10f3f23bfb.png:15925:image/png:1
+t:font/futura16.fnt:font/futura16-5e7e11dcd57e9abfc5cceefb744d9ab8.fnt:11008:application/unknown:1
+t:font/futura12.fnt:font/futura12-2e5225baf0f032bee462e01e2abe8aab.fnt:11006:application/unknown:1
+i:font/futura16.png:font/futura16-18c3ff47f25d437678a14fa11fb0f035.png:18516:image/png:1
+b:font/font.frag:font/font-aed9c64a4a837a08d2b8b2d78dbe2ed6.frag:362:application/unknown:1
 t:com/badlogic/gdx/graphics/g3d/particles/particles.fragment.glsl:particles.fragment-b90524761fdf09b0a836056d590c30b8.glsl:820:application/unknown:1
 t:com/badlogic/gdx/graphics/g3d/particles/particles.vertex.glsl:particles.vertex-f25b8b2fae10b9bfa09bfdd484923148.glsl:2886:application/unknown:1
 t:com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl:default.fragment-e1c018bd48044c8b67c7bbc53145e540.glsl:5874:application/unknown:1

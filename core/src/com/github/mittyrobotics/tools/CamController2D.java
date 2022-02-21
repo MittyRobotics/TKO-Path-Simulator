@@ -3,6 +3,7 @@ package com.github.mittyrobotics.tools;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.github.mittyrobotics.PathSim;
 
 public class CamController2D extends GestureDetector {
     public Renderer2D renderer;
@@ -82,22 +83,28 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        double deltaX = (startX - screenX);
-        double deltaY = (startY - screenY);
-        startX = screenX;
-        startY = screenY;
+        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+            double deltaX = (startX - screenX);
+            double deltaY = (startY - screenY);
+            startX = screenX;
+            startY = screenY;
 
-        renderer.xc -= deltaX;
-        renderer.yc += deltaY;
+            renderer.xc -= deltaX;
+            renderer.yc += deltaY;
 
-        boundXY();
+            boundXY();
 
-        return true;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public boolean scrolled (float amountX, float amountY) {
-        return zoom(amountY);
+        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+            return zoom(amountY);
+        }
+        return false;
     }
 
     public boolean zoom (float amount) {
