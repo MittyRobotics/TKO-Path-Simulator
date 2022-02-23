@@ -11,6 +11,7 @@ public class CamController2D extends GestureDetector {
     private float startX, startY;
     private double ZOOM_RATIO = 0.05;
     public static int width, height;
+    private boolean dragging;
 
     private final double MAX_ZOOM_RELATIVE = 1.7;
     private final double MIN_ZOOM_RELATIVE = 0.12;
@@ -71,19 +72,23 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-        startX = screenX;
-        startY = screenY;
+        if(button == 1) {
+            dragging = true;
+            startX = screenX;
+            startY = screenY;
+        }
         return false;
     }
 
     @Override
     public boolean touchUp (int screenX, int screenY, int pointer, int button) {
+        dragging = false;
         return false;
     }
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH && dragging) {
             double deltaX = (startX - screenX);
             double deltaY = (startY - screenY);
             startX = screenX;

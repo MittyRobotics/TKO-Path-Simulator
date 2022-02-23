@@ -1,6 +1,7 @@
 package com.github.mittyrobotics.tools;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
@@ -19,12 +21,17 @@ public class UI implements Disposable {
     public Stage stage;
     public Table container, table;
     public ScrollPane pane;
+    public int right, prevState;
+    public static int addingSpline;
+    public Label addingLabel;
 
     public UI() {
         stage = new Stage();
 
         container = new Table();
         table = new Table();
+
+        right = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
 
         ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
         scrollPaneStyle.vScrollKnob = PathSim.skin.getDrawable("scroll_vertical_knob");
@@ -34,7 +41,6 @@ public class UI implements Disposable {
         pane.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                System.out.println("hello????");
                 stage.setScrollFocus(pane);
             }
 
@@ -47,7 +53,7 @@ public class UI implements Disposable {
         pane.layout();
         container.add(pane).width(300).height(200);
         container.row();
-        container.setBounds(Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH, 250, 300, 200);
+        container.setBounds(right, 250, 300, 200);
         stage.addActor(container);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -55,15 +61,44 @@ public class UI implements Disposable {
         textButtonStyle.up = PathSim.skin.getDrawable("btn_default_normal");
         textButtonStyle.down = PathSim.skin.getDrawable("btn_default_pressed");
 
-        for(int i = 0; i < 10; i++) {
-            TextButton label = new TextButton("Testing", textButtonStyle);
-            label.getLabel().setFontScale(0.8f);
-            table.add(label);
-            table.row();
-        }
+        TextButton addPath = new TextButton("Add Path", textButtonStyle);
+        addPath.getLabel().setFontScale(0.7f);
+        addPath.setBounds(right+50, Gdx.graphics.getHeight() - 300, 200, 50);
+
+        addPath.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(addingSpline == 0) {
+                    addingSpline = 2;
+                }
+            }
+        });
+
+        stage.addActor(addPath);
+
+        Label.LabelStyle lStyle = new Label.LabelStyle();
+        lStyle.font = PathSim.f20;
+        lStyle.fontColor = new Color(104/255f,204/255f,220/255f, 1f);
+
+        addingLabel = new Label("", lStyle);
     }
 
     public void update(float delta) {
+        if(addingSpline == 2 && prevState != 2) {
+            addingLabel.setText("Place first point.");
+            addingLabel.setBounds((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - addingLabel.getPrefWidth() / 2f, 70, addingLabel.getPrefWidth(), 30);
+            stage.addActor(addingLabel);
+            PathSim.input.removeProcessor(stage);
+        } else if (addingSpline == 1 && prevState != 1) {
+            addingLabel.setText("Place second point.");
+            addingLabel.setBounds((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - addingLabel.getPrefWidth() / 2f, 70, addingLabel.getPrefWidth(), 30);
+        } else if (addingSpline == 0 && prevState != 0) {
+            addingLabel.remove();
+            PathSim.input.addProcessor(stage);
+        }
+
+        prevState = addingSpline;
+
         stage.act(delta);
         stage.draw();
     }

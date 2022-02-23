@@ -21,18 +21,24 @@ public class PathSim extends ApplicationAdapter {
 	public static Renderer2D renderer2d;
 	public static AssetManager assets;
 	public static boolean in3d;
-	public static final int RIGHT_WIDTH = 300;
+	public static int RIGHT_WIDTH = 300;
+	public static int LEFT_WIDTH;
 	public static Skin skin;
-	public static BitmapFont font;
+	public static BitmapFont font, f20;
+	public static InputMultiplexer input;
+	public static PathManager pathManager;
 
 	@Override
 	public void create () {
+
+		LEFT_WIDTH = Gdx.graphics.getWidth() - RIGHT_WIDTH;
 
 		assets = new AssetManager();
 		assets.load("field.g3db", Model.class);
 		assets.load("FIELD_RENDER.png", Texture.class);
 		assets.load("title1.png", Texture.class);
 		assets.load("title2.png", Texture.class);
+		assets.load("point.png", Texture.class);
 
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("skin/Holo-dark-xhdpi.atlas"));
 		skin = new Skin(atlas);
@@ -42,16 +48,23 @@ public class PathSim extends ApplicationAdapter {
 
 		font = new BitmapFont(Gdx.files.internal("skin/Roboto-xhdpi.fnt"), new TextureRegion(texture), false);
 
+		Texture t20 = new Texture(Gdx.files.internal("font/roboto.png"), true);
+		t20.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
+		f20 = new BitmapFont(Gdx.files.internal("font/roboto.fnt"), new TextureRegion(t20), false);
+
 		renderer3d = new Renderer3D();
 
 		renderer2d = new Renderer2D();
 
+		pathManager = new PathManager();
+
 //		Gdx.input.setInputProcessor(Renderer2D.camController);
 
-		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(renderer2d.ui.stage);
-		multiplexer.addProcessor(Renderer2D.camController);
-		Gdx.input.setInputProcessor(multiplexer);
+		input = new InputMultiplexer();
+		input.addProcessor(renderer2d.ui.stage);
+		input.addProcessor(Renderer2D.camController);
+		Gdx.input.setInputProcessor(input);
 
 		in3d = false;
 

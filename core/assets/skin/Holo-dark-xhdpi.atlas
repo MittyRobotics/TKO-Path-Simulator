@@ -60,7 +60,7 @@ btn_default_normal
   rotate: false
   xy: 2, 42
   size: 52, 64
-  split: 24, 24, 32, 28
+  split: 24, 24, 10, 10
   pad: 24, 24, 0, 0
   orig: 52, 64
   offset: 0, 0
@@ -69,7 +69,7 @@ btn_default_pressed
   rotate: false
   xy: 518, 708
   size: 52, 64
-  split: 24, 24, 32, 28
+  split: 24, 24, 10, 10
   pad: 24, 24, 0, 0
   orig: 52, 64
   offset: 0, 0
