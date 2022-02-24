@@ -72,7 +72,7 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-        if(button == 1) {
+        if(UI.addingSpline == 0 || button == 1) {
             dragging = true;
             startX = screenX;
             startY = screenY;
@@ -88,7 +88,7 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH && dragging) {
+        if(Gdx.input.getX() <= PathSim.LEFT_WIDTH && dragging) {
             double deltaX = (startX - screenX);
             double deltaY = (startY - screenY);
             startX = screenX;
@@ -106,7 +106,7 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean scrolled (float amountX, float amountY) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+        if(Gdx.input.getX() <= PathSim.LEFT_WIDTH) {
             return zoom(amountY);
         }
         return false;

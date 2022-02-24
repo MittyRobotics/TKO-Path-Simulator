@@ -21,9 +21,8 @@ public class PathManager {
     public void addPathFromPoint(Point2D point) {
         if(storedPoint != null) {
             Angle angle = new Angle(point.x - storedPoint.x, point.y - storedPoint.y);
-            Angle angleOther = new Angle(angle.getRadians() + Math.PI);
             paths.add(new PurePursuitPath(
-                    new QuinticHermiteSpline(new Pose2D(storedPoint, angle), new Pose2D(point, angleOther)),
+                    new QuinticHermiteSpline(new Pose2D(storedPoint, angle), new Pose2D(point, angle)),
                     50,
                     50
             ));

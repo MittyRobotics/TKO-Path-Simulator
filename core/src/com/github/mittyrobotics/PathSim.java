@@ -38,7 +38,8 @@ public class PathSim extends ApplicationAdapter {
 		assets.load("FIELD_RENDER.png", Texture.class);
 		assets.load("title1.png", Texture.class);
 		assets.load("title2.png", Texture.class);
-		assets.load("point.png", Texture.class);
+		assets.load("points.png", Texture.class);
+		assets.load("pointl.png", Texture.class);
 
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("skin/Holo-dark-xhdpi.atlas"));
 		skin = new Skin(atlas);
