@@ -65,6 +65,14 @@ public class UI implements Disposable {
         addPath.getLabel().setFontScale(0.7f);
         addPath.setBounds(right+50, Gdx.graphics.getHeight() - 300, 200, 50);
 
+        TextButton addNode1 = new TextButton("Add Start Node", textButtonStyle);
+        addNode1.getLabel().setFontScale(0.7f);
+        addNode1.setBounds(right+50, Gdx.graphics.getHeight() - 370, 200, 50);
+
+        TextButton addNode2 = new TextButton("Add End Node", textButtonStyle);
+        addNode2.getLabel().setFontScale(0.7f);
+        addNode2.setBounds(right+50, Gdx.graphics.getHeight() - 440, 200, 50);
+
         addPath.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -74,7 +82,53 @@ public class UI implements Disposable {
             }
         });
 
+        addNode1.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
+                    addingSpline = 3;
+                }
+            }
+        });
+
+        addNode1.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                System.out.println("test");
+                PathSim.renderer2d.onButton = true;
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                PathSim.renderer2d.onButton = false;
+            }
+        });
+
+        addNode2.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
+                    addingSpline = 4;
+                }
+            }
+        });
+
+        addNode2.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                PathSim.renderer2d.onButton = true;
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                PathSim.renderer2d.onButton = false;
+            }
+        });
+
+
         stage.addActor(addPath);
+        stage.addActor(addNode1);
+        stage.addActor(addNode2);
 
         Label.LabelStyle lStyle = new Label.LabelStyle();
         lStyle.font = PathSim.f20;
@@ -92,6 +146,16 @@ public class UI implements Disposable {
         } else if (addingSpline == 1 && prevState != 1) {
             addingLabel.setText("Place second point.");
             addingLabel.setBounds((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - addingLabel.getPrefWidth() / 2f, 70, addingLabel.getPrefWidth(), 30);
+        } else if (addingSpline == 3 && prevState != 3) {
+            addingLabel.setText("Place new starting node.");
+            addingLabel.setBounds((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - addingLabel.getPrefWidth() / 2f, 70, addingLabel.getPrefWidth(), 30);
+            stage.addActor(addingLabel);
+            PathSim.input.removeProcessor(stage);
+        } else if (addingSpline == 4 && prevState != 4) {
+            addingLabel.setText("Place new ending node.");
+            addingLabel.setBounds((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - addingLabel.getPrefWidth() / 2f, 70, addingLabel.getPrefWidth(), 30);
+            stage.addActor(addingLabel);
+            PathSim.input.removeProcessor(stage);
         } else if (addingSpline == 0 && prevState != 0) {
             addingLabel.remove();
             PathSim.input.addProcessor(stage);

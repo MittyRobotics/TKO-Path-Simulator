@@ -55,7 +55,7 @@ project(":core") {
 
     dependencies {
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api 'com.github.MittyRobotics:path-following:1.1.0'
+        api 'com.github.MittyRobotics:path-following:1.3.1'
     }
 }
 
