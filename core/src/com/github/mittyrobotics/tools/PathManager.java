@@ -37,15 +37,18 @@ public class PathManager {
     public void addPointToPath(Point2D point, int currentPath, boolean front) {
         QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).getParametric();
         if(front) {
-            Point2D prev = group.getSplines().get(0).getPose0().getPosition();
-            Angle angle = new Angle(point.x - prev.x, point.y - prev.y);
-            angle.add(Math.PI);
-            group.addSpline(0, new QuinticHermiteSpline(new Pose2D(point, angle), new Pose2D(prev, angle)));
+            Pose2D pp = group.getSplines().get(0).getPose0();
+            Point2D prev = pp.getPosition();
+            Angle angle = pp.getAngle();
+            Angle other = new Angle(prev.x - point.x, prev.y - point.y);
+            group.addSpline(0, new QuinticHermiteSpline(new Pose2D(point, other), new Pose2D(prev, angle)));
         } else {
-            Point2D prev = group.getSplines().get(group.getSplines().size() - 1).getPose1().getPosition();
-            Angle angle = new Angle(prev.x - point.x, prev.y - point.y);
-            angle.add(Math.PI);
-            group.addSpline(new QuinticHermiteSpline(new Pose2D(prev, angle), new Pose2D(point, angle)));
+            Pose2D pp = group.getSplines().get(group.getSplines().size() - 1).getPose1();
+            Point2D prev = pp.getPosition();
+            Angle angle = pp.getAngle();
+            Angle other = new Angle(prev.x - point.x, prev.y - point.y);
+            other.add(Math.PI);
+            group.addSpline(new QuinticHermiteSpline(new Pose2D(prev, angle), new Pose2D(point, other)));
         }
     }
 

@@ -94,7 +94,6 @@ public class UI implements Disposable {
         addNode1.addListener(new ClickListener() {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                System.out.println("test");
                 PathSim.renderer2d.onButton = true;
             }
 
