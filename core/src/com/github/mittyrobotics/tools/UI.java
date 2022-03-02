@@ -16,14 +16,21 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.mittyrobotics.PathSim;
 
+import java.util.ArrayList;
+
 public class UI implements Disposable {
 
     public Stage stage;
     public Table container, table;
     public ScrollPane pane;
-    public int right, prevState;
+    public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel;
+    public boolean splineMode, prevMode;
+    public TextButton pathId, addNode1, addNode2, spline, path, addPath;
+    public ArrayList<Actor> toggle = new ArrayList<>();
+    public ArrayList<Actor> splineEdit = new ArrayList<>();
+    public ArrayList<Actor> pathEdit = new ArrayList<>();
 
     public UI() {
         stage = new Stage();
@@ -61,73 +68,46 @@ public class UI implements Disposable {
         textButtonStyle.up = PathSim.skin.getDrawable("btn_default_normal");
         textButtonStyle.down = PathSim.skin.getDrawable("btn_default_pressed");
 
-        TextButton addPath = new TextButton("Add Path", textButtonStyle);
+        TextButton.TextButtonStyle textButtonStyleNoBg = new TextButton.TextButtonStyle();
+        textButtonStyleNoBg.font = PathSim.font;
+
+        addPath = new TextButton("Add Path", textButtonStyle);
         addPath.getLabel().setFontScale(0.7f);
         addPath.setBounds(right+50, Gdx.graphics.getHeight() - 300, 200, 50);
 
-        TextButton addNode1 = new TextButton("Add Start Node", textButtonStyle);
-        addNode1.getLabel().setFontScale(0.7f);
-        addNode1.setBounds(right+50, Gdx.graphics.getHeight() - 370, 200, 50);
+        addNode1 = new TextButton("Add Start Node", textButtonStyle);
+        addNode1.getLabel().setFontScale(0.5f);
+        addNode1.setBounds(right+75, Gdx.graphics.getHeight() - 500, 150, 45);
 
-        TextButton addNode2 = new TextButton("Add End Node", textButtonStyle);
-        addNode2.getLabel().setFontScale(0.7f);
-        addNode2.setBounds(right+50, Gdx.graphics.getHeight() - 440, 200, 50);
+        addNode2 = new TextButton("Add End Node", textButtonStyle);
+        addNode2.getLabel().setFontScale(0.5f);
+        addNode2.setBounds(right+75, Gdx.graphics.getHeight() - 540, 150, 45);
 
-        addPath.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if(addingSpline == 0) {
-                    addingSpline = 2;
-                }
-            }
-        });
+        pathId = new TextButton("", textButtonStyleNoBg);
+        pathId.getLabel().setFontScale(0.7f);
+        pathId.setBounds(right+50, Gdx.graphics.getHeight() - 400, 200, 50);
 
-        addNode1.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
-                    addingSpline = 3;
-                }
-            }
-        });
+        spline = new TextButton("Edit Spline", textButtonStyleNoBg);
+        spline.getLabel().setFontScale(0.6f);
+        spline.setBounds(right+25, Gdx.graphics.getHeight() - 450, 125, 45);
 
-        addNode1.addListener(new ClickListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                PathSim.renderer2d.onButton = true;
-            }
+        path = new TextButton("Edit Path", textButtonStyleNoBg);
+        path.getLabel().setFontScale(0.6f);
+        path.setBounds(right+150, Gdx.graphics.getHeight() - 450, 125, 45);
 
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                PathSim.renderer2d.onButton = false;
-            }
-        });
+        addListeners();
 
-        addNode2.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
-                    addingSpline = 4;
-                }
-            }
-        });
+        toggle.add(path);
+        toggle.add(spline);
 
-        addNode2.addListener(new ClickListener() {
-            @Override
-            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                PathSim.renderer2d.onButton = true;
-            }
+        splineEdit.add(addNode1);
+        splineEdit.add(addNode2);
 
-            @Override
-            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                PathSim.renderer2d.onButton = false;
-            }
-        });
-
-
+        for(Actor a : toggle) {
+            stage.addActor(a);
+        }
+        stage.addActor(pathId);
         stage.addActor(addPath);
-        stage.addActor(addNode1);
-        stage.addActor(addNode2);
 
         Label.LabelStyle lStyle = new Label.LabelStyle();
         lStyle.font = PathSim.f20;
@@ -162,8 +142,76 @@ public class UI implements Disposable {
 
         prevState = addingSpline;
 
+        pathId.setText(PathSim.pathManager.curEditingPath == -1 ? "No Path Selected" : "Path " + (PathSim.pathManager.curEditingPath+1));
+        if(PathSim.pathManager.curEditingPath == -1 && prevEditing != -1) {
+            for(Actor a : toggle) a.remove();
+            if(splineMode) for(Actor a : splineEdit) a.remove();
+            else for(Actor a : splineEdit) a.remove();
+            splineMode = false;
+        } else if (PathSim.pathManager.curEditingPath != -1 && prevEditing == -1) {
+            for(Actor a : toggle) stage.addActor(a);
+            splineMode = true;
+        } else if (PathSim.pathManager.curEditingPath != prevEditing) {
+            splineMode = true;
+        }
+
+        prevEditing = PathSim.pathManager.curEditingPath;
+
+        if(splineMode && !prevMode) {
+            for(Actor a : splineEdit) stage.addActor(a);
+            for(Actor a : pathEdit) a.remove();
+        } else if (!splineMode && prevMode) {
+            for(Actor a : pathEdit) stage.addActor(a);
+            for(Actor a : splineEdit) a.remove();
+        }
+        prevMode = splineMode;
+
         stage.act(delta);
         stage.draw();
+    }
+
+    public void addListeners() {
+        addPath.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(addingSpline == 0) {
+                    addingSpline = 2;
+                    PathSim.pathManager.curEditingPath = -1;
+                }
+            }
+        });
+
+        addNode1.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
+                    addingSpline = 3;
+                }
+            }
+        });
+
+        addNode2.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
+                    addingSpline = 4;
+                }
+            }
+        });
+
+        path.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                splineMode = false;
+            }
+        });
+
+        spline.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                splineMode = true;
+            }
+        });
     }
 
     @Override

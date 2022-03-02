@@ -88,7 +88,7 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        if(Gdx.input.getX() <= PathSim.LEFT_WIDTH && dragging && PathSim.pathManager.curEditingNode == -1  && PathSim.pathManager.curEditingVel == -1) {
+        if(Gdx.input.getX() <= PathSim.LEFT_WIDTH && Gdx.input.getX() >= 0 && Gdx.input.getY() >= 0 && Gdx.input.getY() <= Gdx.graphics.getHeight() && dragging && PathSim.pathManager.curEditingNode == -1  && PathSim.pathManager.curEditingVel == -1) {
             double deltaX = (startX - screenX);
             double deltaY = (startY - screenY);
             startX = screenX;
@@ -100,6 +100,8 @@ public class CamController2D extends GestureDetector {
             boundXY();
 
             return true;
+        } else {
+            dragging = false;
         }
         return false;
     }

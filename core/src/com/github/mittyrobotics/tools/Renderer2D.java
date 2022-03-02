@@ -22,7 +22,6 @@ public class Renderer2D {
 
     public double fieldWidth, fieldHeight, inch, zoom, centerx, centery, xc, yc, x, y;
     public int width, height, right, prevx, prevy;
-    public boolean onButton;
 
     public ShapeRenderer uiRenderer, fieldRenderer;
     public BitmapFont font, font2;
@@ -165,7 +164,7 @@ public class Renderer2D {
         }
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if(!onButton) {
+            if(Gdx.input.getX() < right) {
                 PathSim.pathManager.curEditingPath = -1;
             }
             for (int i = 0; i < PathSim.pathManager.paths.size(); i++) {
@@ -213,6 +212,7 @@ public class Renderer2D {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             PathSim.pathManager.curEditingPath = -1;
         }
+
         prevx = x;
         prevy = y;
 
@@ -395,6 +395,17 @@ public class Renderer2D {
         uiRenderer.begin(ShapeRenderer.ShapeType.Filled);
         uiRenderer.setColor(0.12f, 0.12f, 0.12f, 1f);
         uiRenderer.rect(width, 0, PathSim.RIGHT_WIDTH, height);
+        uiRenderer.setColor(0.14f, 0.14f, 0.14f, 1f);
+        uiRenderer.rect(width + 25, 25, PathSim.RIGHT_WIDTH - 50, 500);
+
+        uiRenderer.setColor(0.20f, 0.20f, 0.20f, 1f);
+        if(PathSim.pathManager.curEditingPath != -1) {
+            if(ui.splineMode) {
+                uiRenderer.rect(right+25, Gdx.graphics.getHeight() - 445, 125, 35);
+            } else {
+                uiRenderer.rect(right+150, Gdx.graphics.getHeight() - 445, 125, 35);
+            }
+        }
 
         if(UI.addingSpline > 0) {
             uiRenderer.setColor(0.12f, 0.12f, 0.12f, 0.5f);
