@@ -405,6 +405,7 @@ public class Renderer2D {
             } else {
                 uiRenderer.rect(right+150, Gdx.graphics.getHeight() - 445, 125, 35);
             }
+            uiRenderer.rect(width+25, 25, PathSim.RIGHT_WIDTH - 50, 402);
         }
 
         if(UI.addingSpline > 0) {

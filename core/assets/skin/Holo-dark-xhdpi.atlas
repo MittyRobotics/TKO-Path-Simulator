@@ -404,8 +404,8 @@ textfield_default
   rotate: false
   xy: 732, 826
   size: 52, 64
-  split: 24, 24, 40, 20
-  pad: 24, 24, 14, 16
+  split: 12, 12, 40, 20
+  pad: 12, 12, 14, 16
   orig: 52, 64
   offset: 0, 0
   index: -1

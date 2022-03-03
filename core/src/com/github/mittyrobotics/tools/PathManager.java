@@ -1,5 +1,6 @@
 package com.github.mittyrobotics.tools;
 
+import com.github.mittyrobotics.PathSim;
 import com.github.mittyrobotics.pathfollowing.*;
 
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ public class PathManager {
             other.add(Math.PI);
             group.addSpline(new QuinticHermiteSpline(new Pose2D(prev, angle), new Pose2D(point, other)));
         }
+        PathSim.renderer2d.ui.populateSplineEdit();
+
     }
 
     public void moveToFront(int i) {
