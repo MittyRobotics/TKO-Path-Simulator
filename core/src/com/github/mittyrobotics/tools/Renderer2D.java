@@ -17,11 +17,12 @@ public class Renderer2D {
 
     public static CamController2D camController;
     public boolean loading;
-    public Texture field, title1, title2, pointl, points;
+    public Texture field, title1, title2, pointl, points, pointp, pointw;
     public SpriteBatch batch, fontBatch, onBatch;
 
     public double fieldWidth, fieldHeight, inch, zoom, centerx, centery, xc, yc, x, y;
     public int width, height, right, prevx, prevy;
+    public Point2D temp;
 
     public ShapeRenderer uiRenderer, fieldRenderer;
     public BitmapFont font, font2;
@@ -78,14 +79,16 @@ public class Renderer2D {
 
 
     public void doneLoading() {
-        field = PathSim.assets.get("FIELD_RENDER.png", Texture.class);
+        field = PathSim.assets.get("img/FIELD_RENDER.png", Texture.class);
         fieldWidth = field.getWidth();
         fieldHeight = field.getHeight();
 
-        title1 = PathSim.assets.get("title1.png", Texture.class);
-        title2 = PathSim.assets.get("title2.png", Texture.class);
-        pointl = PathSim.assets.get("pointl.png", Texture.class);
-        points = PathSim.assets.get("points.png", Texture.class);
+        title1 = PathSim.assets.get("img/title1.png", Texture.class);
+        title2 = PathSim.assets.get("img/title2.png", Texture.class);
+        pointl = PathSim.assets.get("img/pointl.png", Texture.class);
+        points = PathSim.assets.get("img/points.png", Texture.class);
+        pointp = PathSim.assets.get("img/pointp.png", Texture.class);
+        pointw = PathSim.assets.get("img/pointw.png", Texture.class);
 
 
         loading = false;
@@ -136,30 +139,35 @@ public class Renderer2D {
         int x = Gdx.input.getX();
         int y = Gdx.graphics.getHeight() - Gdx.input.getY();
         //general click handling --------------------
-        if(Gdx.input.getX() < PathSim.LEFT_WIDTH) {
-            if (UI.addingSpline > 0) {
-                if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-                    if (UI.addingSpline == 2) {
-                        PathSim.pathManager.storePoint(toPointInInches(x, y));
-                        UI.addingSpline = 1;
-                    } else if (UI.addingSpline == 1) {
-                        PathSim.pathManager.addPathFromPoint(toPointInInches(x, y));
-                        UI.addingSpline = 0;
-                    } else if (UI.addingSpline == 3) {
-                        PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, true);
-                        UI.addingSpline = 0;
-                    } else if (UI.addingSpline == 4) {
-                        PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
-                        UI.addingSpline = 0;
-                    }
-                }
-            } else if (PathSim.pathManager.curEditingPath != -1) {
-                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                    editPoint(PathSim.pathManager.curEditingPath, PathSim.pathManager.curEditingNode, PathSim.pathManager.curEditingVel, x - prevx, y - prevy);
-                } else {
+        if(x < PathSim.LEFT_WIDTH && inBounds(x, y) && UI.addingSpline > 0 && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (UI.addingSpline == 2) {
+                PathSim.pathManager.storePoint(toPointInInches(x, y));
+                UI.addingSpline = 1;
+            } else if (UI.addingSpline == 1) {
+                PathSim.pathManager.addPathFromPoint(toPointInInches(x, y));
+                UI.addingSpline = 0;
+            } else if (UI.addingSpline == 3) {
+                PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, true);
+                UI.addingSpline = 0;
+            } else if (UI.addingSpline == 4) {
+                PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
+                UI.addingSpline = 0;
+            }
+        }
+
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            PathSim.pathManager.curEditingPath = -1;
+        }
+
+        if (PathSim.pathManager.curEditingPath != -1) {
+            if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                editPoint(PathSim.pathManager.curEditingPath, PathSim.pathManager.curEditingNode, PathSim.pathManager.curEditingVel, x - prevx, y - prevy);
+            } else {
+                if(PathSim.pathManager.curEditingNode != -1) {
+                    PathSim.pathManager.curSelectedNode = PathSim.pathManager.curEditingNode;
                     PathSim.pathManager.curEditingNode = -1;
-                    PathSim.pathManager.curEditingVel = -1;
                 }
+                PathSim.pathManager.curEditingVel = -1;
             }
         }
 
@@ -183,6 +191,8 @@ public class Renderer2D {
                     if(distance(x, y, p) < pointl.getWidth() / 2f) {
                         PathSim.pathManager.curEditingPath = i;
                         PathSim.pathManager.curEditingNode = k+1;
+                        PathSim.pathManager.curSelectedNode = k+1;
+                        temp = group.getSpline(k).getPoint(1);
                     }
                     for (int t = 0; t <= 1; t += 1) {
                         Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
@@ -197,21 +207,14 @@ public class Renderer2D {
                 if(distance(x, y, p) < pointl.getWidth() / 2f) {
                     PathSim.pathManager.curEditingPath = i;
                     PathSim.pathManager.curEditingNode = 0;
+                    PathSim.pathManager.curSelectedNode = 0;
+                    temp = group.getSpline(0).getPoint(0);
                 }
             }
         }
 
 //        System.out.println("path: " + PathSim.pathManager.curEditingPath + " | node: " + PathSim.pathManager.curEditingNode
 //                + " | vel: " + PathSim.pathManager.curEditingVel + " | on: " + PathSim.pathManager.curOnPath);
-
-        if(x < 0 || x > PathSim.LEFT_WIDTH || y < 0 || y > Gdx.graphics.getHeight()) {
-            PathSim.pathManager.curEditingNode = -1;
-            PathSim.pathManager.curEditingVel = -1;
-        }
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            PathSim.pathManager.curEditingPath = -1;
-        }
 
         prevx = x;
         prevy = y;
@@ -284,9 +287,11 @@ public class Renderer2D {
 
         int x = Gdx.input.getX();
         int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-        if(Gdx.input.getX() < PathSim.LEFT_WIDTH) {
-            if (UI.addingSpline > 0) {
+        if(x < PathSim.LEFT_WIDTH && UI.addingSpline > 0) {
+            if (inBounds(x, y)) {
                 onBatch.draw(pointl, x - pointl.getWidth() / 2f, y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
+            } else {
+                onBatch.draw(pointw, x - pointw.getWidth() / 2f, y - pointw.getHeight() / 2f, pointw.getWidth(), pointw.getHeight());
             }
         }
 
@@ -297,17 +302,23 @@ public class Renderer2D {
 
         //draw splines
 
+        int f = 0;
         for(Path path : PathSim.pathManager.paths) {
             QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) path.getParametric();
             for(int k = 0; k < group.getSplines().size(); k++) {
                 for (int t = 0; t <= 1; t += 1) {
                     Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
-                    onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
+                    if(t == 0 && k == PathSim.pathManager.curSelectedNode || t == 1 && k == PathSim.pathManager.curSelectedNode - 1 && f == PathSim.pathManager.curEditingPath) {
+                        onBatch.draw(pointp, (float) p.x - pointp.getWidth() / 2f, (float) p.y - pointp.getHeight() / 2f, pointp.getWidth(), pointp.getHeight());
+                    } else {
+                        onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
+                    }
 
                     Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
                     onBatch.draw(points, (float) (v.x - points.getWidth() / 2f), (float) (v.y - points.getHeight() / 2f), points.getWidth(), points.getHeight());
                 }
             }
+            f++;
         }
 
         onBatch.end();
@@ -344,20 +355,25 @@ public class Renderer2D {
             }
             group.updateSplineLength(splineId, prev);
         } else if (curNode >= 0) {
+            temp = temp.add(new Point2D(dx / inch, dy / inch));
             if(curNode == 0) {
                 double prev = group.getSpline(curNode).getLength();
-                group.getSpline(curNode).setPose0(new Pose2D(group.getSpline(curNode).getPose0().getPosition().add(new Point2D(dx / inch, dy / inch)), group.getSpline(curNode).getPose0().getAngle()));
+                group.getSpline(curNode).setPose0(new Pose2D(temp, group.getSpline(curNode).getPose0().getAngle()));
+                boundSplinePose(group.getSpline(curNode), true);
                 group.updateSplineLength(curNode, prev);
             } else if (curNode == group.getSplines().size()) {
                 double prev = group.getSpline(curNode - 1).getLength();
-                group.getSpline(curNode-1).setPose1(new Pose2D(group.getSpline(curNode-1).getPose1().getPosition().add(new Point2D(dx / inch, dy / inch)), group.getSpline(curNode-1).getPose1().getAngle()));
+                group.getSpline(curNode-1).setPose1(new Pose2D(temp, group.getSpline(curNode-1).getPose1().getAngle()));
+                boundSplinePose(group.getSpline(curNode-1), false);
                 group.updateSplineLength(curNode-1, prev);
             } else {
                 double prev1 = group.getSpline(curNode-1).getLength();
                 double prev2 = group.getSpline(curNode).getLength();
 
-                group.getSpline(curNode).setPose0(new Pose2D(group.getSpline(curNode).getPose0().getPosition().add(new Point2D(dx / inch, dy / inch)), group.getSpline(curNode).getPose0().getAngle()));
-                group.getSpline(curNode-1).setPose1(new Pose2D(group.getSpline(curNode-1).getPose1().getPosition().add(new Point2D(dx / inch, dy / inch)), group.getSpline(curNode-1).getPose1().getAngle()));
+                group.getSpline(curNode).setPose0(new Pose2D(temp, group.getSpline(curNode).getPose0().getAngle()));
+                group.getSpline(curNode-1).setPose1(new Pose2D(temp, group.getSpline(curNode-1).getPose1().getAngle()));
+                boundSplinePose(group.getSpline(curNode), true);
+                boundSplinePose(group.getSpline(curNode-1), false);
 
                 group.updateSplineLength(curNode-1, prev1);
                 group.updateSplineLength(curNode, prev2);
@@ -365,6 +381,25 @@ public class Renderer2D {
         } else if (curNode == -2) {
             moveSplineGroup(group, dx / inch, dy / inch);
         }
+    }
+
+    public void boundSplinePose(QuinticHermiteSpline spline, boolean p0) {
+        Point2D l = toPointInInches(0, 0);
+        Point2D r = toPointInInches(PathSim.LEFT_WIDTH, Gdx.graphics.getHeight());
+        if(p0) {
+            Pose2D p = spline.getPose0();
+            spline.setPose0(new Pose2D(Math.max(Math.min(p.getPosition().getX(), Math.min(r.getX(), 324)), Math.max(l.getX(), -324)),
+                    Math.max(Math.min(p.getPosition().getY(), Math.min(r.getY(), 162)), Math.max(l.getY(), -162)), p.getAngle().getRadians()));
+        } else {
+            Pose2D p = spline.getPose1();
+            spline.setPose1(new Pose2D(Math.max(Math.min(p.getPosition().getX(), Math.min(r.getX(), 324)), Math.max(l.getX(), -324)),
+                    Math.max(Math.min(p.getPosition().getY(), Math.min(r.getY(), 162)), Math.max(l.getY(), -162)), p.getAngle().getRadians()));
+        }
+    }
+
+    public boolean inBounds(int x, int y) {
+        Point2D d = toPointInInches(x, y);
+        return Math.abs(d.getX()) <= 324 && Math.abs(d.getY()) <= 162;
     }
 
     public void moveSplineGroup(QuinticHermiteSplineGroup group, double dx, double dy) {
@@ -401,11 +436,11 @@ public class Renderer2D {
         uiRenderer.setColor(0.20f, 0.20f, 0.20f, 1f);
         if(PathSim.pathManager.curEditingPath != -1) {
             if(ui.splineMode) {
-                uiRenderer.rect(right+25, Gdx.graphics.getHeight() - 445, 125, 35);
+                uiRenderer.rect(right+25, Gdx.graphics.getHeight() - 400, 125, 35);
             } else {
-                uiRenderer.rect(right+150, Gdx.graphics.getHeight() - 445, 125, 35);
+                uiRenderer.rect(right+150, Gdx.graphics.getHeight() - 400, 125, 35);
             }
-            uiRenderer.rect(width+25, 25, PathSim.RIGHT_WIDTH - 50, 402);
+            uiRenderer.rect(width+25, 25, PathSim.RIGHT_WIDTH - 50, 423);
         }
 
         if(UI.addingSpline > 0) {

@@ -11,7 +11,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Path Simulator";
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		config.height = d.height - 28; // for header
+		config.height = d.height - 52; // for header
 		config.width = d.width;
 		config.samples = 3;
 		config.resizable = false;

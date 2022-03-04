@@ -1,23 +1,20 @@
 package com.github.mittyrobotics.tools;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.mittyrobotics.PathSim;
-import com.github.mittyrobotics.pathfollowing.QuinticHermiteSpline;
-import com.github.mittyrobotics.pathfollowing.QuinticHermiteSplineGroup;
+import com.github.mittyrobotics.pathfollowing.*;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -54,6 +51,7 @@ public class UI implements Disposable {
         table = new Table();
         ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
 //        scrollPaneStyle.vScrollKnob = PathSim.skin.getDrawable("scroll_vertical_knob");
+//        scrollPaneStyle.background = PathSim.skin.getDrawable("btn_default_normal");
 
         pane = new ScrollPane(table, scrollPaneStyle);
         pane.setScrollingDisabled(true, false);
@@ -68,10 +66,11 @@ public class UI implements Disposable {
                 stage.setScrollFocus(null);
             }
         });
+        pane.setFlickScroll(false);
         pane.layout();
-        container.add(pane).width(250).height(260);
+        container.add(pane).width(250).height(295);
         container.row();
-        container.setBounds(right+25, 100, 250, 260);
+        container.setBounds(right+25, 95, 250, 295);
         splineEdit.add(container);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -88,23 +87,23 @@ public class UI implements Disposable {
 
         addNode1 = new TextButton("Add Start", textButtonStyle);
         addNode1.getLabel().setFontScale(0.5f);
-        addNode1.setBounds(right+25, Gdx.graphics.getHeight() - 500, 125, 45);
+        addNode1.setBounds(right+25, Gdx.graphics.getHeight() - 450, 125, 45);
 
         addNode2 = new TextButton("Add End", textButtonStyle);
         addNode2.getLabel().setFontScale(0.5f);
-        addNode2.setBounds(right+150, Gdx.graphics.getHeight() - 500, 125, 45);
+        addNode2.setBounds(right+150, Gdx.graphics.getHeight() - 450, 125, 45);
 
         pathId = new TextButton("", textButtonStyleNoBg);
         pathId.getLabel().setFontScale(0.7f);
-        pathId.setBounds(right+50, Gdx.graphics.getHeight() - 400, 200, 50);
+        pathId.setBounds(right+50, Gdx.graphics.getHeight() - 370, 200, 50);
 
         spline = new TextButton("Edit Spline", textButtonStyleNoBg);
         spline.getLabel().setFontScale(0.6f);
-        spline.setBounds(right+25, Gdx.graphics.getHeight() - 450, 125, 45);
+        spline.setBounds(right+25, Gdx.graphics.getHeight() - 405, 125, 45);
 
         path = new TextButton("Edit Path", textButtonStyleNoBg);
         path.getLabel().setFontScale(0.6f);
-        path.setBounds(right+150, Gdx.graphics.getHeight() - 450, 125, 45);
+        path.setBounds(right+150, Gdx.graphics.getHeight() - 405, 125, 45);
 
         export = new TextButton("Export Path", textButtonStyle);
         export.getLabel().setFontScale(0.6f);
@@ -217,29 +216,68 @@ public class UI implements Disposable {
 
         splines.clear();
 
-        splines.add(new TextField(df.format(sp.get(0).getPose0().getPosition().getX()), textFieldStyle));
-        splines.add(new TextField(df.format(sp.get(0).getPose0().getPosition().getY()), textFieldStyle));
-        splines.add(new TextField(df.format(sp.get(0).getVelocity0().getX()), textFieldStyle));
-        splines.add(new TextField(df.format(sp.get(0).getVelocity0().getY()), textFieldStyle));
+        TextField temp = new TextField(df.format(sp.get(0).getPose0().getPosition().getX()), textFieldStyle);
+        temp.addListener(new InputListener() {
+            final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp; @Override
+            public boolean keyTyped (InputEvent event, char character) {
+                if(event.getKeyCode() == Input.Keys.ENTER) {
+                    if(checkPosition(Double.parseDouble(tf.getText()), false)) s.setPose0(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
+                    tf.setText(df.format(s.getPose0().getPosition().getX()));
+                    stage.unfocus(tf);
+                } return super.keyTyped(event, character);
+            }
+        });
+        splines.add(temp);
 
-        for(QuinticHermiteSpline s : sp) {
-            splines.add(new TextField(df.format(s.getPose1().getPosition().getX()), textFieldStyle));
-            splines.add(new TextField(df.format(s.getPose1().getPosition().getY()), textFieldStyle));
-            splines.add(new TextField(df.format(s.getVelocity1().getX()), textFieldStyle));
-            splines.add(new TextField(df.format(s.getVelocity1().getY()), textFieldStyle));
+        TextField temp2 = new TextField(df.format(sp.get(0).getPose0().getPosition().getY()), textFieldStyle);
+        temp2.addListener(new InputListener() {
+            final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp2; @Override
+            public boolean keyTyped (InputEvent event, char character) {
+                if(event.getKeyCode() == Input.Keys.ENTER) {
+                    if(checkPosition(Double.parseDouble(tf.getText()), true)) s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose0().getAngle()));
+                    tf.setText(df.format(s.getPose0().getPosition().getY()));
+                } return super.keyTyped(event, character);
+            }
+        });
+        splines.add(temp2);
+
+        for(QuinticHermiteSpline s_ : sp) {
+            TextField temp3 = new TextField(df.format(s_.getPose1().getPosition().getX()), textFieldStyle);
+            temp3.addListener(new InputListener() {
+                final QuinticHermiteSpline s = s_; final TextField tf = temp3; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPosition(Double.parseDouble(tf.getText()), false)) s.setPose1(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
+                        tf.setText(df.format(s.getPose1().getPosition().getX()));
+                    } return super.keyTyped(event, character);
+                }
+            });
+            splines.add(temp3);
+
+            TextField temp4 = new TextField(df.format(s_.getPose1().getPosition().getY()), textFieldStyle);
+            temp4.addListener(new InputListener() {
+                final QuinticHermiteSpline s = s_; final TextField tf = temp4; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPosition(Double.parseDouble(tf.getText()), true)) s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose1().getAngle()));
+                        tf.setText(df.format(s.getPose1().getPosition().getY()));
+                    } return super.keyTyped(event, character);
+                }
+            });
+            splines.add(temp4);
         }
 
         table.clear();
-        for(int i = 0; i < splines.size()/4; i++) {
+        for(int i = 0; i < splines.size()/2; i++) {
             table.add(new Label("  P" + i, lStyle2)).width(40).height(40);
-            table.add(splines.get(4*i)).width(105).height(40);
-            table.add(splines.get(4*i+1)).width(105).height(40);
-            table.row();
-            table.add(new Label("  V" + i, lStyle2)).width(40).height(40);
-            table.add(splines.get(4*i+2)).width(105).height(40);
-            table.add(splines.get(4*i+3)).width(105).height(40);
+            table.add(splines.get(2*i)).width(105).height(40);
+            table.add(splines.get(2*i+1)).width(105).height(40);
             table.row();
         }
+    }
+
+    public boolean checkPosition(double p, boolean y) {
+        return (y && Math.abs(p) <= 180) || (!y && Math.abs(p) <= 432);
     }
 
     public void updateSplineEdit() {
@@ -248,16 +286,12 @@ public class UI implements Disposable {
 
         if(!splines.get(0).hasKeyboardFocus()) splines.get(0).setText(df.format(sp.get(0).getPose0().getPosition().getX()));
         if(!splines.get(1).hasKeyboardFocus()) splines.get(1).setText(df.format(sp.get(0).getPose0().getPosition().getY()));
-        if(!splines.get(2).hasKeyboardFocus()) splines.get(2).setText(df.format(sp.get(0).getVelocity0().getX()));
-        if(!splines.get(3).hasKeyboardFocus()) splines.get(3).setText(df.format(sp.get(0).getVelocity0().getY()));
 
-        int i = 4;
+        int i = 2;
         for(QuinticHermiteSpline s : sp) {
             if(!splines.get(i).hasKeyboardFocus()) splines.get(i).setText(df.format(s.getPose1().getPosition().getX()));
             if(!splines.get(i+1).hasKeyboardFocus()) splines.get(i+1).setText(df.format(s.getPose1().getPosition().getY()));
-            if(!splines.get(i+2).hasKeyboardFocus()) splines.get(i+2).setText(df.format(s.getVelocity1().getX()));
-            if(!splines.get(i+3).hasKeyboardFocus()) splines.get(i+3).setText(df.format(s.getVelocity1().getY()));
-            i += 4;
+            i += 2;
         }
     }
 

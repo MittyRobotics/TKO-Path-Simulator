@@ -35,11 +35,13 @@ public class PathSim extends ApplicationAdapter {
 
 		assets = new AssetManager();
 		assets.load("field.g3db", Model.class);
-		assets.load("FIELD_RENDER.png", Texture.class);
-		assets.load("title1.png", Texture.class);
-		assets.load("title2.png", Texture.class);
-		assets.load("points.png", Texture.class);
-		assets.load("pointl.png", Texture.class);
+		assets.load("img/FIELD_RENDER.png", Texture.class);
+		assets.load("img/title1.png", Texture.class);
+		assets.load("img/title2.png", Texture.class);
+		assets.load("img/points.png", Texture.class);
+		assets.load("img/pointl.png", Texture.class);
+		assets.load("img/pointw.png", Texture.class);
+		assets.load("img/pointp.png", Texture.class);
 
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("skin/Holo-dark-xhdpi.atlas"));
 		skin = new Skin(atlas);

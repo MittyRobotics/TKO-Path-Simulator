@@ -8,13 +8,15 @@ import java.util.ArrayList;
 public class PathManager {
 
     public ArrayList<Path> paths = new ArrayList<>();
-    public int curEditingPath, curEditingNode, curOnPath, curEditingVel;
+    public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode;
 
     public Point2D storedPoint;
 
     public PathManager() {
         curEditingPath = -1;
         curEditingNode = -1;
+        curSelectedNode = -1;
+        curEditingVel = -1;
         curOnPath = -1;
         storedPoint = null;
     }
