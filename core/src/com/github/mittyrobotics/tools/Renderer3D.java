@@ -47,6 +47,16 @@ public class Renderer3D {
         camController = new CamController3D(cam, width, height);
     }
 
+    public void resetCam() {
+        cam = new PerspectiveCamera(67, width, height);
+        cam.position.set(0f, 1600f, 0f);
+        cam.lookAt(0,0,0);
+        cam.near = 1f;
+        cam.far = 3000f;
+        cam.update();
+
+        camController = new CamController3D(cam, width, height);
+    }
 
     public void doneLoading() {
         model = PathSim.assets.get("field.g3db", Model.class);
@@ -56,13 +66,9 @@ public class Renderer3D {
         fieldWidth = temp.getWidth();
         fieldHeight = temp.getDepth();
 
-//        System.out.println(fieldWidth + " " + fieldHeight);
-
         instance = new ModelInstance(model);
         instances.add(instance);
         loading = false;
-
-//        System.out.println("done loading");
     }
 
     public void render () {
@@ -71,13 +77,15 @@ public class Renderer3D {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
 
-        if(loading && PathSim.assets.update()) {
-            doneLoading();
-        }
-
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
         modelBatch.end();
+    }
+
+    public void load() {
+        if(loading && PathSim.assets.update()) {
+            doneLoading();
+        }
     }
 
     public void dispose () {

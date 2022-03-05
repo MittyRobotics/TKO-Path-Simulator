@@ -32,7 +32,7 @@ public class PathSim extends ApplicationAdapter {
 	public static InputMultiplexer input;
 	public static PathManager pathManager;
 
-	public static boolean debug = true;
+	public static boolean debug = false;
 	public static JTextArea debugText;
 
 	@Override
@@ -100,10 +100,25 @@ public class PathSim extends ApplicationAdapter {
 
 	}
 
+	public static void switchModes(boolean in3dd) {
+		if(renderer3d.loading) renderer3d.load();
+		if(in3dd) {
+			renderer3d.resetCam();
+			in3d = true;
+			input.addProcessor(Renderer3D.camController);
+			input.removeProcessor(Renderer2D.camController);
+		} else {
+			in3d = false;
+			input.removeProcessor(Renderer3D.camController);
+			input.addProcessor(Renderer2D.camController);
+		}
+	}
+
 	@Override
 	public void render () {
 		if(in3d) {
 			renderer3d.render();
+			renderer2d.renderUI();
 		} else {
 			renderer2d.render();
 		}

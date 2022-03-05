@@ -99,6 +99,7 @@ public class Renderer2D {
 
     public void render () {
 
+        Gdx.gl.glViewport(0, 0, width + PathSim.RIGHT_WIDTH, height);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
 
@@ -132,6 +133,16 @@ public class Renderer2D {
             //little text blurb on bottom
             drawText();
         }
+    }
+
+    public void renderUI() {
+        Gdx.gl.glViewport(0, 0, width + PathSim.RIGHT_WIDTH, height);
+
+        //UI panel
+        drawUIOverlay();
+
+        //update stage
+        ui.update(Gdx.graphics.getDeltaTime());
     }
 
     public void handleInput() {
@@ -321,10 +332,12 @@ public class Renderer2D {
 
         //end general click handling -----------------
 
-        PathSim.debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
-                + "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
-                + PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + addFront + " " + addBack + " " + addNew + "\njust placed: " + wasJustPlaced + "\n\n\nUI VARS\n-----\nspline mode: "
-                + ui.splineMode + "\npure pursuit mode: " + ui.purePursuitMode);
+        if(PathSim.debug) {
+            PathSim.debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
+                    + "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
+                    + PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + addFront + " " + addBack + " " + addNew + "\njust placed: " + wasJustPlaced + "\n\n\nUI VARS\n-----\nspline mode: "
+                    + ui.splineMode + "\npure pursuit mode: " + ui.purePursuitMode);
+        }
 
         wasJustPlaced = false;
     }

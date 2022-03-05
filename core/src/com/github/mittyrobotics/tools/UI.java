@@ -403,6 +403,7 @@ public class UI implements Disposable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 splineMode = false;
+                PathSim.switchModes(true);
             }
         });
 
@@ -410,6 +411,7 @@ public class UI implements Disposable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 splineMode = true;
+                PathSim.switchModes(false);
             }
         });
 
