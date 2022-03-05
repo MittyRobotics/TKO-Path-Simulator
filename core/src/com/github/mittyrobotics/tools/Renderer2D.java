@@ -162,6 +162,11 @@ public class Renderer2D {
             PathSim.pathManager.curEditingNode = -1;
         }
 
+        if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && ui.stage.getKeyboardFocus() == null) {
+            if(PathSim.pathManager.curEditingPath != -1) PathSim.pathManager.paths.remove(PathSim.pathManager.curEditingPath);
+            PathSim.pathManager.curEditingPath = -1;
+        }
+
         if (PathSim.pathManager.curEditingPath != -1) {
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                 editPoint(PathSim.pathManager.curEditingPath, PathSim.pathManager.curEditingNode, PathSim.pathManager.curEditingVel, x - prevx, y - prevy);
@@ -188,6 +193,7 @@ public class Renderer2D {
                 Point2D posscreen = new Point2D(x, y);
                 if(posscreen.distance(onscreen) <= 4) {
                     PathSim.pathManager.curEditingPath = i;
+                    PathSim.pathManager.curUIEditingNode = -1;
                     PathSim.pathManager.curEditingNode = -2;
                 }
 
@@ -195,6 +201,7 @@ public class Renderer2D {
                     Point2D p = toPointOnScreen(group.getSpline(k).getPoint(1));
                     if(distance(x, y, p) < pointl.getWidth() / 2f) {
                         PathSim.pathManager.curEditingPath = i;
+                        PathSim.pathManager.curUIEditingNode = -1;
                         PathSim.pathManager.curEditingNode = k+1;
                         PathSim.pathManager.curSelectedNode = k+1;
                         temp = group.getSpline(k).getPoint(1);
@@ -203,6 +210,7 @@ public class Renderer2D {
                         Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
                         if (distance(x, y, v) < points.getWidth() / 2f) {
                             PathSim.pathManager.curEditingPath = i;
+                            PathSim.pathManager.curUIEditingNode = -1;
                             PathSim.pathManager.curEditingVel = 2 * k + t;
                         }
                     }
@@ -211,6 +219,7 @@ public class Renderer2D {
                 Point2D p = toPointOnScreen(group.getSpline(0).getPoint(0));
                 if(distance(x, y, p) < pointl.getWidth() / 2f) {
                     PathSim.pathManager.curEditingPath = i;
+                    PathSim.pathManager.curUIEditingNode = -1;
                     PathSim.pathManager.curEditingNode = 0;
                     PathSim.pathManager.curSelectedNode = 0;
                     temp = group.getSpline(0).getPoint(0);
@@ -317,13 +326,13 @@ public class Renderer2D {
                 for (int t = 0; t <= 1; t += 1) {
                     if(t == 1 || k == 0) {
                         Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
-                        if (((t == 0 && k == PathSim.pathManager.curHoveringNode) || (t == 1 && k == PathSim.pathManager.curHoveringNode - 1)) && (PathSim.pathManager.curOnPath == k || PathSim.pathManager.curEditingPath == k)) {
-                            onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
-                        } else if (((t == 0 && k == PathSim.pathManager.curSelectedNode) || (t == 1 && k == PathSim.pathManager.curSelectedNode - 1)) && PathSim.pathManager.curEditingPath == k) {
+                        if ((((t == 0 && k == PathSim.pathManager.curUIEditingNode) || (t == 1 && k == PathSim.pathManager.curUIEditingNode - 1)) && PathSim.pathManager.curEditingPath == f) ||
+                                ((t == 0 && k == PathSim.pathManager.curSelectedNode) || (t == 1 && k == PathSim.pathManager.curSelectedNode - 1)) && PathSim.pathManager.curEditingPath == f) {
                             onBatch.draw(pointp, (float) p.x - pointp.getWidth() / 2f, (float) p.y - pointp.getHeight() / 2f, pointp.getWidth(), pointp.getHeight());
-                        } else if (((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)) && (PathSim.pathManager.curOnPath == k || PathSim.pathManager.curEditingPath == k)) {
+                        } else if ((((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)) && PathSim.pathManager.curEditingPath == f) ||
+                                ((t == 0 && k == PathSim.pathManager.curHoveringNode) || (t == 1 && k == PathSim.pathManager.curHoveringNode - 1)) && PathSim.pathManager.curOnPath == f) {
                             onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
-                        }else {
+                        } else {
                             onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
                         }
                     }

@@ -223,6 +223,14 @@ public class UI implements Disposable {
 
         splines.clear();
 
+        ClickListener sel = new ClickListener() {
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                if(button == 0) { PathSim.pathManager.curSelectedNode = 0; PathSim.pathManager.curUIEditingNode = 0; }
+                return super.touchDown(event, x, y, pointer, button);
+            }
+        };
+
         TextField temp = new TextField(df.format(sp.get(0).getPose0().getPosition().getX()), textFieldStyle);
         temp.addListener(new InputListener() {
             final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp; @Override
@@ -230,10 +238,12 @@ public class UI implements Disposable {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
                     if(checkPosition(Double.parseDouble(tf.getText()), false)) s.setPose0(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
                     tf.setText(df.format(s.getPose0().getPosition().getX()));
+                    PathSim.pathManager.curUIEditingNode = -1;
                     stage.unfocus(tf);
                 } return super.keyTyped(event, character);
             }
         });
+        temp.addListener(sel);
         splines.add(temp);
 
         TextField temp2 = new TextField(df.format(sp.get(0).getPose0().getPosition().getY()), textFieldStyle);
@@ -243,12 +253,25 @@ public class UI implements Disposable {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
                     if(checkPosition(Double.parseDouble(tf.getText()), true)) s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose0().getAngle()));
                     tf.setText(df.format(s.getPose0().getPosition().getY()));
+                    PathSim.pathManager.curUIEditingNode = -1;
+                    stage.unfocus(tf);
                 } return super.keyTyped(event, character);
             }
         });
+        temp2.addListener(sel);
         splines.add(temp2);
 
+        int tt = 0;
         for(QuinticHermiteSpline s_ : sp) {
+            tt++;
+            final int ttf = tt;
+            ClickListener sel2 = new ClickListener() {
+                @Override
+                public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                    if(button == 0) { PathSim.pathManager.curSelectedNode = ttf; PathSim.pathManager.curUIEditingNode = ttf; }
+                    return super.touchDown(event, x, y, pointer, button);
+                }
+            };
             TextField temp3 = new TextField(df.format(s_.getPose1().getPosition().getX()), textFieldStyle);
             temp3.addListener(new InputListener() {
                 final QuinticHermiteSpline s = s_; final TextField tf = temp3; @Override
@@ -256,9 +279,12 @@ public class UI implements Disposable {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
                         if(checkPosition(Double.parseDouble(tf.getText()), false)) s.setPose1(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
                         tf.setText(df.format(s.getPose1().getPosition().getX()));
+                        PathSim.pathManager.curUIEditingNode = -1;
+                        stage.unfocus(tf);
                     } return super.keyTyped(event, character);
                 }
             });
+            temp3.addListener(sel2);
             splines.add(temp3);
 
             TextField temp4 = new TextField(df.format(s_.getPose1().getPosition().getY()), textFieldStyle);
@@ -268,9 +294,12 @@ public class UI implements Disposable {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
                         if(checkPosition(Double.parseDouble(tf.getText()), true)) s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose1().getAngle()));
                         tf.setText(df.format(s.getPose1().getPosition().getY()));
+                        PathSim.pathManager.curUIEditingNode = -1;
+                        stage.unfocus(tf);
                     } return super.keyTyped(event, character);
                 }
             });
+            temp4.addListener(sel2);
             splines.add(temp4);
         }
 
@@ -280,17 +309,13 @@ public class UI implements Disposable {
             ClickListener cl = new ClickListener() {
                 @Override
                 public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                    PathSim.pathManager.curUIHoveringNode = finalI;
+                    if(PathSim.pathManager.curUIEditingNode != finalI) {
+                        PathSim.pathManager.curUIHoveringNode = finalI;
+                    }
                 }
-
                 @Override
                 public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                     if(pointer == -1) PathSim.pathManager.curUIHoveringNode = -1;
-                }
-
-                @Override
-                public void clicked (InputEvent event, float x, float y) {
-                    PathSim.pathManager.curEditingNode = finalI;
                 }
             };
             Label tl = new Label("  P" + i, lStyle2);
@@ -363,6 +388,14 @@ public class UI implements Disposable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 splineMode = true;
+            }
+        });
+
+        delete.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                PathSim.pathManager.paths.remove(PathSim.pathManager.curEditingPath);
+                PathSim.pathManager.curEditingPath = -1;
             }
         });
     }
