@@ -2,9 +2,7 @@ package com.github.mittyrobotics.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -18,7 +16,7 @@ import javax.swing.*;
 public class Renderer2D {
 
     public static CamController2D camController;
-    public boolean loading, addFront, addBack, wasJustPlaced;
+    public boolean loading, addFront, addBack, wasJustPlaced, addNew;
     public Texture field, title1, title2, pointl, points, pointp, pointw, pointh;
     public SpriteBatch batch, fontBatch, onBatch;
 
@@ -160,14 +158,24 @@ public class Renderer2D {
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             UI.addingSpline = 0;
+            PathSim.pathManager.removeStoredPoint();
             PathSim.pathManager.curEditingPath = -1;
             PathSim.pathManager.curSelectedNode = -1;
             PathSim.pathManager.curEditingNode = -1;
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && ui.stage.getKeyboardFocus() == null) {
-            if(PathSim.pathManager.curEditingPath != -1) PathSim.pathManager.paths.remove(PathSim.pathManager.curEditingPath);
-            PathSim.pathManager.curEditingPath = -1;
+            if(PathSim.pathManager.curEditingPath != -1) {
+                if(UI.addingSpline > 0) {
+                    UI.addingSpline = 0;
+                } else if (PathSim.pathManager.curSelectedNode >= 0 &&
+                        ((QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric())).getSplines().size() > 1) {
+                    PathSim.pathManager.deleteNode(PathSim.pathManager.curEditingPath, PathSim.pathManager.curSelectedNode);
+                } else {
+                    PathSim.pathManager.paths.remove(PathSim.pathManager.curEditingPath);
+                    PathSim.pathManager.curEditingPath = -1;
+                }
+            }
         }
 
         if (PathSim.pathManager.curEditingPath != -1) {
@@ -257,11 +265,6 @@ public class Renderer2D {
             }
         }
 
-        wasJustPlaced = false;
-
-//        System.out.println("path: " + PathSim.pathManager.curEditingPath + " | node: " + PathSim.pathManager.curEditingNode
-//                + " | vel: " + PathSim.pathManager.curEditingVel + " | on: " + PathSim.pathManager.curOnPath);
-
         prevx = x;
         prevy = y;
 
@@ -298,7 +301,32 @@ public class Renderer2D {
             }
         }
 
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && PathSim.pathManager.curOnPath == -1 && UI.addingSpline == 0 && x < PathSim.LEFT_WIDTH && inBounds(x, y)) {
+            if(addNew) {
+                PathSim.pathManager.storePoint(toPointInInches(x, y));
+                UI.addingSpline = 1;
+                PathSim.pathManager.curEditingPath = -1;
+                PathSim.input.removeProcessor(ui.stage);
+                ui.stage.addActor(ui.addingLabel);
+                addNew = false;
+            } else if (!wasJustPlaced) {
+                addNew = true;
+                Timer timer = new Timer(500, arg0 -> {
+                    addNew = false;
+                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        }
+
         //end general click handling -----------------
+
+        PathSim.debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
+                + "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
+                + PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + addFront + " " + addBack + " " + addNew + "\njust placed: " + wasJustPlaced + "\n\n\nUI VARS\n-----\nspline mode: "
+                + ui.splineMode + "\npure pursuit mode: " + ui.purePursuitMode);
+
+        wasJustPlaced = false;
     }
 
     public void drawSprites() {
@@ -317,6 +345,16 @@ public class Renderer2D {
             } else if (UI.addingSpline == 4) {
                 potential = PathSim.pathManager.getPotentialSpline(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
             }
+            if(inBounds(x, y)) fieldRenderer.setColor(transgreen2);
+            else fieldRenderer.setColor(transred);
+            for(double t = smallStep; t <= 1; t += smallStep) {
+                Point2D p1 = toPointOnScreen(potential.getPoint(t-smallStep));
+                Point2D p2 = toPointOnScreen(potential.getPoint(t));
+                fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
+            }
+        }
+        if(UI.addingSpline == 1) {
+            QuinticHermiteSpline potential = PathSim.pathManager.getNewPathPreview(toPointInInches(x, y));
             if(inBounds(x, y)) fieldRenderer.setColor(transgreen2);
             else fieldRenderer.setColor(transred);
             for(double t = smallStep; t <= 1; t += smallStep) {

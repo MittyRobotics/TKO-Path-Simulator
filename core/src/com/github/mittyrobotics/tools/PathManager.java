@@ -23,6 +23,10 @@ public class PathManager {
         storedPoint = null;
     }
 
+    public void removeStoredPoint() {
+        storedPoint = null;
+    }
+
     public void storePoint(Point2D point) {
         storedPoint = point;
     }
@@ -37,6 +41,14 @@ public class PathManager {
             ));
         }
         storedPoint = null;
+    }
+
+    public QuinticHermiteSpline getNewPathPreview(Point2D point) {
+        if(storedPoint != null) {
+            Angle angle = new Angle(point.x - storedPoint.x, point.y - storedPoint.y);
+            return new QuinticHermiteSpline(new Pose2D(storedPoint, angle), new Pose2D(point, angle));
+        }
+        return null;
     }
 
     public void addPointToPath(Point2D point, int currentPath, boolean front) {
@@ -74,6 +86,22 @@ public class PathManager {
             other.add(Math.PI);
             return new QuinticHermiteSpline(new Pose2D(prev, angle), new Pose2D(point, other));
         }
+    }
+
+    public void deleteNode(int currentPath, int currentNode) {
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).getParametric();
+        if(currentNode == 0) {
+            group.removeSpline(0);
+        } else if (currentNode == group.getSplines().size()) {
+            group.removeSpline(group.getSplines().size() - 1);
+        } else {
+            QuinticHermiteSpline prev = group.getSpline(currentNode - 1);
+            QuinticHermiteSpline post = group.getSpline(currentNode);
+            group.getSplines().set(currentNode-1, new QuinticHermiteSpline(prev.getPose0(), post.getPose1(), prev.getVelocity0(), post.getVelocity1()));
+            group.removeSpline(currentNode);
+        }
+        curSelectedNode = -1;
+        PathSim.renderer2d.ui.populateSplineEdit();
     }
 
     public void moveToFront(int i) {

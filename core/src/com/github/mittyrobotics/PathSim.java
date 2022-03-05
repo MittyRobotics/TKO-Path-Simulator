@@ -12,8 +12,12 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.Align;
 import com.github.mittyrobotics.pathfollowing.QuinticHermiteSpline;
 import com.github.mittyrobotics.tools.*;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class PathSim extends ApplicationAdapter {
 
@@ -27,6 +31,9 @@ public class PathSim extends ApplicationAdapter {
 	public static BitmapFont font, f20;
 	public static InputMultiplexer input;
 	public static PathManager pathManager;
+
+	public static boolean debug = true;
+	public static JTextArea debugText;
 
 	@Override
 	public void create () {
@@ -71,6 +78,25 @@ public class PathSim extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(input);
 
 		in3d = false;
+
+		if(debug) {
+			JFrame debugFrame = new JFrame("Debug");
+			debugFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			debugText = new JTextArea("", 1, 1);
+			debugText.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+			debugText.setForeground(Color.WHITE);
+			debugFrame.setBackground(new Color(0.1f, 0.1f, 0.1f));
+			debugText.setBackground(new Color(0.1f, 0.1f, 0.1f));
+			debugText.setLineWrap(true);
+			debugText.setWrapStyleWord(true);
+			debugText.setEditable(false);
+			debugFrame.setPreferredSize(new Dimension(200, 500));
+			debugFrame.getContentPane().add(debugText, BorderLayout.CENTER);
+
+			debugFrame.setLocation(0, 0);
+			debugFrame.pack();
+			debugFrame.setVisible(true);
+		}
 
 	}
 

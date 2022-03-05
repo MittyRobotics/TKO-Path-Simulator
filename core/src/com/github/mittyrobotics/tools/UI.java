@@ -23,8 +23,8 @@ public class UI implements Disposable {
     public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel;
-    public boolean splineMode, prevMode;
-    public TextButton pathId, addNode1, addNode2, spline, path, addPath, export, delete, deleteNode;
+    public boolean splineMode, prevMode, purePursuitMode;
+    public TextButton pathId, addNode1, addNode2, spline, path, addPath, export, delete, deleteNode, purePursuit, ramsete;
     public ArrayList<TextField> splines = new ArrayList<>();
     public ArrayList<Label> labels = new ArrayList<>();
     public TextField.TextFieldStyle textFieldStyle;
@@ -36,6 +36,7 @@ public class UI implements Disposable {
 
     public UI() {
         stage = new Stage();
+        purePursuitMode = true;
 
         right = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
 
@@ -86,11 +87,11 @@ public class UI implements Disposable {
 
         addNode1 = new TextButton("Add Start", textButtonStyle);
         addNode1.getLabel().setFontScale(0.5f);
-        addNode1.setBounds(right+25, Gdx.graphics.getHeight() - 398, 130, 40);
+        addNode1.setBounds(right+25, Gdx.graphics.getHeight() - 395, 130, 40);
 
         addNode2 = new TextButton("Add End", textButtonStyle);
         addNode2.getLabel().setFontScale(0.5f);
-        addNode2.setBounds(right+145, Gdx.graphics.getHeight() - 398, 130, 40);
+        addNode2.setBounds(right+145, Gdx.graphics.getHeight() - 395, 130, 40);
 
         pathId = new TextButton("", textButtonStyleNoBg);
         pathId.getLabel().setFontScale(0.7f);
@@ -116,6 +117,14 @@ public class UI implements Disposable {
         deleteNode.getLabel().setFontScale(0.5f);
         deleteNode.setBounds(right + 145, Gdx.graphics.getHeight() - 428, 130, 40);
 
+        purePursuit = new TextButton("Pure Pursuit", textButtonStyle);
+        purePursuit.getLabel().setFontScale(0.5f);
+        purePursuit.setBounds(right+25, Gdx.graphics.getHeight() - 395, 130, 40);
+
+        ramsete = new TextButton("Ramsete", textButtonStyle);
+        ramsete.getLabel().setFontScale(0.5f);
+        ramsete.setBounds(right+145, Gdx.graphics.getHeight() - 395, 130, 40);
+
         addListeners();
 
         toggle.add(path);
@@ -125,6 +134,9 @@ public class UI implements Disposable {
         splineEdit.add(addNode1);
         splineEdit.add(addNode2);
         splineEdit.add(delete);
+
+        pathEdit.add(purePursuit);
+        pathEdit.add(ramsete);
 
         for(Actor a : toggle) {
             stage.addActor(a);
@@ -188,7 +200,7 @@ public class UI implements Disposable {
         if(PathSim.pathManager.curEditingPath == -1 && prevEditing != -1) {
             for(Actor a : toggle) a.remove();
             if(splineMode) for(Actor a : splineEdit) a.remove();
-            else for(Actor a : splineEdit) a.remove();
+            else for(Actor a : pathEdit) a.remove();
             splineMode = false;
         } else if (PathSim.pathManager.curEditingPath != -1 && prevEditing == -1) {
             for(Actor a : toggle) stage.addActor(a);
@@ -199,24 +211,25 @@ public class UI implements Disposable {
             populateSplineEdit();
         }
 
-        deleteNode.remove();
         if(PathSim.pathManager.curEditingPath != -1 && splineMode) {
             updateSplineEdit();
-            if(PathSim.pathManager.curSelectedNode < 0) {
+            if(PathSim.pathManager.curSelectedNode < 0 ||  ((QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric())).getSplines().size() <= 1) {
                 delete.setBounds(right + 85, Gdx.graphics.getHeight() - 428, 130, 40);
+                deleteNode.remove();
             } else if (((QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric())).getSplines().size() > 1) {
                 delete.setBounds(right + 25, Gdx.graphics.getHeight() - 428, 130, 40);
                 stage.addActor(deleteNode);
-                deleteNode.setBounds(right + 145, Gdx.graphics.getHeight() - 428, 130, 40);
             }
+        } else {
+            deleteNode.remove();
         }
 
         prevEditing = PathSim.pathManager.curEditingPath;
 
-        if(splineMode && !prevMode) {
+        if(splineMode && !prevMode && prevEditing != -1) {
             for(Actor a : splineEdit) stage.addActor(a);
             for(Actor a : pathEdit) a.remove();
-        } else if (!splineMode && prevMode) {
+        } else if (!splineMode && prevMode && prevEditing != -1) {
             for(Actor a : pathEdit) stage.addActor(a);
             for(Actor a : splineEdit) a.remove();
         }
@@ -332,6 +345,10 @@ public class UI implements Disposable {
         }
     }
 
+    public void populatePathEdit() {
+
+    }
+
     public boolean checkPosition(double p, boolean y) {
         return (y && Math.abs(p) <= 162) || (!y && Math.abs(p) <= 324);
     }
@@ -401,6 +418,27 @@ public class UI implements Disposable {
             public void changed(ChangeEvent event, Actor actor) {
                 PathSim.pathManager.paths.remove(PathSim.pathManager.curEditingPath);
                 PathSim.pathManager.curEditingPath = -1;
+            }
+        });
+
+        deleteNode.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                PathSim.pathManager.deleteNode(PathSim.pathManager.curEditingPath, PathSim.pathManager.curSelectedNode);
+            }
+        });
+
+        purePursuit.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                purePursuitMode = true;
+            }
+        });
+
+        ramsete.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                purePursuitMode = false;
             }
         });
     }
