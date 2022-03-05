@@ -13,10 +13,12 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.github.mittyrobotics.PathSim;
 import com.github.mittyrobotics.pathfollowing.*;
 
+import javax.swing.*;
+
 public class Renderer2D {
 
     public static CamController2D camController;
-    public boolean loading;
+    public boolean loading, addFront, addBack, wasJustPlaced;
     public Texture field, title1, title2, pointl, points, pointp, pointw, pointh;
     public SpriteBatch batch, fontBatch, onBatch;
 
@@ -32,6 +34,8 @@ public class Renderer2D {
     public Color transblue = new Color(67/255f,227/255f,1f, 0.3f);
     public Color green = new Color(67/255f, 1f, 170/255f, 1f);
     public Color transgreen = new Color(67/255f, 1f, 170/255f, 0.3f);
+    public Color transgreen2 = new Color(67/255f, 1f, 170/255f, 0.6f);
+    public Color transred = new Color(1f, 100f/255f, 80/255f, 0.6f);
 
     public UI ui;
 
@@ -104,10 +108,6 @@ public class Renderer2D {
             doneLoading();
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            UI.addingSpline = 0;
-        }
-
         if(!loading) {
             //calc------------------
             x = xc + (width - zoom * fieldWidth)/2;
@@ -149,14 +149,17 @@ public class Renderer2D {
                 UI.addingSpline = 0;
             } else if (UI.addingSpline == 3) {
                 PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, true);
+                wasJustPlaced = true;
                 UI.addingSpline = 0;
             } else if (UI.addingSpline == 4) {
                 PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
+                wasJustPlaced = true;
                 UI.addingSpline = 0;
             }
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            UI.addingSpline = 0;
             PathSim.pathManager.curEditingPath = -1;
             PathSim.pathManager.curSelectedNode = -1;
             PathSim.pathManager.curEditingNode = -1;
@@ -180,7 +183,7 @@ public class Renderer2D {
         }
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if(Gdx.input.getX() < right) {
+            if(Gdx.input.getX() < right && UI.addingSpline <= 0) {
                 PathSim.pathManager.curEditingPath = -1;
                 PathSim.pathManager.curSelectedNode = -1;
                 PathSim.pathManager.curEditingNode = -1;
@@ -193,25 +196,39 @@ public class Renderer2D {
                 Point2D posscreen = new Point2D(x, y);
                 if(posscreen.distance(onscreen) <= 4) {
                     PathSim.pathManager.curEditingPath = i;
-                    PathSim.pathManager.curUIEditingNode = -1;
                     PathSim.pathManager.curEditingNode = -2;
+                    PathSim.pathManager.curSelectedNode = -1;
                 }
 
                 for (int k = 0; k < group.getSplines().size(); k++) {
                     Point2D p = toPointOnScreen(group.getSpline(k).getPoint(1));
                     if(distance(x, y, p) < pointl.getWidth() / 2f) {
                         PathSim.pathManager.curEditingPath = i;
-                        PathSim.pathManager.curUIEditingNode = -1;
                         PathSim.pathManager.curEditingNode = k+1;
                         PathSim.pathManager.curSelectedNode = k+1;
+                        if(k == group.getSplines().size() - 1) {
+                            if(addBack) {
+                                UI.addingSpline = 4;
+                                PathSim.pathManager.curSelectedNode = -1;
+                                PathSim.pathManager.curEditingNode = -1;
+                                addBack = false;
+                            } else if (!wasJustPlaced) {
+                                addBack = true;
+                                Timer timer = new Timer(500, arg0 -> {
+                                    addBack = false;
+                                });
+                                timer.setRepeats(false);
+                                timer.start();
+                            }
+                        }
                         temp = group.getSpline(k).getPoint(1);
                     }
                     for (int t = 0; t <= 1; t += 1) {
                         Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
                         if (distance(x, y, v) < points.getWidth() / 2f) {
                             PathSim.pathManager.curEditingPath = i;
-                            PathSim.pathManager.curUIEditingNode = -1;
                             PathSim.pathManager.curEditingVel = 2 * k + t;
+                            PathSim.pathManager.curSelectedNode = -1;
                         }
                     }
                 }
@@ -219,13 +236,28 @@ public class Renderer2D {
                 Point2D p = toPointOnScreen(group.getSpline(0).getPoint(0));
                 if(distance(x, y, p) < pointl.getWidth() / 2f) {
                     PathSim.pathManager.curEditingPath = i;
-                    PathSim.pathManager.curUIEditingNode = -1;
                     PathSim.pathManager.curEditingNode = 0;
                     PathSim.pathManager.curSelectedNode = 0;
+                    if(addFront) {
+                        UI.addingSpline = 3;
+                        PathSim.pathManager.curSelectedNode = -1;
+                        PathSim.pathManager.curEditingNode = -1;
+                        addFront = false;
+                    } else if (!wasJustPlaced) {
+                        addFront = true;
+                        Timer timer = new Timer(500, arg0 -> {
+                            addFront = false;
+                        });
+                        timer.setRepeats(false);
+                        timer.start();
+                    }
                     temp = group.getSpline(0).getPoint(0);
                 }
+
             }
         }
+
+        wasJustPlaced = false;
 
 //        System.out.println("path: " + PathSim.pathManager.curEditingPath + " | node: " + PathSim.pathManager.curEditingNode
 //                + " | vel: " + PathSim.pathManager.curEditingVel + " | on: " + PathSim.pathManager.curOnPath);
@@ -272,8 +304,28 @@ public class Renderer2D {
     public void drawSprites() {
         fieldRenderer.begin(ShapeRenderer.ShapeType.Filled);
         double step = 0.001;
+        double smallStep = 0.01;
 
         int j = 0;
+
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        if(UI.addingSpline == 3 || UI.addingSpline == 4) {
+            QuinticHermiteSpline potential = new QuinticHermiteSpline(new Pose2D(0, 0, 0), new Pose2D(0, 0, 0));
+            if (UI.addingSpline == 3) {
+                potential = PathSim.pathManager.getPotentialSpline(toPointInInches(x, y), PathSim.pathManager.curEditingPath, true);
+            } else if (UI.addingSpline == 4) {
+                potential = PathSim.pathManager.getPotentialSpline(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
+            }
+            if(inBounds(x, y)) fieldRenderer.setColor(transgreen2);
+            else fieldRenderer.setColor(transred);
+            for(double t = smallStep; t <= 1; t += smallStep) {
+                Point2D p1 = toPointOnScreen(potential.getPoint(t-smallStep));
+                Point2D p2 = toPointOnScreen(potential.getPoint(t));
+                fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
+            }
+        }
+
         for(Path path : PathSim.pathManager.paths) {
             fieldRenderer.setColor(green);
             QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) path.getParametric();
@@ -302,8 +354,6 @@ public class Renderer2D {
 
         onBatch.begin();
 
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
         if(x < PathSim.LEFT_WIDTH && UI.addingSpline > 0) {
             if (inBounds(x, y)) {
                 onBatch.draw(pointl, x - pointl.getWidth() / 2f, y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
@@ -326,11 +376,10 @@ public class Renderer2D {
                 for (int t = 0; t <= 1; t += 1) {
                     if(t == 1 || k == 0) {
                         Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
-                        if ((((t == 0 && k == PathSim.pathManager.curUIEditingNode) || (t == 1 && k == PathSim.pathManager.curUIEditingNode - 1)) && PathSim.pathManager.curEditingPath == f) ||
-                                ((t == 0 && k == PathSim.pathManager.curSelectedNode) || (t == 1 && k == PathSim.pathManager.curSelectedNode - 1)) && PathSim.pathManager.curEditingPath == f) {
+                        if (((t == 0 && k == PathSim.pathManager.curSelectedNode) || (t == 1 && k == PathSim.pathManager.curSelectedNode - 1)) && PathSim.pathManager.curEditingPath == f) {
                             onBatch.draw(pointp, (float) p.x - pointp.getWidth() / 2f, (float) p.y - pointp.getHeight() / 2f, pointp.getWidth(), pointp.getHeight());
-                        } else if ((((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)) && PathSim.pathManager.curEditingPath == f) ||
-                                ((t == 0 && k == PathSim.pathManager.curHoveringNode) || (t == 1 && k == PathSim.pathManager.curHoveringNode - 1)) && PathSim.pathManager.curOnPath == f) {
+                        } else if ((((t == 0 && k == PathSim.pathManager.curHoveringNode) || (t == 1 && k == PathSim.pathManager.curHoveringNode - 1)) || ((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)))
+                                && (PathSim.pathManager.curOnPath == f || PathSim.pathManager.curEditingPath == f) && UI.addingSpline == 0) {
                             onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
                         } else {
                             onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
@@ -426,11 +475,25 @@ public class Renderer2D {
     }
 
     public void moveSplineGroup(QuinticHermiteSplineGroup group, double dx, double dy) {
+        boolean good = true;
+
         for(QuinticHermiteSpline spline : group.getSplines()) {
-            spline.setPose0(new Pose2D(spline.getPose0().getPosition().add(new Point2D(dx, dy)), spline.getPose0().getAngle()));
-            spline.setPose1(new Pose2D(spline.getPose1().getPosition().add(new Point2D(dx, dy)), spline.getPose1().getAngle()));
+            Point2D screen = toPointOnScreen(spline.getPose0().getPosition().add(new Point2D(dx, dy)));
+            Point2D screen2 = toPointOnScreen(spline.getPose1().getPosition().add(new Point2D(dx, dy)));
+
+            if(!inBounds((int) screen.x, (int) screen.y) || !inBounds((int) screen2.x, (int) screen2.y)) {
+                good = false;
+                PathSim.pathManager.curEditingNode = -1;
+            }
         }
-        group.updateSplineLength();
+
+        if(good) {
+            for (QuinticHermiteSpline spline : group.getSplines()) {
+                spline.setPose0(new Pose2D(spline.getPose0().getPosition().add(new Point2D(dx, dy)), spline.getPose0().getAngle()));
+                spline.setPose1(new Pose2D(spline.getPose1().getPosition().add(new Point2D(dx, dy)), spline.getPose1().getAngle()));
+            }
+            group.updateSplineLength();
+        }
     }
 
     public double distance(int mx, int my, Point2D p) {
@@ -556,7 +619,7 @@ public class Renderer2D {
     public void drawText(BitmapFont font, SpriteBatch batch, double centerx, double centery, int width, int height, double increment, int t) {
         int cur = 0;
 
-        double centerynew = Math.max(Math.min(centery, height), 48);
+        double centerynew = Math.max(Math.min(centery, height), 24);
         double centerxnew = Math.max(Math.min(centerx, width-2), 28);
 
         for(double i = centerx + increment; i <= width; i += increment) {

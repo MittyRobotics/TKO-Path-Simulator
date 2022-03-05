@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class PathManager {
 
     public ArrayList<Path> paths = new ArrayList<>();
-    public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode, curHoveringNode, curUIHoveringNode, curUIEditingNode;
+    public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode, curHoveringNode, curUIHoveringNode;
 
     public Point2D storedPoint;
 
@@ -20,7 +20,6 @@ public class PathManager {
         curOnPath = -1;
         curHoveringNode = -1;
         curUIHoveringNode = -1;
-        curUIEditingNode = -1;
         storedPoint = null;
     }
 
@@ -57,7 +56,24 @@ public class PathManager {
             group.addSpline(new QuinticHermiteSpline(new Pose2D(prev, angle), new Pose2D(point, other)));
         }
         PathSim.renderer2d.ui.populateSplineEdit();
+    }
 
+    public QuinticHermiteSpline getPotentialSpline(Point2D point, int currentPath, boolean front) {
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).getParametric();
+        if(front) {
+            Pose2D pp = group.getSplines().get(0).getPose0();
+            Point2D prev = pp.getPosition();
+            Angle angle = pp.getAngle();
+            Angle other = new Angle(prev.x - point.x, prev.y - point.y);
+            return new QuinticHermiteSpline(new Pose2D(point, other), new Pose2D(prev, angle));
+        } else {
+            Pose2D pp = group.getSplines().get(group.getSplines().size() - 1).getPose1();
+            Point2D prev = pp.getPosition();
+            Angle angle = pp.getAngle();
+            Angle other = new Angle(prev.x - point.x, prev.y - point.y);
+            other.add(Math.PI);
+            return new QuinticHermiteSpline(new Pose2D(prev, angle), new Pose2D(point, other));
+        }
     }
 
     public void moveToFront(int i) {
