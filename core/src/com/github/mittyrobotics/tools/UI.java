@@ -26,7 +26,6 @@ public class UI implements Disposable {
     public boolean splineMode, prevMode, purePursuitMode;
     public TextButton pathId, addNode1, addNode2, spline, path, addPath, export, delete, deleteNode, purePursuit, ramsete;
     public ArrayList<TextField> splines = new ArrayList<>();
-    public ArrayList<Label> labels = new ArrayList<>();
     public TextField.TextFieldStyle textFieldStyle;
     public Label.LabelStyle lStyle2;
     public ArrayList<Actor> toggle = new ArrayList<>();
@@ -258,9 +257,11 @@ public class UI implements Disposable {
             final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp; @Override
             public boolean keyTyped (InputEvent event, char character) {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
-                    if(checkPosition(Double.parseDouble(tf.getText()), false)) s.setPose0(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
-                    tf.setText(df.format(s.getPose0().getPosition().getX()));
-                    stage.unfocus(tf);
+                    if(checkPosition(Double.parseDouble(tf.getText()), false)) {
+                        s.setPose0(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
+                        tf.setText(df.format(s.getPose0().getPosition().getX()));
+                        stage.unfocus(tf);
+                    }
                 } return super.keyTyped(event, character);
             }
         });
@@ -272,9 +273,11 @@ public class UI implements Disposable {
             final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp2; @Override
             public boolean keyTyped (InputEvent event, char character) {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
-                    if(checkPosition(Double.parseDouble(tf.getText()), true)) s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose0().getAngle()));
-                    tf.setText(df.format(s.getPose0().getPosition().getY()));
-                    stage.unfocus(tf);
+                    if(checkPosition(Double.parseDouble(tf.getText()), true)) {
+                        s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose0().getAngle()));
+                        tf.setText(df.format(s.getPose0().getPosition().getY()));
+                        stage.unfocus(tf);
+                    }
                 } return super.keyTyped(event, character);
             }
         });
@@ -297,9 +300,11 @@ public class UI implements Disposable {
                 final QuinticHermiteSpline s = s_; final TextField tf = temp3; @Override
                 public boolean keyTyped (InputEvent event, char character) {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
-                        if(checkPosition(Double.parseDouble(tf.getText()), false)) s.setPose1(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
-                        tf.setText(df.format(s.getPose1().getPosition().getX()));
-                        stage.unfocus(tf);
+                        if(checkPosition(Double.parseDouble(tf.getText()), false)) {
+                            s.setPose1(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
+                            tf.setText(df.format(s.getPose1().getPosition().getX()));
+                            stage.unfocus(tf);
+                        }
                     } return super.keyTyped(event, character);
                 }
             });
@@ -311,9 +316,11 @@ public class UI implements Disposable {
                 final QuinticHermiteSpline s = s_; final TextField tf = temp4; @Override
                 public boolean keyTyped (InputEvent event, char character) {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
-                        if(checkPosition(Double.parseDouble(tf.getText()), true)) s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose1().getAngle()));
-                        tf.setText(df.format(s.getPose1().getPosition().getY()));
-                        stage.unfocus(tf);
+                        if(checkPosition(Double.parseDouble(tf.getText()), true)) {
+                            s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose1().getAngle()));
+                            tf.setText(df.format(s.getPose1().getPosition().getY()));
+                            stage.unfocus(tf);
+                        }
                     } return super.keyTyped(event, character);
                 }
             });

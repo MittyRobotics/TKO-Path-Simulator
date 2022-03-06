@@ -2,6 +2,7 @@ package com.github.mittyrobotics.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.graphics.Color;
 import com.github.mittyrobotics.PathSim;
 
 import java.awt.*;
@@ -15,6 +16,7 @@ public class DesktopLauncher {
 		config.width = d.width;
 		config.samples = 3;
 		config.resizable = false;
+		config.initialBackgroundColor = new Color(0.12f, 0.12f, 0.12f, 1f);
 		new LwjglApplication(new PathSim(), config);
 	}
 }

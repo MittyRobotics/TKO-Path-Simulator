@@ -32,7 +32,7 @@ public class PathSim extends ApplicationAdapter {
 	public static InputMultiplexer input;
 	public static PathManager pathManager;
 
-	public static boolean debug = false;
+	public static boolean debug = true;
 	public static JTextArea debugText;
 
 	@Override

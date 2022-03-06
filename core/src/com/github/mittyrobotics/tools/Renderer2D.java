@@ -159,13 +159,12 @@ public class Renderer2D {
                 UI.addingSpline = 0;
             } else if (UI.addingSpline == 3) {
                 PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, true);
-                wasJustPlaced = true;
                 UI.addingSpline = 0;
             } else if (UI.addingSpline == 4) {
                 PathSim.pathManager.addPointToPath(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
-                wasJustPlaced = true;
                 UI.addingSpline = 0;
             }
+            wasJustPlaced = true;
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -308,7 +307,7 @@ public class Renderer2D {
                 }
             }
 
-            if(UI.addingSpline <= 0 && (editingPath == PathSim.pathManager.curEditingPath || PathSim.pathManager.curEditingPath == -1 || editingPath == -1)) {
+            if((UI.addingSpline <= 0 && x < PathSim.LEFT_WIDTH) && (editingPath == PathSim.pathManager.curEditingPath || PathSim.pathManager.curEditingPath == -1 || editingPath == -1)) {
                 PathSim.pathManager.curEditingPath = editingPath;
                 PathSim.pathManager.curSelectedNode = selectedNode;
                 PathSim.pathManager.curEditingNode = editingNode;
