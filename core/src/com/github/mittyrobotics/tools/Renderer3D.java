@@ -16,21 +16,22 @@ import com.badlogic.gdx.utils.Array;
 import com.github.mittyrobotics.PathSim;
 import com.github.mittyrobotics.pathfollowing.Path;
 import com.github.mittyrobotics.pathfollowing.Point2D;
+import com.github.mittyrobotics.pathfollowing.Pose2D;
 import com.github.mittyrobotics.pathfollowing.QuinticHermiteSplineGroup;
 
 public class Renderer3D {
 
     public PerspectiveCamera cam;
     public ModelBatch modelBatch;
-    public Model model, sphere;
-    public ModelInstance instance, sphereInstance;
+    public Model model, sphere, robot;
+    public ModelInstance instance, sphereInstance, robotInstance;
     public Environment environment;
     public static CamController3D camController;
     public Array<ModelInstance> instances = new Array<>();
     public Array<ModelInstance> sphereInstances = new Array<>();
     public boolean loading;
 
-    public double fieldWidth, fieldHeight;
+    public double fieldWidth, fieldHeight, robotL, robotW;
     public int width, height;
 
     public QuinticHermiteSplineGroup group;
@@ -39,13 +40,14 @@ public class Renderer3D {
     public ModelBuilder modelBuilder;
 
     public double inch;
+    public float scale;
 
     public Color green = new Color(67/255f, 1f, 170/255f, 1f);
 
     public Renderer3D() {
         modelBatch = new ModelBatch();
         modelBuilder = new ModelBuilder();
-        sphere = modelBuilder.createSphere(5f, 5f, 5f, 10, 10, new Material(ColorAttribute.createDiffuse(green)), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        sphere = modelBuilder.createSphere(3f, 3f, 3f, 10, 10, new Material(ColorAttribute.createDiffuse(green)), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -85,6 +87,7 @@ public class Renderer3D {
 
     public void doneLoading() {
         model = PathSim.assets.get("field.g3db", Model.class);
+        robot = PathSim.assets.get("robot.g3db", Model.class);
         BoundingBox temp = new BoundingBox();
         model.calculateBoundingBox(temp);
 
@@ -94,6 +97,18 @@ public class Renderer3D {
         inch = fieldWidth / 864;
 
         instance = new ModelInstance(model);
+        robotInstance = new ModelInstance(robot);
+
+//        robotInstance.transform.scale(100f, 100f, 100f);
+//        robotInstance.calculateTransforms();
+        robotInstance.calculateBoundingBox(temp);
+        robotW = temp.getDepth();
+        robotL = temp.getWidth();
+
+        double actual = inch * 38;
+        scale = (float) (actual / robotL);
+        robotInstance.transform.scale(scale, scale, scale);
+
         instances.add(instance);
         loading = false;
     }
@@ -106,6 +121,7 @@ public class Renderer3D {
 
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
+        modelBatch.render(robotInstance, environment);
 
         modelBatch.render(sphereInstances);
 
@@ -119,9 +135,18 @@ public class Renderer3D {
         for(double i = step; i <= 1; i += step) {
             sphereInstance = new ModelInstance(sphere);
             Point2D cur = group.getPoint(i);
-            sphereInstance.transform.translate((float) (cur.x * inch), 10f, (float) (-cur.y * inch));
+            sphereInstance.transform.translate((float) (cur.getX() * inch), 15f, (float) (-cur.getY() * inch));
             sphereInstances.add(sphereInstance);
         }
+
+        Pose2D cur = group.getPose(0);
+        Point2D pos = getRobotPos(cur.getPosition().getX(), cur.getPosition().getY());
+        robotInstance.transform.translate((float) pos.getX(), 4f, (float) -pos.getY());
+    }
+
+    public Point2D getRobotPos(double x, double y) {
+        return new Point2D(x * inch / scale - robotL * scale / 2,
+                y * inch / scale - robotW * scale / 2);
     }
 
     public void load() {

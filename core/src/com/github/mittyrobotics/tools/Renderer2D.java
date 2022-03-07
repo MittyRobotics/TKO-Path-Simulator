@@ -352,7 +352,7 @@ public class Renderer2D {
     public void drawSprites() {
         fieldRenderer.begin(ShapeRenderer.ShapeType.Filled);
         double step = 0.001;
-        double smallStep = 0.01;
+        double smallStep = 0.001;
 
         int j = 0;
 

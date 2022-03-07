@@ -38,6 +38,7 @@ public class PathSim extends ApplicationAdapter {
 
 		assets = new AssetManager();
 		assets.load("field.g3db", Model.class);
+		assets.load("robot.g3db", Model.class);
 		assets.load("img/FIELD_RENDER.png", Texture.class);
 		assets.load("img/title1.png", Texture.class);
 		assets.load("img/title2.png", Texture.class);

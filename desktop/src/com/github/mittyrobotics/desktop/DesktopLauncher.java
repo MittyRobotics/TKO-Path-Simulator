@@ -17,6 +17,7 @@ public class DesktopLauncher {
 		config.samples = 3;
 		config.resizable = false;
 		config.initialBackgroundColor = new Color(0.12f, 0.12f, 0.12f, 1f);
+		config.useGL30 = false;
 		new LwjglApplication(new PathSim(), config);
 	}
 }
