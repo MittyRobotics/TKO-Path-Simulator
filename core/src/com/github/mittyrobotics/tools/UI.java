@@ -409,16 +409,20 @@ public class UI implements Disposable {
         path.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                splineMode = false;
-                PathSim.switchModes(true);
+                if(!PathSim.in3d) {
+                    splineMode = false;
+                    PathSim.switchModes(true);
+                }
             }
         });
 
         spline.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                splineMode = true;
-                PathSim.switchModes(false);
+                if(PathSim.in3d) {
+                    splineMode = true;
+                    PathSim.switchModes(false);
+                }
             }
         });
 

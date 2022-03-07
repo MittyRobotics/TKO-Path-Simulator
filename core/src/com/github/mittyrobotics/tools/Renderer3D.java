@@ -1,31 +1,51 @@
 package com.github.mittyrobotics.tools;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.github.mittyrobotics.PathSim;
+import com.github.mittyrobotics.pathfollowing.Path;
+import com.github.mittyrobotics.pathfollowing.Point2D;
+import com.github.mittyrobotics.pathfollowing.QuinticHermiteSplineGroup;
 
 public class Renderer3D {
 
     public PerspectiveCamera cam;
     public ModelBatch modelBatch;
-    public Model model;
-    public ModelInstance instance;
+    public Model model, sphere;
+    public ModelInstance instance, sphereInstance;
     public Environment environment;
     public static CamController3D camController;
     public Array<ModelInstance> instances = new Array<>();
+    public Array<ModelInstance> sphereInstances = new Array<>();
     public boolean loading;
 
     public double fieldWidth, fieldHeight;
     public int width, height;
 
+    public QuinticHermiteSplineGroup group;
+    public Path path;
+
+    public ModelBuilder modelBuilder;
+
+    public double inch;
+
+    public Color green = new Color(67/255f, 1f, 170/255f, 1f);
+
     public Renderer3D() {
         modelBatch = new ModelBatch();
+        modelBuilder = new ModelBuilder();
+        sphere = modelBuilder.createSphere(5f, 5f, 5f, 10, 10, new Material(ColorAttribute.createDiffuse(green)), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         environment = new Environment();
         environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
@@ -47,7 +67,7 @@ public class Renderer3D {
         camController = new CamController3D(cam, width, height);
     }
 
-    public void resetCam() {
+    public void reset() {
         cam = new PerspectiveCamera(67, width, height);
         cam.position.set(0f, 1600f, 0f);
         cam.lookAt(0,0,0);
@@ -56,6 +76,11 @@ public class Renderer3D {
         cam.update();
 
         camController = new CamController3D(cam, width, height);
+
+        path = PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath);
+        group = (QuinticHermiteSplineGroup) path.getParametric();
+
+        renderSpline();
     }
 
     public void doneLoading() {
@@ -65,6 +90,8 @@ public class Renderer3D {
 
         fieldWidth = temp.getWidth();
         fieldHeight = temp.getDepth();
+
+        inch = fieldWidth / 864;
 
         instance = new ModelInstance(model);
         instances.add(instance);
@@ -79,7 +106,22 @@ public class Renderer3D {
 
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
+
+        modelBatch.render(sphereInstances);
+
         modelBatch.end();
+    }
+
+    public void renderSpline() {
+        sphereInstances.clear();
+        double step = 1. / (10 * (int) (group.getLength()));
+
+        for(double i = step; i <= 1; i += step) {
+            sphereInstance = new ModelInstance(sphere);
+            Point2D cur = group.getPoint(i);
+            sphereInstance.transform.translate((float) (cur.x * inch), 10f, (float) (-cur.y * inch));
+            sphereInstances.add(sphereInstance);
+        }
     }
 
     public void load() {

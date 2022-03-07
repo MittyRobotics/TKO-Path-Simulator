@@ -9,11 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.utils.Align;
-import com.github.mittyrobotics.pathfollowing.QuinticHermiteSpline;
 import com.github.mittyrobotics.tools.*;
 
 import javax.swing.*;
@@ -102,9 +98,8 @@ public class PathSim extends ApplicationAdapter {
 	}
 
 	public static void switchModes(boolean in3dd) {
-		if(renderer3d.loading) renderer3d.load();
 		if(in3dd) {
-			renderer3d.resetCam();
+			renderer3d.reset();
 			in3d = true;
 			input.addProcessor(Renderer3D.camController);
 			input.removeProcessor(Renderer2D.camController);
@@ -117,6 +112,7 @@ public class PathSim extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+		if(renderer3d.loading) renderer3d.load();
 		if(in3d) {
 			renderer3d.render();
 			renderer2d.renderUI();
