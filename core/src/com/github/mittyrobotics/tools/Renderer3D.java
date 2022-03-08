@@ -8,9 +8,7 @@ import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.github.mittyrobotics.PathSim;
@@ -38,6 +36,8 @@ public class Renderer3D {
     public Path path;
 
     public ModelBuilder modelBuilder;
+
+    public Pose2D prevPos;
 
     public double inch;
     public float scale;
@@ -102,11 +102,11 @@ public class Renderer3D {
 //        robotInstance.transform.scale(100f, 100f, 100f);
 //        robotInstance.calculateTransforms();
         robotInstance.calculateBoundingBox(temp);
-        robotW = temp.getDepth();
-        robotL = temp.getWidth();
+        robotW = temp.getWidth();
+        robotL = temp.getHeight();
 
         double actual = inch * 38;
-        scale = (float) (actual / robotL);
+        scale = (float) (actual / temp.getWidth());
         robotInstance.transform.scale(scale, scale, scale);
 
         instances.add(instance);
@@ -114,7 +114,6 @@ public class Renderer3D {
     }
 
     public void render () {
-
         Gdx.gl.glViewport(0, 0, width, height);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
@@ -139,14 +138,29 @@ public class Renderer3D {
             sphereInstances.add(sphereInstance);
         }
 
-        Pose2D cur = group.getPose(0);
+        moveRobotBack();
+        moveRobotToPose(group.getPose(0));
+
+    }
+
+    public void moveRobotToPose(Pose2D cur) {
         Point2D pos = getRobotPos(cur.getPosition().getX(), cur.getPosition().getY());
-        robotInstance.transform.translate((float) pos.getX(), 4f, (float) -pos.getY());
+        robotInstance.transform.translate((float) pos.getX(), 4f, (float) -pos.getY()).rotate(0, 1, 0,
+                (float) (180 + cur.getAngle().getRadians() * 180 / Math.PI)).translate((float) (-robotL * scale / 2), 0f, (float) (robotW * scale / 2));
+
+        prevPos = cur;
+    }
+
+    public void moveRobotBack() {
+        if(prevPos != null) {
+            Point2D pos = getRobotPos(prevPos.getPosition().getX(), prevPos.getPosition().getY());
+            robotInstance.transform.translate((float) (robotL * scale / 2), 0f, (float) (-robotW * scale / 2)).rotate(0, 1, 0,
+                    (float) (-180 - prevPos.getAngle().getRadians() * 180 / Math.PI)).translate((float) -pos.getX(), -4f, (float) pos.getY());
+        }
     }
 
     public Point2D getRobotPos(double x, double y) {
-        return new Point2D(x * inch / scale - robotL * scale / 2,
-                y * inch / scale - robotW * scale / 2);
+        return new Point2D(x * inch / scale, y * inch / scale);
     }
 
     public void load() {
