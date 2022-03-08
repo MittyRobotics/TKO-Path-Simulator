@@ -18,20 +18,24 @@ import java.util.ArrayList;
 public class UI implements Disposable {
 
     public Stage stage;
-    public Table container, table;
-    public ScrollPane pane;
+    public Table container, table, pcontainer, ptable;
+    public ScrollPane pane, ppane;
     public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel;
     public boolean splineMode, prevMode, purePursuitMode;
     public TextButton pathId, addNode1, addNode2, spline, path, addPath, export, delete, deleteNode, purePursuit, ramsete;
     public ArrayList<TextField> splines = new ArrayList<>();
+    ArrayList<TextField> paths = new ArrayList<>();
     public TextField.TextFieldStyle textFieldStyle;
     public Label.LabelStyle lStyle2;
     public ArrayList<Actor> toggle = new ArrayList<>();
     public ArrayList<Actor> splineEdit = new ArrayList<>();
     public ArrayList<Actor> pathEdit = new ArrayList<>();
     public DecimalFormat df;
+
+    public String[] purePursuitLabels = {"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
+    public String[] ramseteLabels = {"b", "Z", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
 
     public UI() {
         stage = new Stage();
@@ -47,9 +51,7 @@ public class UI implements Disposable {
         table = new Table();
         ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
 //        scrollPaneStyle.vScrollKnob = PathSim.skin.getDrawable("scroll_vertical_knob");
-//        scrollPaneStyle.background = PathSim.skin.getDrawable("btn_default_normal");
-
-        System.out.println(Gdx.graphics.getHeight());
+        scrollPaneStyle.background = PathSim.skin.getDrawable("btn_default_normal");
 
         pane = new ScrollPane(table, scrollPaneStyle);
         table.align(Align.top);
@@ -71,6 +73,30 @@ public class UI implements Disposable {
         container.row();
         container.setBounds(right+25, 82, 250, Gdx.graphics.getHeight() - 518);
         splineEdit.add(container);
+
+        pcontainer = new Table();
+        ptable = new Table();
+
+        ppane = new ScrollPane(ptable, scrollPaneStyle);
+        ptable.align(Align.top);
+        ppane.setScrollingDisabled(true, false);
+        ppane.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                stage.setScrollFocus(ppane);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                stage.setScrollFocus(null);
+            }
+        });
+        ppane.setFlickScroll(false);
+        ppane.layout();
+        pcontainer.add(ppane).fill().expand();
+        pcontainer.row();
+        pcontainer.setBounds(right+25, 82, 250, Gdx.graphics.getHeight() - 473);
+        pathEdit.add(pcontainer);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = PathSim.font;
@@ -195,8 +221,8 @@ public class UI implements Disposable {
 
         prevState = addingSpline;
 
-        pathId.setText(PathSim.pathManager.curEditingPath == -1 ? "No Path Selected" : "Path " + (PathSim.pathManager.curEditingPath+1));
-        if(PathSim.pathManager.curEditingPath == -1 && prevEditing != -1) {
+        pathId.setText(PathSim.pathManager.notEditing() ? "No Path Selected" : "Path " + (PathSim.pathManager.curEditingPath+1));
+        if(PathSim.pathManager.notEditing() && prevEditing != -1) {
             for(Actor a : toggle) a.remove();
             if(splineMode) for(Actor a : splineEdit) a.remove();
             else for(Actor a : pathEdit) a.remove();
@@ -212,10 +238,10 @@ public class UI implements Disposable {
 
         if(PathSim.pathManager.curEditingPath != -1 && splineMode) {
             updateSplineEdit();
-            if(PathSim.pathManager.curSelectedNode < 0 ||  ((QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric())).getSplines().size() <= 1) {
+            if(PathSim.pathManager.curSelectedNode < 0 ||  ((QuinticHermiteSplineGroup) (PathSim.pathManager.getCurPath().getParametric())).getSplines().size() <= 1) {
                 delete.setBounds(right + 85, Gdx.graphics.getHeight() - 428, 130, 40);
                 deleteNode.remove();
-            } else if (((QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric())).getSplines().size() > 1) {
+            } else if (((QuinticHermiteSplineGroup) (PathSim.pathManager.getCurPath().getParametric())).getSplines().size() > 1) {
                 delete.setBounds(right + 25, Gdx.graphics.getHeight() - 428, 130, 40);
                 stage.addActor(deleteNode);
             }
@@ -239,7 +265,7 @@ public class UI implements Disposable {
     }
 
     public void populateSplineEdit() {
-        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric();
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.getCurPath().getParametric();
         ArrayList<QuinticHermiteSpline> sp = group.getSplines();
 
         splines.clear();
@@ -254,13 +280,13 @@ public class UI implements Disposable {
 
         TextField temp = new TextField(df.format(sp.get(0).getPose0().getPosition().getX()), textFieldStyle);
         temp.addListener(new InputListener() {
-            final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp; @Override
+            final QuinticHermiteSpline s = sp.get(0); @Override
             public boolean keyTyped (InputEvent event, char character) {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
-                    if(checkPosition(Double.parseDouble(tf.getText()), false)) {
-                        s.setPose0(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
-                        tf.setText(df.format(s.getPose0().getPosition().getX()));
-                        stage.unfocus(tf);
+                    if(checkPosition(Double.parseDouble(temp.getText()), false)) {
+                        s.setPose0(new Pose2D(new Point2D(Double.parseDouble(temp.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
+                        temp.setText(df.format(s.getPose0().getPosition().getX()));
+                        stage.unfocus(temp);
                     }
                 } return super.keyTyped(event, character);
             }
@@ -270,13 +296,13 @@ public class UI implements Disposable {
 
         TextField temp2 = new TextField(df.format(sp.get(0).getPose0().getPosition().getY()), textFieldStyle);
         temp2.addListener(new InputListener() {
-            final QuinticHermiteSpline s = sp.get(0); final TextField tf = temp2; @Override
+            final QuinticHermiteSpline s = sp.get(0); @Override
             public boolean keyTyped (InputEvent event, char character) {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
-                    if(checkPosition(Double.parseDouble(tf.getText()), true)) {
-                        s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose0().getAngle()));
-                        tf.setText(df.format(s.getPose0().getPosition().getY()));
-                        stage.unfocus(tf);
+                    if(checkPosition(Double.parseDouble(temp2.getText()), true)) {
+                        s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(temp2.getText())), s.getPose0().getAngle()));
+                        temp2.setText(df.format(s.getPose0().getPosition().getY()));
+                        stage.unfocus(temp2);
                     }
                 } return super.keyTyped(event, character);
             }
@@ -297,13 +323,13 @@ public class UI implements Disposable {
             };
             TextField temp3 = new TextField(df.format(s_.getPose1().getPosition().getX()), textFieldStyle);
             temp3.addListener(new InputListener() {
-                final QuinticHermiteSpline s = s_; final TextField tf = temp3; @Override
+                final QuinticHermiteSpline s = s_; @Override
                 public boolean keyTyped (InputEvent event, char character) {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
-                        if(checkPosition(Double.parseDouble(tf.getText()), false)) {
-                            s.setPose1(new Pose2D(new Point2D(Double.parseDouble(tf.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
-                            tf.setText(df.format(s.getPose1().getPosition().getX()));
-                            stage.unfocus(tf);
+                        if(checkPosition(Double.parseDouble(temp3.getText()), false)) {
+                            s.setPose1(new Pose2D(new Point2D(Double.parseDouble(temp3.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
+                            temp3.setText(df.format(s.getPose1().getPosition().getX()));
+                            stage.unfocus(temp3);
                         }
                     } return super.keyTyped(event, character);
                 }
@@ -313,13 +339,13 @@ public class UI implements Disposable {
 
             TextField temp4 = new TextField(df.format(s_.getPose1().getPosition().getY()), textFieldStyle);
             temp4.addListener(new InputListener() {
-                final QuinticHermiteSpline s = s_; final TextField tf = temp4; @Override
+                final QuinticHermiteSpline s = s_; @Override
                 public boolean keyTyped (InputEvent event, char character) {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
-                        if(checkPosition(Double.parseDouble(tf.getText()), true)) {
-                            s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(tf.getText())), s.getPose1().getAngle()));
-                            tf.setText(df.format(s.getPose1().getPosition().getY()));
-                            stage.unfocus(tf);
+                        if(checkPosition(Double.parseDouble(temp4.getText()), true)) {
+                            s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(temp4.getText())), s.getPose1().getAngle()));
+                            temp4.setText(df.format(s.getPose1().getPosition().getY()));
+                            stage.unfocus(temp4);
                         }
                     } return super.keyTyped(event, character);
                 }
@@ -353,7 +379,25 @@ public class UI implements Disposable {
     }
 
     public void populatePathEdit() {
-
+        //{"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
+        ExtendedPath path = PathSim.pathManager.getCurEPath();
+        if(purePursuitMode) {
+            paths.clear();
+//
+//            TextField temp1 = new TextField(df.format(path.lookahead), textFieldStyle);
+//            temp1.addListener(new InputListener() {
+//                final ExtendedPath epath = path; @Override
+//                public boolean keyTyped (InputEvent event, char character) {
+//                    if(event.getKeyCode() == Input.Keys.ENTER) {
+//                        if(Double.parseDouble(temp1.getText()) > 0) {
+//                            temp1.setText("");
+//                            stage.unfocus(temp1);
+//                        }
+//                    } return super.keyTyped(event, character);
+//                }
+//            });
+        } else {
+        }
     }
 
     public boolean checkPosition(double p, boolean y) {
@@ -361,7 +405,7 @@ public class UI implements Disposable {
     }
 
     public void updateSplineEdit() {
-        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath).getParametric();
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.getCurPath().getParametric();
         ArrayList<QuinticHermiteSpline> sp = group.getSplines();
 
         if(!splines.get(0).hasKeyboardFocus()) splines.get(0).setText(df.format(sp.get(0).getPose0().getPosition().getX()));

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 
 public class PathManager {
 
-    public ArrayList<Path> paths = new ArrayList<>();
+    public ArrayList<ExtendedPath> paths = new ArrayList<>();
     public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode, curHoveringNode, curUIHoveringNode;
 
     public Point2D storedPoint;
@@ -34,11 +34,7 @@ public class PathManager {
     public void addPathFromPoint(Point2D point) {
         if(storedPoint != null) {
             Angle angle = new Angle(point.x - storedPoint.x, point.y - storedPoint.y);
-            paths.add(new PurePursuitPath(
-                    new QuinticHermiteSplineGroup(new QuinticHermiteSpline(new Pose2D(storedPoint, angle), new Pose2D(point, angle))),
-                    50,
-                    50
-            ));
+            paths.add(new ExtendedPath(new QuinticHermiteSplineGroup(new QuinticHermiteSpline(new Pose2D(storedPoint, angle), new Pose2D(point, angle)))));
         }
         storedPoint = null;
     }
@@ -52,7 +48,7 @@ public class PathManager {
     }
 
     public void addPointToPath(Point2D point, int currentPath, boolean front) {
-        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).getParametric();
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).purePursuitPath.getParametric();
         if(front) {
             Pose2D pp = group.getSplines().get(0).getPose0();
             Point2D prev = pp.getPosition();
@@ -71,7 +67,7 @@ public class PathManager {
     }
 
     public QuinticHermiteSpline getPotentialSpline(Point2D point, int currentPath, boolean front) {
-        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).getParametric();
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).purePursuitPath.getParametric();
         if(front) {
             Pose2D pp = group.getSplines().get(0).getPose0();
             Point2D prev = pp.getPosition();
@@ -89,7 +85,7 @@ public class PathManager {
     }
 
     public void deleteNode(int currentPath, int currentNode) {
-        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).getParametric();
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) paths.get(currentPath).purePursuitPath.getParametric();
         if(currentNode == 0) {
             group.removeSpline(0);
         } else if (currentNode == group.getSplines().size()) {
@@ -104,7 +100,19 @@ public class PathManager {
         PathSim.renderer2d.ui.populateSplineEdit();
     }
 
-    public void moveToFront(int i) {
-        if(i >= 0) paths.add(paths.remove(i));
+    public PurePursuitPath getCurPath() {
+        return paths.get(curEditingPath).purePursuitPath;
+    }
+
+    public RamsetePath getCurRPath() {
+        return paths.get(curEditingPath).ramsetePath;
+    }
+
+    public ExtendedPath getCurEPath() {
+        return paths.get(curEditingPath);
+    }
+
+    public boolean notEditing() {
+        return curEditingPath == -1;
     }
 }

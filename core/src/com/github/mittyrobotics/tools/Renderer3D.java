@@ -50,8 +50,8 @@ public class Renderer3D {
         sphere = modelBuilder.createSphere(3f, 3f, 3f, 10, 10, new Material(ColorAttribute.createDiffuse(green)), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.5f, 1f));
+        environment.add(new DirectionalLight().set(0.8f, 0.8f, 1f, -1f, -0.8f, -0.2f));
 
 
         width = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
@@ -79,7 +79,7 @@ public class Renderer3D {
 
         camController = new CamController3D(cam, width, height);
 
-        path = PathSim.pathManager.paths.get(PathSim.pathManager.curEditingPath);
+        path = PathSim.pathManager.getCurPath();
         group = (QuinticHermiteSplineGroup) path.getParametric();
 
         renderSpline();
@@ -102,11 +102,11 @@ public class Renderer3D {
 //        robotInstance.transform.scale(100f, 100f, 100f);
 //        robotInstance.calculateTransforms();
         robotInstance.calculateBoundingBox(temp);
-        robotW = temp.getWidth();
-        robotL = temp.getHeight();
+        robotW = 85;
+        robotL = 100;
 
         double actual = inch * 38;
-        scale = (float) (actual / temp.getWidth());
+        scale = (float) (actual / robotL);
         robotInstance.transform.scale(scale, scale, scale);
 
         instances.add(instance);
