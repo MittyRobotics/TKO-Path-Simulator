@@ -35,7 +35,7 @@ public class UI implements Disposable {
     public DecimalFormat df;
 
     public String[] purePursuitLabels = {"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
-    public String[] ramseteLabels = {"b", "Z", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
+    public String[] ramseteLabels = {"b (convergence)", "Z (dampening)", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
 
     public UI() {
         stage = new Stage();
@@ -51,7 +51,7 @@ public class UI implements Disposable {
         table = new Table();
         ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
 //        scrollPaneStyle.vScrollKnob = PathSim.skin.getDrawable("scroll_vertical_knob");
-        scrollPaneStyle.background = PathSim.skin.getDrawable("btn_default_normal");
+//        scrollPaneStyle.background = PathSim.skin.getDrawable("btn_default_normal");
 
         pane = new ScrollPane(table, scrollPaneStyle);
         table.align(Align.top);
@@ -95,7 +95,7 @@ public class UI implements Disposable {
         ppane.layout();
         pcontainer.add(ppane).fill().expand();
         pcontainer.row();
-        pcontainer.setBounds(right+25, 82, 250, Gdx.graphics.getHeight() - 473);
+        pcontainer.setBounds(right+25, 82, 250, Gdx.graphics.getHeight() - 478);
         pathEdit.add(pcontainer);
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -257,6 +257,7 @@ public class UI implements Disposable {
         } else if (!splineMode && prevMode && prevEditing != -1) {
             for(Actor a : pathEdit) stage.addActor(a);
             for(Actor a : splineEdit) a.remove();
+            populatePathEdit();
         }
         prevMode = splineMode;
 
@@ -283,11 +284,9 @@ public class UI implements Disposable {
             final QuinticHermiteSpline s = sp.get(0); @Override
             public boolean keyTyped (InputEvent event, char character) {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
-                    if(checkPosition(Double.parseDouble(temp.getText()), false)) {
-                        s.setPose0(new Pose2D(new Point2D(Double.parseDouble(temp.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
-                        temp.setText(df.format(s.getPose0().getPosition().getX()));
-                        stage.unfocus(temp);
-                    }
+                    if(checkPosition(temp.getText(), false)) s.setPose0(new Pose2D(new Point2D(Double.parseDouble(temp.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
+                    temp.setText(df.format(s.getPose0().getPosition().getX()));
+                    stage.unfocus(temp);
                 } return super.keyTyped(event, character);
             }
         });
@@ -299,11 +298,9 @@ public class UI implements Disposable {
             final QuinticHermiteSpline s = sp.get(0); @Override
             public boolean keyTyped (InputEvent event, char character) {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
-                    if(checkPosition(Double.parseDouble(temp2.getText()), true)) {
-                        s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(temp2.getText())), s.getPose0().getAngle()));
-                        temp2.setText(df.format(s.getPose0().getPosition().getY()));
-                        stage.unfocus(temp2);
-                    }
+                    if(checkPosition(temp2.getText(), true)) s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(temp2.getText())), s.getPose0().getAngle()));
+                    temp2.setText(df.format(s.getPose0().getPosition().getY()));
+                    stage.unfocus(temp2);
                 } return super.keyTyped(event, character);
             }
         });
@@ -326,11 +323,9 @@ public class UI implements Disposable {
                 final QuinticHermiteSpline s = s_; @Override
                 public boolean keyTyped (InputEvent event, char character) {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
-                        if(checkPosition(Double.parseDouble(temp3.getText()), false)) {
-                            s.setPose1(new Pose2D(new Point2D(Double.parseDouble(temp3.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
-                            temp3.setText(df.format(s.getPose1().getPosition().getX()));
-                            stage.unfocus(temp3);
-                        }
+                        if(checkPosition(temp3.getText(), false)) s.setPose1(new Pose2D(new Point2D(Double.parseDouble(temp3.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
+                        temp3.setText(df.format(s.getPose1().getPosition().getX()));
+                        stage.unfocus(temp3);
                     } return super.keyTyped(event, character);
                 }
             });
@@ -342,11 +337,9 @@ public class UI implements Disposable {
                 final QuinticHermiteSpline s = s_; @Override
                 public boolean keyTyped (InputEvent event, char character) {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
-                        if(checkPosition(Double.parseDouble(temp4.getText()), true)) {
-                            s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(temp4.getText())), s.getPose1().getAngle()));
-                            temp4.setText(df.format(s.getPose1().getPosition().getY()));
-                            stage.unfocus(temp4);
-                        }
+                        if(checkPosition(temp4.getText(), true)) s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(temp4.getText())), s.getPose1().getAngle()));
+                        temp4.setText(df.format(s.getPose1().getPosition().getY()));
+                        stage.unfocus(temp4);
                     } return super.keyTyped(event, character);
                 }
             });
@@ -381,27 +374,350 @@ public class UI implements Disposable {
     public void populatePathEdit() {
         //{"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
         ExtendedPath path = PathSim.pathManager.getCurEPath();
+        path.update();
+        ptable.clear();
         if(purePursuitMode) {
             paths.clear();
-//
-//            TextField temp1 = new TextField(df.format(path.lookahead), textFieldStyle);
-//            temp1.addListener(new InputListener() {
-//                final ExtendedPath epath = path; @Override
-//                public boolean keyTyped (InputEvent event, char character) {
-//                    if(event.getKeyCode() == Input.Keys.ENTER) {
-//                        if(Double.parseDouble(temp1.getText()) > 0) {
-//                            temp1.setText("");
-//                            stage.unfocus(temp1);
-//                        }
-//                    } return super.keyTyped(event, character);
-//                }
-//            });
+
+            TextField temp1 = new TextField(df.format(path.lookahead), textFieldStyle);
+            temp1.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPositive(temp1.getText())) epath.lookahead = Double.parseDouble(temp1.getText());
+                        temp1.setText(df.format(epath.lookahead));
+                        stage.unfocus(temp1);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp1);
+
+            TextField temp2 = new TextField(df.format(path.end_threshold), textFieldStyle);
+            temp2.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPositive(temp2.getText())) epath.end_threshold = Double.parseDouble(temp2.getText());
+                        temp2.setText(df.format(epath.end_threshold));
+                        stage.unfocus(temp2);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp2);
+
+            TextField temp3 = new TextField(df.format(path.purePursuitPath.getMaxAcceleration()), textFieldStyle);
+            temp3.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp3.getText())) epath.setMaxAcceleration(Double.parseDouble(temp3.getText()), true);
+                        temp3.setText(df.format(epath.purePursuitPath.getMaxAcceleration()));
+                        stage.unfocus(temp3);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp3);
+
+            TextField temp4 = new TextField(df.format(path.purePursuitPath.getMaxDeceleration()), textFieldStyle);
+            temp4.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp4.getText())) epath.setMaxDeceleration(Double.parseDouble(temp4.getText()), true);
+                        temp4.setText(df.format(epath.purePursuitPath.getMaxDeceleration()));
+                        stage.unfocus(temp4);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp4);
+
+            TextField temp5 = new TextField(df.format(path.purePursuitPath.getMaxVelocity()), textFieldStyle);
+            temp5.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp5.getText())) epath.setMaxVelocity(Double.parseDouble(temp5.getText()), true);
+                        temp5.setText(df.format(epath.purePursuitPath.getMaxVelocity()));
+                        stage.unfocus(temp5);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp5);
+
+            TextField temp6 = new TextField(df.format(path.purePursuitPath.getMaxAngularVelocity()), textFieldStyle);
+            temp6.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp6.getText())) epath.setMaxAngularVelocity(Double.parseDouble(temp6.getText()), true);
+                        temp6.setText(df.format(epath.purePursuitPath.getMaxAngularVelocity()));
+                        stage.unfocus(temp6);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp6);
+
+            TextField temp7 = new TextField(df.format(path.purePursuitPath.getStartVelocity()), textFieldStyle);
+            temp7.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp7.getText())) epath.setStartVelocity(Double.parseDouble(temp7.getText()), true);
+                        temp7.setText(df.format(epath.purePursuitPath.getStartVelocity()));
+                        stage.unfocus(temp7);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp7);
+
+            TextField temp8 = new TextField(df.format(path.purePursuitPath.getEndVelocity()), textFieldStyle);
+            temp8.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp8.getText())) epath.setEndVelocity(Double.parseDouble(temp8.getText()), true);
+                        temp8.setText(df.format(epath.purePursuitPath.getEndVelocity()));
+                        stage.unfocus(temp8);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp8);
+
+            TextField temp9 = new TextField(df.format(path.adjust_threshold), textFieldStyle);
+            temp9.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPositive(temp3.getText())) epath.adjust_threshold = Double.parseDouble(temp9.getText());
+                        temp9.setText(df.format(epath.adjust_threshold));
+                        stage.unfocus(temp9);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp9);
+
+            TextField temp10 = new TextField(df.format(path.newtonsSteps), textFieldStyle);
+            temp10.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPosInt(temp10.getText())) epath.newtonsSteps = Integer.parseInt(temp10.getText());
+                        temp10.setText(df.format(epath.newtonsSteps));
+                        stage.unfocus(temp10);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp10);
+
+            for(int i = 0; i < paths.size(); ++i) {
+                Label l = new Label("  " + purePursuitLabels[i], lStyle2);
+                l.setFontScale(0.45f);
+                ptable.add(l).width(200).height(15).align(Align.center);
+                ptable.row();
+                ptable.add(paths.get(i)).width(200).height(35).align(Align.center);
+                ptable.row();
+            }
         } else {
+            paths.clear();
+
+            TextField temp0 = new TextField(df.format(path.b), textFieldStyle);
+            temp0.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPositive(temp0.getText())) epath.b = Double.parseDouble(temp0.getText());
+                        temp0.setText(df.format(epath.b));
+                        stage.unfocus(temp0);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp0);
+
+            TextField temp1 = new TextField(df.format(path.Z), textFieldStyle);
+            temp1.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkZ(temp1.getText())) epath.Z = Double.parseDouble(temp1.getText());
+                        temp1.setText(df.format(epath.Z));
+                        stage.unfocus(temp1);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp1);
+
+            TextField temp2 = new TextField(df.format(path.r_end_threshold), textFieldStyle);
+            temp2.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPositive(temp2.getText())) epath.r_end_threshold = Double.parseDouble(temp2.getText());
+                        temp2.setText(df.format(epath.r_end_threshold));
+                        stage.unfocus(temp2);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp2);
+
+            TextField temp3 = new TextField(df.format(path.ramsetePath.getMaxAcceleration()), textFieldStyle);
+            temp3.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp3.getText())) epath.setMaxAcceleration(Double.parseDouble(temp3.getText()), false);
+                        temp3.setText(df.format(epath.ramsetePath.getMaxAcceleration()));
+                        stage.unfocus(temp3);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp3);
+
+            TextField temp4 = new TextField(df.format(path.ramsetePath.getMaxDeceleration()), textFieldStyle);
+            temp4.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp4.getText())) epath.setMaxDeceleration(Double.parseDouble(temp4.getText()), false);
+                        temp4.setText(df.format(epath.ramsetePath.getMaxDeceleration()));
+                        stage.unfocus(temp4);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp4);
+
+            TextField temp5 = new TextField(df.format(path.ramsetePath.getMaxVelocity()), textFieldStyle);
+            temp5.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp5.getText())) epath.setMaxVelocity(Double.parseDouble(temp5.getText()), false);
+                        temp5.setText(df.format(epath.ramsetePath.getMaxVelocity()));
+                        stage.unfocus(temp5);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp5);
+
+            TextField temp6 = new TextField(df.format(path.ramsetePath.getMaxAngularVelocity()), textFieldStyle);
+            temp6.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp6.getText())) epath.setMaxAngularVelocity(Double.parseDouble(temp6.getText()), false);
+                        temp6.setText(df.format(epath.ramsetePath.getMaxAngularVelocity()));
+                        stage.unfocus(temp6);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp6);
+
+            TextField temp7 = new TextField(df.format(path.ramsetePath.getStartVelocity()), textFieldStyle);
+            temp7.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp7.getText())) epath.setStartVelocity(Double.parseDouble(temp7.getText()), false);
+                        temp7.setText(df.format(epath.ramsetePath.getStartVelocity()));
+                        stage.unfocus(temp7);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp7);
+
+            TextField temp8 = new TextField(df.format(path.ramsetePath.getEndVelocity()), textFieldStyle);
+            temp8.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkNonNeg(temp8.getText())) epath.setEndVelocity(Double.parseDouble(temp8.getText()), false);
+                        temp8.setText(df.format(epath.ramsetePath.getEndVelocity()));
+                        stage.unfocus(temp8);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp8);
+
+            TextField temp9 = new TextField(df.format(path.r_adjust_threshold), textFieldStyle);
+            temp9.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPositive(temp3.getText())) epath.r_adjust_threshold = Double.parseDouble(temp9.getText());
+                        temp9.setText(df.format(epath.r_adjust_threshold));
+                        stage.unfocus(temp9);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp9);
+
+            TextField temp10 = new TextField(df.format(path.r_newtonsSteps), textFieldStyle);
+            temp10.addListener(new InputListener() {
+                final ExtendedPath epath = path; @Override
+                public boolean keyTyped (InputEvent event, char character) {
+                    if(event.getKeyCode() == Input.Keys.ENTER) {
+                        if(checkPosInt(temp10.getText())) epath.r_newtonsSteps = Integer.parseInt(temp10.getText());
+                        temp10.setText(df.format(epath.r_newtonsSteps));
+                        stage.unfocus(temp10);
+                    } return super.keyTyped(event, character);
+                }
+            });
+            paths.add(temp10);
+
+            for(int i = 0; i < paths.size(); ++i) {
+                Label l = new Label("  " + ramseteLabels[i], lStyle2);
+                l.setFontScale(0.45f);
+                ptable.add(l).width(200).height(15).align(Align.center);
+                ptable.row();
+                ptable.add(paths.get(i)).width(200).height(35).align(Align.center);
+                ptable.row();
+            }
+
         }
     }
 
-    public boolean checkPosition(double p, boolean y) {
-        return (y && Math.abs(p) <= 162) || (!y && Math.abs(p) <= 324);
+    public boolean checkPosition(String s, boolean y) {
+        try {
+            double p = Double.parseDouble(s);
+            return (y && Math.abs(p) <= 162) || (!y && Math.abs(p) <= 324);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean checkPositive(String s) {
+        try {
+            double p = Double.parseDouble(s);
+            return p > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean checkNonNeg(String s) {
+        try {
+            double p = Double.parseDouble(s);
+            return p >= 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean checkPosInt(String s) {
+        try {
+            int p = Integer.parseInt(s);
+            return p > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean checkZ(String s) {
+        try {
+            double p = Double.parseDouble(s);
+            return p > 0 && p < 1;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void updateSplineEdit() {
@@ -489,6 +805,7 @@ public class UI implements Disposable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 purePursuitMode = true;
+                populatePathEdit();
             }
         });
 
@@ -496,6 +813,7 @@ public class UI implements Disposable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 purePursuitMode = false;
+                populatePathEdit();
             }
         });
     }

@@ -134,7 +134,7 @@ public class Renderer3D {
         for(double i = step; i <= 1; i += step) {
             sphereInstance = new ModelInstance(sphere);
             Point2D cur = group.getPoint(i);
-            sphereInstance.transform.translate((float) (cur.getX() * inch), 15f, (float) (-cur.getY() * inch));
+            sphereInstance.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
             sphereInstances.add(sphereInstance);
         }
 
