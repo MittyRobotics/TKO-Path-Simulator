@@ -608,7 +608,7 @@ public class Renderer2D {
             uiRenderer.rect((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - ui.addingLabel.getPrefWidth() / 2f - 10, 50, ui.addingLabel.getPrefWidth() + 20, 30);
         }
 
-        if(PathSim.pathManager.editingPath() && !ui.splineMode) {
+        if(PathSim.pathManager.editingPath() && ui.showing && !ui.splineMode) {
             uiRenderer.setColor(0.20f, 0.20f, 0.20f, 0.8f);
             roundedRect(uiRenderer, right * 0.1f, 35f, right * 0.8f, 50, 15f);
             uiRenderer.setColor(0.6f, 0.6f, 0.6f, 1f);
@@ -619,7 +619,7 @@ public class Renderer2D {
             float circlePos = barleft + barwidth * ((float) PathSim.renderer3d.curInd / ui.simulator.getEnd(ui.purePursuitMode));
 
             if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-                if(distance(x, y, new Point2D(circlePos, 47.5)) <= 5) {
+                if(distance(x, y, new Point2D(circlePos, 47.5)) <= 7.5) {
                     scrubbing = true;
                 }
                 if(x >= right / 2f - 10 && x <= right / 2f + 10 && y >= 58 && y <= 78) {
@@ -641,7 +641,7 @@ public class Renderer2D {
                 PathSim.renderer3d.curInd = Math.max(PathSim.renderer3d.curInd, 0);
             }
 
-            uiRenderer.circle(circlePos, 47.5f, 5f);
+            uiRenderer.circle(circlePos, 47.5f, 7.5f);
             if(PathSim.renderer3d.running) {
                 uiRenderer.rect(right / 2f - 10, 58f, 6, 20);
                 uiRenderer.rect(right / 2f + 4, 58f, 6, 20);

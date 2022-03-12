@@ -23,7 +23,7 @@ public class UI implements Disposable {
     public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel;
-    public boolean splineMode, prevMode, purePursuitMode;
+    public boolean splineMode, prevMode, purePursuitMode, showing;
     public TextButton pathId, addNode1, addNode2, spline, path, addPath, export, delete, deleteNode, purePursuit, ramsete;
     public ArrayList<TextField> splines = new ArrayList<>();
     ArrayList<TextField> paths = new ArrayList<>();
@@ -165,9 +165,6 @@ public class UI implements Disposable {
         pathEdit.add(purePursuit);
         pathEdit.add(ramsete);
 
-        for(Actor a : toggle) {
-            stage.addActor(a);
-        }
         stage.addActor(pathId);
         stage.addActor(addPath);
 
@@ -229,6 +226,7 @@ public class UI implements Disposable {
             if(splineMode) for(Actor a : splineEdit) a.remove();
             else for(Actor a : pathEdit) a.remove();
             splineMode = false;
+            showing = false;
         } else if (PathSim.pathManager.editingPath() && prevEditing == -1) {
             for(Actor a : toggle) stage.addActor(a);
             splineMode = true;
@@ -254,9 +252,11 @@ public class UI implements Disposable {
         if(splineMode && !prevMode && PathSim.pathManager.curEditingPath != -1) {
             for(Actor a : splineEdit) stage.addActor(a);
             for(Actor a : pathEdit) a.remove();
+            showing = true;
         } else if (!splineMode && prevMode && PathSim.pathManager.curEditingPath != -1) {
             for(Actor a : pathEdit) stage.addActor(a);
             for(Actor a : splineEdit) a.remove();
+            showing = true;
             populatePathEdit();
         }
 
