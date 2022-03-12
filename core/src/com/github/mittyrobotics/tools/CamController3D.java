@@ -37,6 +37,8 @@ public class CamController3D extends GestureDetector {
     /** The current (first) button being pressed. */
     protected int button = -1;
 
+    public int right = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
+
     private float startX, startY;
     private final Vector3 tmpV1 = new Vector3();
     private final Vector3 tmpV2 = new Vector3();
@@ -109,7 +111,10 @@ public class CamController3D extends GestureDetector {
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        if(x <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH && !PathSim.renderer2d.scrubbing && !(x >= right * 0.1 && x <= right * 0.8 && y >= 35 && y <= 85)) {
             touched |= (1 << pointer);
             multiTouch = !MathUtils.isPowerOfTwo(touched);
             if (multiTouch)
@@ -126,7 +131,10 @@ public class CamController3D extends GestureDetector {
 
     @Override
     public boolean touchUp (int screenX, int screenY, int pointer, int button) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        if(x <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH && !PathSim.renderer2d.scrubbing && !(x >= right * 0.1 && x <= right * 0.8 && y >= 35 && y <= 85)) {
             touched &= -1 ^ (1 << pointer);
             multiTouch = !MathUtils.isPowerOfTwo(touched);
             if (button == this.button) this.button = -1;
@@ -157,7 +165,9 @@ public class CamController3D extends GestureDetector {
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
+        int x = Gdx.input.getX();
+
+        if(x <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH && !PathSim.renderer2d.scrubbing) {
             boolean result = super.touchDragged(screenX, screenY, pointer);
             if (result || this.button < 0) return result;
             final float deltaX = (screenX - startX) / width;

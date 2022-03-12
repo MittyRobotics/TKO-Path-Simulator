@@ -27,10 +27,10 @@ public class Renderer3D {
     public static CamController3D camController;
     public Array<ModelInstance> instances = new Array<>();
     public Array<ModelInstance> sphereInstances = new Array<>();
-    public boolean loading;
+    public boolean loading, running;
 
-    public double fieldWidth, fieldHeight, robotL, robotW;
-    public int width, height;
+    public double fieldWidth, fieldHeight, robotL, robotW, timer;
+    public int width, height, curInd;
 
     public QuinticHermiteSplineGroup group;
     public Path path;
@@ -44,13 +44,15 @@ public class Renderer3D {
 
     public Color green = new Color(67/255f, 1f, 170/255f, 1f);
 
+    public UI tempui;
+
     public Renderer3D() {
         modelBatch = new ModelBatch();
         modelBuilder = new ModelBuilder();
         sphere = modelBuilder.createSphere(3f, 3f, 3f, 10, 10, new Material(ColorAttribute.createDiffuse(green)), VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.5f, 1f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
         environment.add(new DirectionalLight().set(0.8f, 0.8f, 1f, -1f, -0.8f, -0.2f));
 
 
@@ -83,6 +85,11 @@ public class Renderer3D {
         group = (QuinticHermiteSplineGroup) path.getParametric();
 
         renderSpline();
+        running = false;
+        moveRobotBack();
+        moveRobotToPose(group.getPose(0));
+
+        running = true;
     }
 
     public void doneLoading() {
@@ -111,6 +118,8 @@ public class Renderer3D {
 
         instances.add(instance);
         loading = false;
+
+        tempui = PathSim.renderer2d.ui;
     }
 
     public void render () {
@@ -125,6 +134,25 @@ public class Renderer3D {
         modelBatch.render(sphereInstances);
 
         modelBatch.end();
+
+        Simulator s = tempui.simulator;
+
+        if(s.getEnd(tempui.purePursuitMode) > 0) {
+            moveRobotBack();
+            moveRobotToPose(tempui.purePursuitMode ? s.getPState(curInd).robotPose : s.getRState(curInd).robotPose);
+
+            if (running) {
+                timer += Gdx.graphics.getDeltaTime();
+                curInd += (int) (timer / 0.02);
+                timer %= 0.02;
+
+                if (curInd >= s.getEnd(tempui.purePursuitMode)) {
+                    running = false;
+                    curInd = s.getEnd(tempui.purePursuitMode) - 1;
+                }
+            }
+        }
+
     }
 
     public void renderSpline() {
@@ -137,9 +165,6 @@ public class Renderer3D {
             sphereInstance.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
             sphereInstances.add(sphereInstance);
         }
-
-        moveRobotBack();
-        moveRobotToPose(group.getPose(0));
 
     }
 
@@ -174,5 +199,10 @@ public class Renderer3D {
         instances.clear();
     }
 
+    public void resetSim() {
+        curInd = 0;
+        timer = 0;
+        running = true;
+    }
 
 }

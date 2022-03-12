@@ -16,7 +16,7 @@ import javax.swing.*;
 public class Renderer2D {
 
     public static CamController2D camController;
-    public boolean loading, addFront, addBack, wasJustPlaced, addNew;
+    public boolean loading, addFront, addBack, wasJustPlaced, addNew, scrubbing;
     public Texture field, title1, title2, pointl, points, pointp, pointw, pointh, pointt;
     public SpriteBatch batch, fontBatch, onBatch;
 
@@ -176,7 +176,7 @@ public class Renderer2D {
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.DEL) && ui.stage.getKeyboardFocus() == null) {
-            if(PathSim.pathManager.curEditingPath != -1) {
+            if(PathSim.pathManager.editingPath()) {
                 if(UI.addingSpline > 0) {
                     UI.addingSpline = 0;
                 } else if (PathSim.pathManager.curSelectedNode >= 0 &&
@@ -189,7 +189,7 @@ public class Renderer2D {
             }
         }
 
-        if (PathSim.pathManager.curEditingPath != -1) {
+        if (PathSim.pathManager.editingPath()) {
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
                 editPoint(PathSim.pathManager.curEditingPath, PathSim.pathManager.curEditingNode, PathSim.pathManager.curEditingVel, x - prevx, y - prevy);
             } else {
@@ -343,7 +343,7 @@ public class Renderer2D {
             PathSim.debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
                     + "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
                     + PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + addFront + " " + addBack + " " + addNew + "\njust placed: " + wasJustPlaced + "\n\n\nUI VARS\n-----\nspline mode: "
-                    + ui.splineMode + "\npure pursuit mode: " + ui.purePursuitMode);
+                    + ui.splineMode + "\nprev spline:" + ui.prevMode + "\npure pursuit mode: " + ui.purePursuitMode);
         }
 
         wasJustPlaced = false;
@@ -584,6 +584,9 @@ public class Renderer2D {
     }
 
     public void drawUIOverlay() {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
         uiRenderer.begin(ShapeRenderer.ShapeType.Filled);
         uiRenderer.setColor(0.12f, 0.12f, 0.12f, 1f);
         uiRenderer.rect(width, 0, PathSim.RIGHT_WIDTH, height);
@@ -591,18 +594,60 @@ public class Renderer2D {
         uiRenderer.rect(width + 25, 20, PathSim.RIGHT_WIDTH - 50, Gdx.graphics.getHeight() - 298);
 
         uiRenderer.setColor(0.20f, 0.20f, 0.20f, 1f);
-        if(PathSim.pathManager.curEditingPath != -1) {
+        if(PathSim.pathManager.editingPath()) {
             if(ui.splineMode) {
                 uiRenderer.rect(right+25, Gdx.graphics.getHeight() - 353, 125, 35);
             } else {
                 uiRenderer.rect(right+150, Gdx.graphics.getHeight() - 353, 125, 35);
             }
-            uiRenderer.rect(width+25, 25, PathSim.RIGHT_WIDTH - 50, Gdx.graphics.getHeight() - 377);
+            uiRenderer.rect(width+25, 20, PathSim.RIGHT_WIDTH - 50, Gdx.graphics.getHeight() - 372);
         }
 
         if(UI.addingSpline > 0) {
             uiRenderer.setColor(0.12f, 0.12f, 0.12f, 0.5f);
             uiRenderer.rect((Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) / 2f - ui.addingLabel.getPrefWidth() / 2f - 10, 50, ui.addingLabel.getPrefWidth() + 20, 30);
+        }
+
+        if(PathSim.pathManager.editingPath() && !ui.splineMode) {
+            uiRenderer.setColor(0.20f, 0.20f, 0.20f, 0.8f);
+            roundedRect(uiRenderer, right * 0.1f, 35f, right * 0.8f, 50, 15f);
+            uiRenderer.setColor(0.6f, 0.6f, 0.6f, 1f);
+            float barleft = right * 0.1f + 10;
+            float barwidth = right * 0.8f - 20;
+            roundedRect(uiRenderer, barleft, 45f, barwidth, 5f, 2.5f);
+            uiRenderer.setColor(0.9f, 0.9f, 0.9f, 1f);
+            float circlePos = barleft + barwidth * ((float) PathSim.renderer3d.curInd / ui.simulator.getEnd(ui.purePursuitMode));
+
+            if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                if(distance(x, y, new Point2D(circlePos, 47.5)) <= 5) {
+                    scrubbing = true;
+                }
+                if(x >= right / 2f - 10 && x <= right / 2f + 10 && y >= 58 && y <= 78) {
+                    if(PathSim.renderer3d.running) {
+                        PathSim.renderer3d.running = false;
+                    } else {
+                        if (PathSim.renderer3d.curInd == ui.simulator.getEnd(ui.purePursuitMode) - 1) {
+                            PathSim.renderer3d.curInd = 0;
+                        }
+                        PathSim.renderer3d.running = true;
+                    }
+                }
+            } else if(!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                scrubbing = false;
+            }
+            if(scrubbing) {
+                circlePos = Math.max(barleft, Math.min(x, barleft + barwidth));
+                PathSim.renderer3d.curInd = (int) (((circlePos - barleft) / barwidth) * ui.simulator.getEnd(ui.purePursuitMode)) - 1;
+                PathSim.renderer3d.curInd = Math.max(PathSim.renderer3d.curInd, 0);
+            }
+
+            uiRenderer.circle(circlePos, 47.5f, 5f);
+            if(PathSim.renderer3d.running) {
+                uiRenderer.rect(right / 2f - 10, 58f, 6, 20);
+                uiRenderer.rect(right / 2f + 4, 58f, 6, 20);
+            } else {
+                uiRenderer.triangle(right / 2f - 10, 58f, right / 2f - 10, 78f, right / 2f + 10, 68f);
+            }
         }
 
         uiRenderer.end();
@@ -723,6 +768,23 @@ public class Renderer2D {
             }
             font.draw(batch, temp + cur, (int) centerxnew - 26, (int) (i+6));
         }
+    }
+
+    public void roundedRect(ShapeRenderer renderer, float x, float y, float width, float height, float radius){
+        // Central rectangle
+        renderer.rect(x + radius, y + radius, width - 2*radius, height - 2*radius);
+
+        // Four side rectangles, in clockwise order
+        renderer.rect(x + radius, y, width - 2*radius, radius);
+        renderer.rect(x + width - radius, y + radius, radius, height - 2*radius);
+        renderer.rect(x + radius, y + height - radius, width - 2*radius, radius);
+        renderer.rect(x, y + radius, radius, height - 2*radius);
+
+        // Four arches, clockwise too
+        renderer.arc(x + radius, y + radius, radius, 180f, 90f);
+        renderer.arc(x + width - radius, y + radius, radius, 270f, 90f);
+        renderer.arc(x + width - radius, y + height - radius, radius, 0f, 90f);
+        renderer.arc(x + radius, y + height - radius, radius, 90f, 90f);
     }
 
     public void dispose () {

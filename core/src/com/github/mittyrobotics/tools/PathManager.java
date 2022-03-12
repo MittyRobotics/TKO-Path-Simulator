@@ -104,6 +104,10 @@ public class PathManager {
         return paths.get(curEditingPath).purePursuitPath;
     }
 
+    public boolean editingPath() {
+        return curEditingPath != -1;
+    }
+
     public RamsetePath getCurRPath() {
         return paths.get(curEditingPath).ramsetePath;
     }

@@ -9,7 +9,7 @@ public class CamController2D extends GestureDetector {
     public Renderer2D renderer;
 
     private float startX, startY;
-    private double ZOOM_RATIO = 0.05;
+    private double ZOOM_RATIO = 0.1;
     public static int width, height;
     private boolean dragging;
 

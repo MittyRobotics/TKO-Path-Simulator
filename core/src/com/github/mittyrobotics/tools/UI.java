@@ -35,7 +35,9 @@ public class UI implements Disposable {
     public DecimalFormat df;
 
     public String[] purePursuitLabels = {"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
-    public String[] ramseteLabels = {"b (convergence)", "Z (dampening)", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
+    public String[] ramseteLabels = {"b (Convergence)", "Z (Dampening)", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
+
+    public Simulator simulator = new Simulator();
 
     public UI() {
         stage = new Stage();
@@ -191,8 +193,8 @@ public class UI implements Disposable {
         lStyle2.font.getData().setScale(0.6f);
         lStyle2.fontColor = Color.WHITE;
 
-
         addingLabel = new Label("", lStyle);
+        prevEditing = -1;
     }
 
     public void update(float delta) {
@@ -227,7 +229,7 @@ public class UI implements Disposable {
             if(splineMode) for(Actor a : splineEdit) a.remove();
             else for(Actor a : pathEdit) a.remove();
             splineMode = false;
-        } else if (PathSim.pathManager.curEditingPath != -1 && prevEditing == -1) {
+        } else if (PathSim.pathManager.editingPath() && prevEditing == -1) {
             for(Actor a : toggle) stage.addActor(a);
             splineMode = true;
             populateSplineEdit();
@@ -236,9 +238,9 @@ public class UI implements Disposable {
             populateSplineEdit();
         }
 
-        if(PathSim.pathManager.curEditingPath != -1 && splineMode) {
+        if(PathSim.pathManager.editingPath() && splineMode) {
             updateSplineEdit();
-            if(PathSim.pathManager.curSelectedNode < 0 ||  ((QuinticHermiteSplineGroup) (PathSim.pathManager.getCurPath().getParametric())).getSplines().size() <= 1) {
+            if(PathSim.pathManager.curSelectedNode < 0 || ((QuinticHermiteSplineGroup) (PathSim.pathManager.getCurPath().getParametric())).getSplines().size() <= 1) {
                 delete.setBounds(right + 85, Gdx.graphics.getHeight() - 428, 130, 40);
                 deleteNode.remove();
             } else if (((QuinticHermiteSplineGroup) (PathSim.pathManager.getCurPath().getParametric())).getSplines().size() > 1) {
@@ -249,16 +251,16 @@ public class UI implements Disposable {
             deleteNode.remove();
         }
 
-        prevEditing = PathSim.pathManager.curEditingPath;
-
-        if(splineMode && !prevMode && prevEditing != -1) {
+        if(splineMode && !prevMode && PathSim.pathManager.curEditingPath != -1) {
             for(Actor a : splineEdit) stage.addActor(a);
             for(Actor a : pathEdit) a.remove();
-        } else if (!splineMode && prevMode && prevEditing != -1) {
+        } else if (!splineMode && prevMode && PathSim.pathManager.curEditingPath != -1) {
             for(Actor a : pathEdit) stage.addActor(a);
             for(Actor a : splineEdit) a.remove();
             populatePathEdit();
         }
+
+        prevEditing = PathSim.pathManager.curEditingPath;
         prevMode = splineMode;
 
         stage.act(delta);
@@ -372,7 +374,8 @@ public class UI implements Disposable {
     }
 
     public void populatePathEdit() {
-        //{"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
+        simulator.updatePath(PathSim.pathManager.getCurEPath());
+
         ExtendedPath path = PathSim.pathManager.getCurEPath();
         path.update();
         ptable.clear();
@@ -387,6 +390,7 @@ public class UI implements Disposable {
                         if(checkPositive(temp1.getText())) epath.lookahead = Double.parseDouble(temp1.getText());
                         temp1.setText(df.format(epath.lookahead));
                         stage.unfocus(temp1);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -400,6 +404,7 @@ public class UI implements Disposable {
                         if(checkPositive(temp2.getText())) epath.end_threshold = Double.parseDouble(temp2.getText());
                         temp2.setText(df.format(epath.end_threshold));
                         stage.unfocus(temp2);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -413,6 +418,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp3.getText())) epath.setMaxAcceleration(Double.parseDouble(temp3.getText()), true);
                         temp3.setText(df.format(epath.purePursuitPath.getMaxAcceleration()));
                         stage.unfocus(temp3);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -426,6 +432,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp4.getText())) epath.setMaxDeceleration(Double.parseDouble(temp4.getText()), true);
                         temp4.setText(df.format(epath.purePursuitPath.getMaxDeceleration()));
                         stage.unfocus(temp4);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -439,6 +446,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp5.getText())) epath.setMaxVelocity(Double.parseDouble(temp5.getText()), true);
                         temp5.setText(df.format(epath.purePursuitPath.getMaxVelocity()));
                         stage.unfocus(temp5);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -452,6 +460,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp6.getText())) epath.setMaxAngularVelocity(Double.parseDouble(temp6.getText()), true);
                         temp6.setText(df.format(epath.purePursuitPath.getMaxAngularVelocity()));
                         stage.unfocus(temp6);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -465,6 +474,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp7.getText())) epath.setStartVelocity(Double.parseDouble(temp7.getText()), true);
                         temp7.setText(df.format(epath.purePursuitPath.getStartVelocity()));
                         stage.unfocus(temp7);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -478,6 +488,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp8.getText())) epath.setEndVelocity(Double.parseDouble(temp8.getText()), true);
                         temp8.setText(df.format(epath.purePursuitPath.getEndVelocity()));
                         stage.unfocus(temp8);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -491,6 +502,7 @@ public class UI implements Disposable {
                         if(checkPositive(temp3.getText())) epath.adjust_threshold = Double.parseDouble(temp9.getText());
                         temp9.setText(df.format(epath.adjust_threshold));
                         stage.unfocus(temp9);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -504,6 +516,7 @@ public class UI implements Disposable {
                         if(checkPosInt(temp10.getText())) epath.newtonsSteps = Integer.parseInt(temp10.getText());
                         temp10.setText(df.format(epath.newtonsSteps));
                         stage.unfocus(temp10);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -528,6 +541,7 @@ public class UI implements Disposable {
                         if(checkPositive(temp0.getText())) epath.b = Double.parseDouble(temp0.getText());
                         temp0.setText(df.format(epath.b));
                         stage.unfocus(temp0);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -541,6 +555,7 @@ public class UI implements Disposable {
                         if(checkZ(temp1.getText())) epath.Z = Double.parseDouble(temp1.getText());
                         temp1.setText(df.format(epath.Z));
                         stage.unfocus(temp1);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -554,6 +569,7 @@ public class UI implements Disposable {
                         if(checkPositive(temp2.getText())) epath.r_end_threshold = Double.parseDouble(temp2.getText());
                         temp2.setText(df.format(epath.r_end_threshold));
                         stage.unfocus(temp2);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -567,6 +583,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp3.getText())) epath.setMaxAcceleration(Double.parseDouble(temp3.getText()), false);
                         temp3.setText(df.format(epath.ramsetePath.getMaxAcceleration()));
                         stage.unfocus(temp3);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -580,6 +597,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp4.getText())) epath.setMaxDeceleration(Double.parseDouble(temp4.getText()), false);
                         temp4.setText(df.format(epath.ramsetePath.getMaxDeceleration()));
                         stage.unfocus(temp4);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -593,6 +611,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp5.getText())) epath.setMaxVelocity(Double.parseDouble(temp5.getText()), false);
                         temp5.setText(df.format(epath.ramsetePath.getMaxVelocity()));
                         stage.unfocus(temp5);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -606,6 +625,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp6.getText())) epath.setMaxAngularVelocity(Double.parseDouble(temp6.getText()), false);
                         temp6.setText(df.format(epath.ramsetePath.getMaxAngularVelocity()));
                         stage.unfocus(temp6);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -619,6 +639,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp7.getText())) epath.setStartVelocity(Double.parseDouble(temp7.getText()), false);
                         temp7.setText(df.format(epath.ramsetePath.getStartVelocity()));
                         stage.unfocus(temp7);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -632,6 +653,7 @@ public class UI implements Disposable {
                         if(checkNonNeg(temp8.getText())) epath.setEndVelocity(Double.parseDouble(temp8.getText()), false);
                         temp8.setText(df.format(epath.ramsetePath.getEndVelocity()));
                         stage.unfocus(temp8);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -645,6 +667,7 @@ public class UI implements Disposable {
                         if(checkPositive(temp3.getText())) epath.r_adjust_threshold = Double.parseDouble(temp9.getText());
                         temp9.setText(df.format(epath.r_adjust_threshold));
                         stage.unfocus(temp9);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -658,6 +681,7 @@ public class UI implements Disposable {
                         if(checkPosInt(temp10.getText())) epath.r_newtonsSteps = Integer.parseInt(temp10.getText());
                         temp10.setText(df.format(epath.r_newtonsSteps));
                         stage.unfocus(temp10);
+                        simulator.updatePath(PathSim.pathManager.getCurEPath());
                     } return super.keyTyped(event, character);
                 }
             });
@@ -749,7 +773,7 @@ public class UI implements Disposable {
         addNode1.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
+                if(addingSpline == 0 && PathSim.pathManager.editingPath()) {
                     addingSpline = 3;
                     PathSim.pathManager.curSelectedNode = -1;
                 }
@@ -759,7 +783,7 @@ public class UI implements Disposable {
         addNode2.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(addingSpline == 0 && PathSim.pathManager.curEditingPath != -1) {
+                if(addingSpline == 0 && PathSim.pathManager.editingPath()) {
                     addingSpline = 4;
                     PathSim.pathManager.curSelectedNode = -1;
                 }
@@ -804,16 +828,22 @@ public class UI implements Disposable {
         purePursuit.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                purePursuitMode = true;
-                populatePathEdit();
+                if(!purePursuitMode) {
+                    purePursuitMode = true;
+                    populatePathEdit();
+                    PathSim.renderer3d.resetSim();
+                }
             }
         });
 
         ramsete.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                purePursuitMode = false;
-                populatePathEdit();
+                if(purePursuitMode) {
+                    purePursuitMode = false;
+                    populatePathEdit();
+                    PathSim.renderer3d.resetSim();
+                }
             }
         });
     }
