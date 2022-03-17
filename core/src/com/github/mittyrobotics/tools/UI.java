@@ -911,6 +911,14 @@ public class UI implements Disposable {
                 s.append(purePursuitMode ? "PurePursuitPath path = new PurePursuitPath(" : "RamsetePath path = new RamsetePath(");
                 s.append("\n    spline, ").append(path.purePursuitPath.getMaxAcceleration()).append(", ").append(path.purePursuitPath.getMaxDeceleration()).append(", ").append(path.purePursuitPath.getMaxVelocity());
                 s.append(", ").append(path.purePursuitPath.getMaxAngularVelocity()).append(", ").append(path.purePursuitPath.getStartVelocity()).append(", ").append(path.purePursuitPath.getEndVelocity()).append("\n);\n");
+
+                if(purePursuitMode) {
+                    s.append("\nPurePursuitPFCommand pathCommand = new PurePursuitPFCommand(path, ");
+                    s.append("\n    ").append(path.lookahead).append(", ").append(path.end_threshold).append(", ").append(path.adjust_threshold).append(", false\n);\n\n");
+                } else {
+                    s.append("\nRamsetePFCommand pathCommand = new RamsetePFCommand(path, ");
+                    s.append("\n    ").append(path.b).append(", ").append(path.Z).append(", ").append(path.r_end_threshold).append(", ").append(path.r_adjust_threshold).append(", false\n);\n\n");
+                }
             }
 
             PathSim.exportText.setText(s.toString());
