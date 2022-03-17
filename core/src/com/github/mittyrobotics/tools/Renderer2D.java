@@ -339,13 +339,6 @@ public class Renderer2D {
 
         //end general click handling -----------------
 
-        if(PathSim.debug) {
-            PathSim.debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
-                    + "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
-                    + PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + addFront + " " + addBack + " " + addNew + "\njust placed: " + wasJustPlaced + "\n\n\nUI VARS\n-----\nspline mode: "
-                    + ui.splineMode + "\nprev spline:" + ui.prevMode + "\npure pursuit mode: " + ui.purePursuitMode);
-        }
-
         wasJustPlaced = false;
     }
 
@@ -402,7 +395,7 @@ public class Renderer2D {
                 }
             }
 
-            if(UI.addingSpline <= 0 && ((PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == j) || PathSim.pathManager.curEditingPath == j)) {
+            if(UI.addingSpline <= 0 && PathSim.pathManager.curEditingPath == j) {
                 fieldRenderer.setColor(blue);
                 for (int k = 0; k < group.getSplines().size(); k++) {
                     for (int t = 0; t <= 1; t += 1) {
@@ -455,7 +448,7 @@ public class Renderer2D {
                         }
                     }
 
-                    if(UI.addingSpline <= 0 && ((PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == f) || PathSim.pathManager.curEditingPath == f)) {
+                    if(UI.addingSpline <= 0 && PathSim.pathManager.curEditingPath == f) {
                         Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
                         onBatch.draw(points, (float) (v.x - points.getWidth() / 2f), (float) (v.y - points.getHeight() / 2f), points.getWidth(), points.getHeight());
                     }

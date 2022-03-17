@@ -59,13 +59,6 @@ public class Renderer3D {
         width = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
         height = Gdx.graphics.getHeight();
 
-        cam = new PerspectiveCamera(67, width, height);
-        cam.position.set(0f, 1600f, 0f);
-        cam.lookAt(0,0,0);
-        cam.near = 1f;
-        cam.far = 3000f;
-        cam.update();
-
         loading = true;
 
         camController = new CamController3D(cam, width, height);
@@ -73,7 +66,7 @@ public class Renderer3D {
 
     public void reset() {
         cam = new PerspectiveCamera(67, width, height);
-        cam.position.set(0f, 1600f, 0f);
+        cam.position.set(200f, 800f, 500f);
         cam.lookAt(0,0,0);
         cam.near = 1f;
         cam.far = 3000f;

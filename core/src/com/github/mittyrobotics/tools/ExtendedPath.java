@@ -1,6 +1,5 @@
 package com.github.mittyrobotics.tools;
 
-import com.github.mittyrobotics.pathfollowing.Parametric;
 import com.github.mittyrobotics.pathfollowing.PurePursuitPath;
 import com.github.mittyrobotics.pathfollowing.QuinticHermiteSplineGroup;
 import com.github.mittyrobotics.pathfollowing.RamsetePath;
@@ -16,7 +15,7 @@ public class ExtendedPath {
 
     public double r_adjust_threshold;
     public double r_end_threshold;
-    public double r_newtonsSteps;
+    public int r_newtonsSteps;
     public double b;
     public double Z;
 
@@ -81,10 +80,5 @@ public class ExtendedPath {
                 purePursuitPath.getMaxAngularVelocity(), purePursuitPath.getStartVelocity(), endVelocity);
         else ramsetePath = new RamsetePath(purePursuitPath.getParametric(), purePursuitPath.getMaxAcceleration(), ramsetePath.getMaxDeceleration(), purePursuitPath.getMaxVelocity(),
                 ramsetePath.getMaxAngularVelocity(), ramsetePath.getStartVelocity(), endVelocity);
-    }
-
-    public void updateRamsetePath() {
-        ramsetePath = new RamsetePath(purePursuitPath.getParametric(), ramsetePath.getMaxAcceleration(), ramsetePath.getMaxDeceleration(), ramsetePath.getMaxVelocity(), ramsetePath.getMaxAngularVelocity(),
-                ramsetePath.getStartVelocity(), ramsetePath.getEndVelocity());
     }
 }

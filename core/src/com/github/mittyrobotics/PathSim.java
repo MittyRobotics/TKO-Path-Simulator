@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.github.mittyrobotics.tools.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class PathSim extends ApplicationAdapter {
@@ -29,7 +31,8 @@ public class PathSim extends ApplicationAdapter {
 	public static PathManager pathManager;
 
 	public static boolean debug = true;
-	public static JTextArea debugText;
+	public static JTextArea debugText, exportText;
+	public static JFrame exportFrame;
 
 	@Override
 	public void create () {
@@ -79,22 +82,43 @@ public class PathSim extends ApplicationAdapter {
 
 		if(debug) {
 			JFrame debugFrame = new JFrame("Debug");
-			debugFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			debugFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
 			debugText = new JTextArea("", 1, 1);
 			debugText.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
-			debugText.setForeground(Color.WHITE);
-			debugFrame.setBackground(new Color(0.1f, 0.1f, 0.1f));
-			debugText.setBackground(new Color(0.1f, 0.1f, 0.1f));
+			debugText.setForeground(Color.BLACK);
+			debugText.setBackground(new Color(0.9f, 0.9f, 0.9f));
+			debugText.setMargin(new Insets(10, 10, 10, 10));
 			debugText.setLineWrap(true);
 			debugText.setWrapStyleWord(true);
 			debugText.setEditable(false);
+
 			debugFrame.setPreferredSize(new Dimension(200, 500));
 			debugFrame.getContentPane().add(debugText, BorderLayout.CENTER);
-
 			debugFrame.setLocation(0, 0);
 			debugFrame.pack();
 			debugFrame.setVisible(true);
 		}
+
+		exportFrame = new JFrame("Export");
+		exportFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+
+		exportText = new JTextArea("", 1, 1);
+		exportText.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		exportText.setForeground(Color.BLACK);
+		exportText.setBackground(new Color(0.9f, 0.9f, 0.9f));
+		exportText.setLineWrap(true);
+		exportText.setWrapStyleWord(true);
+		exportText.setEditable(false);
+		JScrollPane sp = new JScrollPane(exportText);
+		sp.setBorder(new LineBorder(new Color(0.9f, 0.9f, 0.9f), 1));
+		exportText.setBorder(new LineBorder(new Color(0.9f, 0.9f, 0.9f), 20));
+
+		exportFrame.setPreferredSize(new Dimension(800, 600));
+		exportFrame.getContentPane().add(sp);
+		exportFrame.setLocation(0, 0);
+		exportFrame.pack();
+		exportFrame.setVisible(false);
 
 	}
 
@@ -119,6 +143,13 @@ public class PathSim extends ApplicationAdapter {
 			renderer2d.renderUI();
 		} else {
 			renderer2d.render();
+		}
+
+		if(debug) {
+			debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
+					+ "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
+					+ PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + renderer2d.addFront + " " + renderer2d.addBack + " " + renderer2d.addNew + "\njust placed: " +
+					renderer2d.wasJustPlaced + "\n\n\nUI VARS\n-----\nspline mode: " + renderer2d.ui.splineMode + "\npure pursuit mode: " + renderer2d.ui.purePursuitMode);
 		}
 	}
 

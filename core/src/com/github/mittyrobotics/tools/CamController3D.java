@@ -119,7 +119,6 @@ public class CamController3D extends GestureDetector {
         float circlePos = barleft + barwidth * ((float) PathSim.renderer3d.curInd / PathSim.renderer2d.ui.simulator.getEnd(PathSim.renderer2d.ui.purePursuitMode));
 
         if(x <= right && !PathSim.renderer2d.scrubbing && PathSim.renderer2d.distance(x, y, new Point2D(circlePos, 47.5)) > 7.5) {
-            System.out.println("touch down");
             touched |= (1 << pointer);
             multiTouch = !MathUtils.isPowerOfTwo(touched);
             if (multiTouch)

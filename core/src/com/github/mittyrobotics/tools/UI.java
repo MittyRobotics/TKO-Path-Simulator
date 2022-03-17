@@ -32,7 +32,7 @@ public class UI implements Disposable {
     public ArrayList<Actor> toggle = new ArrayList<>();
     public ArrayList<Actor> splineEdit = new ArrayList<>();
     public ArrayList<Actor> pathEdit = new ArrayList<>();
-    public DecimalFormat df;
+    public DecimalFormat df, df2;
 
     public String[] purePursuitLabels = {"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
     public String[] ramseteLabels = {"b (Convergence)", "Z (Dampening)", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
@@ -48,6 +48,10 @@ public class UI implements Disposable {
         df = new DecimalFormat();
         df.setMaximumFractionDigits(2);
         df.setMinimumFractionDigits(2);
+
+        df2 = new DecimalFormat();
+        df2.setMaximumFractionDigits(3);
+        df2.setMinimumFractionDigits(3);
 
         container = new Table();
         table = new Table();
@@ -265,9 +269,13 @@ public class UI implements Disposable {
 
         stage.act(delta);
         stage.draw();
+
+        updateExportFrame(false);
     }
 
     public void populateSplineEdit() {
+        export.setText("Export Spline");
+
         QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.getCurPath().getParametric();
         ArrayList<QuinticHermiteSpline> sp = group.getSplines();
 
@@ -288,6 +296,7 @@ public class UI implements Disposable {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
                     if(checkPosition(temp.getText(), false)) s.setPose0(new Pose2D(new Point2D(Double.parseDouble(temp.getText()), s.getPose0().getPosition().getY()), s.getPose0().getAngle()));
                     temp.setText(df.format(s.getPose0().getPosition().getX()));
+                    updateExportFrame(true);
                     stage.unfocus(temp);
                 } return super.keyTyped(event, character);
             }
@@ -302,6 +311,7 @@ public class UI implements Disposable {
                 if(event.getKeyCode() == Input.Keys.ENTER) {
                     if(checkPosition(temp2.getText(), true)) s.setPose0(new Pose2D(new Point2D(s.getPose0().getPosition().getX(), Double.parseDouble(temp2.getText())), s.getPose0().getAngle()));
                     temp2.setText(df.format(s.getPose0().getPosition().getY()));
+                    updateExportFrame(true);
                     stage.unfocus(temp2);
                 } return super.keyTyped(event, character);
             }
@@ -327,6 +337,7 @@ public class UI implements Disposable {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
                         if(checkPosition(temp3.getText(), false)) s.setPose1(new Pose2D(new Point2D(Double.parseDouble(temp3.getText()), s.getPose1().getPosition().getY()), s.getPose1().getAngle()));
                         temp3.setText(df.format(s.getPose1().getPosition().getX()));
+                        updateExportFrame(true);
                         stage.unfocus(temp3);
                     } return super.keyTyped(event, character);
                 }
@@ -341,6 +352,7 @@ public class UI implements Disposable {
                     if(event.getKeyCode() == Input.Keys.ENTER) {
                         if(checkPosition(temp4.getText(), true)) s.setPose1(new Pose2D(new Point2D(s.getPose1().getPosition().getX(), Double.parseDouble(temp4.getText())), s.getPose1().getAngle()));
                         temp4.setText(df.format(s.getPose1().getPosition().getY()));
+                        updateExportFrame(true);
                         stage.unfocus(temp4);
                     } return super.keyTyped(event, character);
                 }
@@ -374,6 +386,8 @@ public class UI implements Disposable {
     }
 
     public void populatePathEdit() {
+        export.setText("Export Path");
+
         simulator.updatePath(PathSim.pathManager.getCurEPath());
 
         ExtendedPath path = PathSim.pathManager.getCurEPath();
@@ -796,6 +810,7 @@ public class UI implements Disposable {
                 if(!PathSim.in3d) {
                     splineMode = false;
                     PathSim.switchModes(true);
+                    updateExportFrame(true);
                 }
             }
         });
@@ -806,6 +821,7 @@ public class UI implements Disposable {
                 if(PathSim.in3d) {
                     splineMode = true;
                     PathSim.switchModes(false);
+                    updateExportFrame(true);
                 }
             }
         });
@@ -832,20 +848,73 @@ public class UI implements Disposable {
                     purePursuitMode = true;
                     populatePathEdit();
                     PathSim.renderer3d.resetSim();
+                    updateExportFrame(true);
                 }
             }
         });
 
-        ramsete.addListener(new ChangeListener() {
+        //TODO: fix ramsete
+//        ramsete.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+//                if(purePursuitMode) {
+//                    purePursuitMode = false;
+//                    populatePathEdit();
+//                    PathSim.renderer3d.resetSim();
+//                    updateExportFrame(true);
+//                }
+//            }
+//        });
+
+        export.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if(purePursuitMode) {
-                    purePursuitMode = false;
-                    populatePathEdit();
-                    PathSim.renderer3d.resetSim();
-                }
+                PathSim.exportFrame.setVisible(true);
+                updateExportFrame(true);
             }
         });
+    }
+
+    public void updateExportFrame(boolean force) {
+        if(force || (PathSim.pathManager.editingPath() && (PathSim.pathManager.curEditingVel != -1 || PathSim.pathManager.curEditingNode != -1))) {
+            ExtendedPath path = PathSim.pathManager.getCurEPath();
+            QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) path.purePursuitPath.getParametric();
+            StringBuilder s = new StringBuilder();
+
+            if(group.getSplines().size() > 1) {
+                s.append("QuinticHermiteSplineGroup spline = new QuinticHermiteSplineGroup();\n\n");
+            }
+
+            int i = 1;
+            for(QuinticHermiteSpline spline : group.getSplines()) {
+                s.append("QuinticHermiteSpline ").append(group.getSplines().size() == 1 ? "spline" : "s" + i).append(" = new QuinticHermiteSpline(");
+                s.append("\n    new Pose2D(").append(df2.format(spline.getPose0().getPosition().getX())).append(", ").append(df2.format(spline.getPose0().getPosition().getY())).append(", ");
+                s.append(df2.format(spline.getPose0().getAngle().getRadians())).append("), ");
+                s.append("new Pose2D(").append(df2.format(spline.getPose1().getPosition().getX())).append(", ").append(df2.format(spline.getPose1().getPosition().getY())).append(", ");
+                s.append(df2.format(spline.getPose1().getAngle().getRadians())).append(")");
+                if (spline.getVelocity0() != null) {
+                    s.append(", \n    new Vector2D(").append(df2.format(spline.getVelocity0().getX())).append(", ").append(df2.format(spline.getVelocity0().getY())).append("), ");
+                    s.append("new Vector2D(").append(df2.format(spline.getVelocity1().getX())).append(", ").append(df2.format(spline.getVelocity1().getY())).append(")");
+                }
+                s.append("\n);");
+
+                if(group.getSplines().size() > 1) {
+                    s.append("\nspline.addSpline(s").append(i).append(");");
+                }
+
+                s.append("\n\n");
+
+                i++;
+            }
+
+            if(!splineMode) {
+                s.append(purePursuitMode ? "PurePursuitPath path = new PurePursuitPath(" : "RamsetePath path = new RamsetePath(");
+                s.append("\n    spline, ").append(path.purePursuitPath.getMaxAcceleration()).append(", ").append(path.purePursuitPath.getMaxDeceleration()).append(", ").append(path.purePursuitPath.getMaxVelocity());
+                s.append(", ").append(path.purePursuitPath.getMaxAngularVelocity()).append(", ").append(path.purePursuitPath.getStartVelocity()).append(", ").append(path.purePursuitPath.getEndVelocity()).append("\n);\n");
+            }
+
+            PathSim.exportText.setText(s.toString());
+        }
     }
 
     @Override

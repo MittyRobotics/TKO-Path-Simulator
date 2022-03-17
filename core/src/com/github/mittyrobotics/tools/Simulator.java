@@ -78,9 +78,9 @@ public class Simulator {
         robotPosition = rp.getParametric().getPose(0);
         double b = path.b;
         double Z = path.Z;
-        NEWTONS_STEPS = path.newtonsSteps;
-        ADJUST_THRESHOLD = path.adjust_threshold;
-        END_THRESHOLD = path.end_threshold;
+        NEWTONS_STEPS = path.r_newtonsSteps;
+        ADJUST_THRESHOLD = path.r_adjust_threshold;
+        END_THRESHOLD = path.r_end_threshold;
         TRACKWIDTH = 28;
 
         rStates.add(new rState(robotPosition, rp.getParametric().getPoint(0),
