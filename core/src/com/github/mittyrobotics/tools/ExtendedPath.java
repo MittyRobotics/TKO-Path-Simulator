@@ -19,6 +19,8 @@ public class ExtendedPath {
     public double b;
     public double Z;
 
+    public boolean visible;
+
     public ExtendedPath(QuinticHermiteSplineGroup group) {
         purePursuitPath = new PurePursuitPath(group, 50, 50, 50, 1000, 0, 0);
         ramsetePath = new RamsetePath(group, 50, 50, 50, 1000, 0, 0);
@@ -31,6 +33,7 @@ public class ExtendedPath {
         r_newtonsSteps = 50;
         b = 2;
         Z = 0.2;
+        visible = true;
     }
 
     public void update() {

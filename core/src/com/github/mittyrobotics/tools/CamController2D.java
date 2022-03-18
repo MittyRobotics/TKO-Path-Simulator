@@ -73,7 +73,7 @@ public class CamController2D extends GestureDetector {
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
         if((UI.addingSpline == 0 || button == 1) && Gdx.input.getX() <= PathSim.LEFT_WIDTH && PathSim.pathManager.curEditingNode == -1
-                && PathSim.pathManager.curEditingVel == -1 && !(PathSim.renderer2d.addBack || PathSim.renderer2d.addFront)) {
+                && PathSim.pathManager.curEditingVel == -1 && !(PathSim.renderer2d.addBack || PathSim.renderer2d.addFront || PathSim.renderer2d.movingWidget)) {
             dragging = true;
             startX = screenX;
             startY = screenY;
@@ -90,7 +90,7 @@ public class CamController2D extends GestureDetector {
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
         if(Gdx.input.getX() <= PathSim.LEFT_WIDTH && Gdx.input.getX() >= 0 && Gdx.input.getY() >= 0 && Gdx.input.getY() <= Gdx.graphics.getHeight()
-                && dragging && PathSim.pathManager.curEditingNode == -1  && PathSim.pathManager.curEditingVel == -1 && !(PathSim.renderer2d.addBack || PathSim.renderer2d.addFront)) {
+                && dragging && PathSim.pathManager.curEditingNode == -1  && PathSim.pathManager.curEditingVel == -1 && !(PathSim.renderer2d.addBack || PathSim.renderer2d.addFront || PathSim.renderer2d.movingWidget)) {
             double deltaX = (startX - screenX);
             double deltaY = (startY - screenY);
             startX = screenX;
