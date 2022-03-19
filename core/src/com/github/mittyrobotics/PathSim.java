@@ -42,11 +42,11 @@ public class PathSim extends ApplicationAdapter {
 		nt.startClientTeam(1351);
 		nt.startDSClient();
 
-		table = nt.getTable("sim");
+		table = nt.getTable("SmartDashboard");
 
-		xEntry = table.getEntry("x");
-		yEntry = table.getEntry("y");
-		tEntry = table.getEntry("t");
+		xEntry = table.getEntry("Robot X");
+		yEntry = table.getEntry("Robot Y");
+		tEntry = table.getEntry("Gyro");
 
 
 
