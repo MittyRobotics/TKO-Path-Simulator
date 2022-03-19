@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.utils.Array;
 import com.github.mittyrobotics.PathSim;
 import com.github.mittyrobotics.pathfollowing.*;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class Renderer3D {
 
@@ -106,6 +107,7 @@ public class Renderer3D {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
 
+        moveRobot(new Pose2D(PathSim.xEntry.getDouble(0.0), PathSim.yEntry.getDouble(0.0), PathSim.tEntry.getDouble(0.0)));
 
 
         moveRobot(new Pose2D(100, 100, 0));

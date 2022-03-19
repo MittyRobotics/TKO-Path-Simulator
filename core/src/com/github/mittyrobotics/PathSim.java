@@ -11,6 +11,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.github.mittyrobotics.tools.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,8 +30,25 @@ public class PathSim extends ApplicationAdapter {
 	public static BitmapFont font, f20;
 	public static InputMultiplexer input;
 
+	public static NetworkTableInstance nt;
+	public static NetworkTable table;
+	public static NetworkTableEntry xEntry, yEntry, tEntry;
+
+
 	@Override
 	public void create () {
+
+		nt = NetworkTableInstance.getDefault();
+		nt.startClientTeam(1351);
+		nt.startDSClient();
+
+		table = nt.getTable("sim");
+
+		xEntry = table.getEntry("x");
+		yEntry = table.getEntry("y");
+		tEntry = table.getEntry("t");
+
+
 
 		LEFT_WIDTH = Gdx.graphics.getWidth() - RIGHT_WIDTH;
 
