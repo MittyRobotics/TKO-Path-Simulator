@@ -12,12 +12,12 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.title = "Path Simulator";
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		config.height = d.height - 52; // for header
+		config.height = d.height; // for header
 		config.width = d.width;
-		config.samples = 3;
-		config.resizable = false;
-		config.initialBackgroundColor = new Color(0.12f, 0.12f, 0.12f, 1f);
-		config.useGL30 = false;
+//		config.samples = 3;
+		config.resizable = true;
+//		config.initialBackgroundColor = new Color(0.12f, 0.12f, 0.12f, 1f);
+//		config.useGL30 = false;
 		new LwjglApplication(new PathSim(), config);
 	}
 }

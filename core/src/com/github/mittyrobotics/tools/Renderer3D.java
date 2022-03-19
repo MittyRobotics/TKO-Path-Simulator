@@ -63,7 +63,7 @@ public class Renderer3D {
         cam.position.set(200f, 800f, 500f);
         cam.lookAt(0,0,0);
         cam.near = 1f;
-        cam.far = 3000f;
+        cam.far = 5000f;
         cam.update();
 
         camController = new CamController3D(cam, width, height);
@@ -95,24 +95,19 @@ public class Renderer3D {
         instances.add(robotInstance);
         loading = false;
 
-        QuinticHermiteSpline group = new QuinticHermiteSpline(new Pose2D(50, 50, 0), new Pose2D(250, 100, 0));
+//        QuinticHermiteSpline group = new QuinticHermiteSpline(new Pose2D(50, 50, 0), new Pose2D(250, 100, 0));
 
         posInstances.ordered = true;
 
-        renderSpline(group);
+//        renderSpline(group);
     }
 
     public void render () {
         Gdx.gl.glViewport(0, 0, width, height);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | (Gdx.graphics.getBufferFormat().coverageSampling?GL20.GL_COVERAGE_BUFFER_BIT_NV:0));
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
 
-        moveRobot(new Pose2D(PathSim.xEntry.getDouble(0.0), PathSim.yEntry.getDouble(0.0), (PathSim.tEntry.getDouble(0.0)) * (Math.PI/180)));
-
-
-        moveRobot(new Pose2D(100, 100, 0));
-        moveRobot(new Pose2D(200, 50, 0));
-        moveRobot(new Pose2D(100, 50, 0));
+        moveRobot(new Pose2D(PathSim.xEntry.getDouble(0.0), PathSim.yEntry.getDouble(0.0), (PathSim.tEntry.getDouble(0.0)) * (Math.PI/180) + Math.PI/2));
 
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
