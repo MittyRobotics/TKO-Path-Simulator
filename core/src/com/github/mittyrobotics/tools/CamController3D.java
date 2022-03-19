@@ -112,39 +112,25 @@ public class CamController3D extends GestureDetector {
 
     @Override
     public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-        float barleft = right * 0.1f + 10;
-        float barwidth = right * 0.8f - 20;
-        float circlePos = barleft + barwidth * ((float) PathSim.renderer3d.curInd / PathSim.renderer2d.ui.simulator.getEnd(PathSim.renderer2d.ui.purePursuitMode));
-
-        if(x <= right && !PathSim.renderer2d.scrubbing && PathSim.renderer2d.distance(x, y, new Point2D(circlePos, 47.5)) > 7.5) {
-            touched |= (1 << pointer);
-            multiTouch = !MathUtils.isPowerOfTwo(touched);
-            if (multiTouch)
-                this.button = -1;
-            else if (this.button < 0 && (activateKey == 0 || activatePressed)) {
-                startX = screenX;
-                startY = screenY;
-                this.button = button;
-            }
-            return super.touchDown(screenX, screenY, pointer, button) || (activateKey == 0 || activatePressed);
+        touched |= (1 << pointer);
+        multiTouch = !MathUtils.isPowerOfTwo(touched);
+        if (multiTouch)
+            this.button = -1;
+        else if (this.button < 0 && (activateKey == 0 || activatePressed)) {
+            startX = screenX;
+            startY = screenY;
+            this.button = button;
         }
-        return false;
+        return super.touchDown(screenX, screenY, pointer, button) || (activateKey == 0 || activatePressed);
     }
 
     @Override
     public boolean touchUp (int screenX, int screenY, int pointer, int button) {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        touched &= -1 ^ (1 << pointer);
+        multiTouch = !MathUtils.isPowerOfTwo(touched);
+        if (button == this.button) this.button = -1;
+        return super.touchUp(screenX, screenY, pointer, button) || activatePressed;
 
-        if(x <= right && !PathSim.renderer2d.scrubbing) {
-            touched &= -1 ^ (1 << pointer);
-            multiTouch = !MathUtils.isPowerOfTwo(touched);
-            if (button == this.button) this.button = -1;
-            return super.touchUp(screenX, screenY, pointer, button) || activatePressed;
-        }
-        return false;
     }
 
     protected boolean process (float deltaX, float deltaY, int button) {
@@ -169,27 +155,18 @@ public class CamController3D extends GestureDetector {
 
     @Override
     public boolean touchDragged (int screenX, int screenY, int pointer) {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
-
-        if(x <= right && !PathSim.renderer2d.scrubbing) {
-            boolean result = super.touchDragged(screenX, screenY, pointer);
-            if (result || this.button < 0) return result;
-            final float deltaX = (screenX - startX) / width;
-            final float deltaY = (startY - screenY) / height;
-            startX = screenX;
-            startY = screenY;
-            return process(deltaX, deltaY, button);
-        }
-        return false;
+        boolean result = super.touchDragged(screenX, screenY, pointer);
+        if (result || this.button < 0) return result;
+        final float deltaX = (screenX - startX) / width;
+        final float deltaY = (startY - screenY) / height;
+        startX = screenX;
+        startY = screenY;
+        return process(deltaX, deltaY, button);
     }
 
     @Override
     public boolean scrolled (float amountX, float amountY) {
-        if(Gdx.input.getX() <= Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH) {
-            return zoom(amountY * scrollFactor);
-        }
-        return false;
+        return zoom(amountY * scrollFactor);
     }
 
     public boolean zoom (float amount) {
