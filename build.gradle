@@ -5,6 +5,7 @@ buildscript {
         mavenCentral()
         gradlePluginPortal()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url 'https://s01.oss.sonatype.org/content/repositories/snapshots/' }
         google()
     }
     dependencies {
@@ -35,6 +36,7 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven {url "https://jitpack.io"}
+        maven { url "https://frcmaven.wpi.edu/artifactory/release/" }
     }
 }
 
@@ -46,7 +48,13 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
-
+        api "edu.wpi.first.ntcore:ntcore-java:2022.3.1"
+        api "edu.wpi.first.wpiutil:wpiutil-java:2022.3.1"
+        api "edu.wpi.first.ntcore:ntcore-jni:2022.3.1:windowsx86"
+        api "edu.wpi.first.ntcore:ntcore-jni:2022.3.1:windowsx86-64"
+        api "edu.wpi.first.ntcore:ntcore-jni:2022.3.1:linuxx86-64"
+        api "edu.wpi.first.ntcore:ntcore-jni:2022.3.1:linuxraspbian"
+        api "edu.wpi.first.ntcore:ntcore-jni:2022.3.1:osxx86-64"
     }
 }
 

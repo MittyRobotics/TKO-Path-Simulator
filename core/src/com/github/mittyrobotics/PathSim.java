@@ -60,11 +60,11 @@ public class PathSim extends ApplicationAdapter {
 
 		renderer3d = new Renderer3D();
 
-//		Gdx.input.setInputProcessor(Renderer2D.camController);
-
 		input = new InputMultiplexer();
 		input.addProcessor(Renderer3D.camController);
 		Gdx.input.setInputProcessor(input);
+
+
 
 	}
 
