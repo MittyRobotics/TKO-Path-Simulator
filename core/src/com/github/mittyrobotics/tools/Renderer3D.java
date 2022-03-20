@@ -2,10 +2,7 @@ package com.github.mittyrobotics.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -110,12 +107,18 @@ public class Renderer3D {
         Gdx.gl.glViewport(0, 0, width, height);
         Gdx.gl.glClear((GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
+        Gdx.gl.glEnable(GL30.GL_TEXTURE_2D);
+        Gdx.gl.glEnable(GL30.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL30.GL_SRC_ALPHA, GL30.GL_ONE_MINUS_SRC_ALPHA);
 
         moveRobot(new Pose2D(PathSim.xEntry.getDouble(0.0), PathSim.yEntry.getDouble(0.0), (PathSim.tEntry.getDouble(0.0)) * (Math.PI/180) + Math.PI/2));
 
         if(Gdx.input.isKeyPressed(Input.Keys.DEL)) {
             posInstances.clear();
         }
+
+        Gdx.gl.glDisable(GL30.GL_BLEND);
+        Gdx.gl.glDisable(GL20.GL_TEXTURE_2D);
 
 
 //        double angle = cur.getAngle().getRadians();
