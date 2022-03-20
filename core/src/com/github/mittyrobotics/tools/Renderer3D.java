@@ -1,6 +1,7 @@
 package com.github.mittyrobotics.tools;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -21,11 +22,12 @@ public class Renderer3D {
     public ModelBatch modelBatch;
     public Model model, sphere, robot, sphere2;
     public ModelInstance instance, sphereInstance, robotInstance;
+    public TimedModel sphereInstance2;
     public Environment environment;
     public static CamController3D camController;
     public Array<ModelInstance> instances = new Array<>();
     public Array<ModelInstance> sphereInstances = new Array<>();
-    public Array<ModelInstance> posInstances = new Array<>();
+    public Array<TimedModel> posInstances = new Array<>();
 
     public boolean loading;
 
@@ -34,7 +36,7 @@ public class Renderer3D {
 
     public ModelBuilder modelBuilder;
 
-    public Pose2D prevPos;
+    public Pose2D prevPos, cur;
 
     public double inch;
     public float scale;
@@ -50,8 +52,8 @@ public class Renderer3D {
 
 
         environment = new Environment();
-        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.6f, 0.6f, 0.6f, 1f));
-        environment.add(new DirectionalLight().set(0.8f, 0.8f, 1f, -1f, -0.8f, -0.2f));
+        environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.9f, 0.9f, 0.9f, 1f));
+        environment.add(new DirectionalLight().set(0.6f, 0.6f, 0.6f, -1f, -0.8f, -0.2f));
 
 
         width = Gdx.graphics.getWidth();
@@ -95,32 +97,57 @@ public class Renderer3D {
         instances.add(robotInstance);
         loading = false;
 
-//        QuinticHermiteSpline group = new QuinticHermiteSpline(new Pose2D(50, 50, 0), new Pose2D(250, 100, 0));
-
         posInstances.ordered = true;
 
-//        renderSpline(group);
+        for(QuinticHermiteSpline s : Splines.splines) {
+            renderSpline(s);
+        }
+
+        cur = new Pose2D();
     }
 
     public void render () {
         Gdx.gl.glViewport(0, 0, width, height);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+        Gdx.gl.glClear((GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT));
         Gdx.gl.glClearColor(0.12f, 0.12f, 0.12f, 1f);
 
         moveRobot(new Pose2D(PathSim.xEntry.getDouble(0.0), PathSim.yEntry.getDouble(0.0), (PathSim.tEntry.getDouble(0.0)) * (Math.PI/180) + Math.PI/2));
+
+        if(Gdx.input.isKeyPressed(Input.Keys.DEL)) {
+            posInstances.clear();
+        }
+
+
+//        double angle = cur.getAngle().getRadians();
+//
+//        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+//            cur = new Pose2D(cur.getPosition().x + 4*Math.cos(angle), cur.getPosition().y + 4*Math.sin(angle), angle);
+//        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+//            cur = new Pose2D(cur.getPosition().x - 4*Math.cos(angle), cur.getPosition().y - 4*Math.sin(angle), angle);
+//        }
+//
+//        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+//            cur = new Pose2D(cur.getPosition().x, cur.getPosition().y, angle + 0.1);
+//        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+//            cur = new Pose2D(cur.getPosition().x, cur.getPosition().y, angle - 0.1);
+//        }
+//
+//        moveRobot(cur);
+
 
         modelBatch.begin(cam);
         modelBatch.render(instances, environment);
 
         modelBatch.render(sphereInstances);
-        modelBatch.render(posInstances);
+        for(TimedModel m : posInstances) {
+            if(m != null) modelBatch.render(m);
+        }
 
         modelBatch.end();
     }
 
     public void renderSpline(Parametric spline) {
-        sphereInstances.clear();
-        double step = 1. / (10 * (int) (spline.getLength()));
+        double step = 1. / (2 * (int) (spline.getLength()));
 
         for(double i = step; i <= 1; i += step) {
             sphereInstance = new ModelInstance(sphere);
@@ -132,16 +159,25 @@ public class Renderer3D {
     }
 
     public void moveRobot(Pose2D pose) {
+
+        if(prevPos != null) {
+            QuinticHermiteSpline s = new QuinticHermiteSpline(prevPos, pose);
+            for (double t = 0; t <= 1; t += 0.1) {
+                sphereInstance2 = new TimedModel(sphere2, posInstances);
+                Point2D cur = s.getPoint(t);
+                sphereInstance2.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
+                posInstances.add(sphereInstance2);
+            }
+        } else {
+            sphereInstance2 = new TimedModel(sphere2, posInstances);
+            Point2D cur = pose.getPosition();
+            sphereInstance2.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
+            posInstances.add(sphereInstance2);
+        }
+
         moveRobotBack();
         moveRobotToPose(pose);
-        sphereInstance = new ModelInstance(sphere2);
-        Point2D cur = pose.getPosition();
-        sphereInstance.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
 
-        if(posInstances.size > 100000) {
-            posInstances.removeIndex(0);
-        }
-        posInstances.add(sphereInstance);
 
     }
 
