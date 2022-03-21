@@ -83,11 +83,12 @@ public class Renderer3D {
         robotInstance = new ModelInstance(robot);
 
         robotInstance.calculateBoundingBox(temp);
-        robotW = 85;
-        robotL = 100;
 
-        double actual = inch * 38;
-        scale = (float) (actual / robotL);
+        System.out.println(temp.getWidth() + " " + temp.getDepth() + " " + temp.getHeight());
+
+        robotW = temp.getDepth() - 6.5;
+
+        scale = (float) inch;
         robotInstance.transform.scale(scale, scale, scale);
 
         instances.add(instance);
@@ -117,22 +118,19 @@ public class Renderer3D {
             posInstances.clear();
         }
 
-        Gdx.gl.glDisable(GL30.GL_BLEND);
-        Gdx.gl.glDisable(GL20.GL_TEXTURE_2D);
-
 
 //        double angle = cur.getAngle().getRadians();
 //
 //        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-//            cur = new Pose2D(cur.getPosition().x + 4*Math.cos(angle), cur.getPosition().y + 4*Math.sin(angle), angle);
-//        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 //            cur = new Pose2D(cur.getPosition().x - 4*Math.cos(angle), cur.getPosition().y - 4*Math.sin(angle), angle);
+//        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+//            cur = new Pose2D(cur.getPosition().x + 4*Math.cos(angle), cur.getPosition().y + 4*Math.sin(angle), angle);
 //        }
 //
 //        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-//            cur = new Pose2D(cur.getPosition().x, cur.getPosition().y, angle + 0.1);
-//        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 //            cur = new Pose2D(cur.getPosition().x, cur.getPosition().y, angle - 0.1);
+//        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+//            cur = new Pose2D(cur.getPosition().x, cur.getPosition().y, angle + 0.1);
 //        }
 //
 //        moveRobot(cur);
@@ -147,6 +145,9 @@ public class Renderer3D {
         }
 
         modelBatch.end();
+
+        Gdx.gl.glDisable(GL30.GL_BLEND);
+        Gdx.gl.glDisable(GL20.GL_TEXTURE_2D);
     }
 
     public void renderSpline(Parametric spline) {
@@ -168,13 +169,13 @@ public class Renderer3D {
             for (double t = 0; t <= 1; t += 0.1) {
                 sphereInstance2 = new TimedModel(sphere2, posInstances);
                 Point2D cur = s.getPoint(t);
-                sphereInstance2.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
+                sphereInstance2.transform.translate((float) (cur.getX() * inch), 0f, (float) (-cur.getY() * inch));
                 posInstances.add(sphereInstance2);
             }
         } else {
             sphereInstance2 = new TimedModel(sphere2, posInstances);
             Point2D cur = pose.getPosition();
-            sphereInstance2.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
+            sphereInstance2.transform.translate((float) (cur.getX() * inch), 0f, (float) (-cur.getY() * inch));
             posInstances.add(sphereInstance2);
         }
 
@@ -187,7 +188,7 @@ public class Renderer3D {
     public void moveRobotToPose(Pose2D cur) {
         Point2D pos = getRobotPos(cur.getPosition().getX(), cur.getPosition().getY());
         robotInstance.transform.translate((float) pos.getX(), 4f, (float) -pos.getY()).rotate(0, 1, 0,
-                (float) (180 + cur.getAngle().getRadians() * 180 / Math.PI)).translate((float) (-robotL * scale / 2), 0f, (float) (robotW * scale / 2));
+                (float) (180 + cur.getAngle().getRadians() * 180 / Math.PI)).translate(0.45f, 0, (float) robotW / 2);
 
         prevPos = cur;
     }
@@ -195,13 +196,13 @@ public class Renderer3D {
     public void moveRobotBack() {
         if(prevPos != null) {
             Point2D pos = getRobotPos(prevPos.getPosition().getX(), prevPos.getPosition().getY());
-            robotInstance.transform.translate((float) (robotL * scale / 2), 0f, (float) (-robotW * scale / 2)).rotate(0, 1, 0,
+            robotInstance.transform.translate(-0.45f, 0, (float) -robotW / 2).rotate(0, 1, 0,
                     (float) (-180 - prevPos.getAngle().getRadians() * 180 / Math.PI)).translate((float) -pos.getX(), -4f, (float) pos.getY());
         }
     }
 
     public Point2D getRobotPos(double x, double y) {
-        return new Point2D(x * inch / scale, y * inch / scale);
+        return new Point2D(x, y);
     }
 
     public void load() {
