@@ -99,14 +99,11 @@ public class Renderer3D {
         instance = new ModelInstance(model);
         robotInstance = new ModelInstance(robot);
 
-//        robotInstance.transform.scale(100f, 100f, 100f);
-//        robotInstance.calculateTransforms();
         robotInstance.calculateBoundingBox(temp);
-        robotW = 85;
-        robotL = 100;
 
-        double actual = inch * 38;
-        scale = (float) (actual / robotL);
+        robotW = temp.getDepth() - 6.5;
+
+        scale = (float) inch;
         robotInstance.transform.scale(scale, scale, scale);
 
         instances.add(instance);
@@ -164,7 +161,7 @@ public class Renderer3D {
     public void moveRobotToPose(Pose2D cur) {
         Point2D pos = getRobotPos(cur.getPosition().getX(), cur.getPosition().getY());
         robotInstance.transform.translate((float) pos.getX(), 4f, (float) -pos.getY()).rotate(0, 1, 0,
-                (float) (180 + cur.getAngle().getRadians() * 180 / Math.PI)).translate((float) (-robotL * scale / 2), 0f, (float) (robotW * scale / 2));
+                (float) (180 + cur.getAngle().getRadians() * 180 / Math.PI)).translate(0.45f, 0, (float) robotW / 2);
 
         prevPos = cur;
     }
@@ -172,13 +169,13 @@ public class Renderer3D {
     public void moveRobotBack() {
         if(prevPos != null) {
             Point2D pos = getRobotPos(prevPos.getPosition().getX(), prevPos.getPosition().getY());
-            robotInstance.transform.translate((float) (robotL * scale / 2), 0f, (float) (-robotW * scale / 2)).rotate(0, 1, 0,
+            robotInstance.transform.translate(-0.45f, 0, (float) -robotW / 2).rotate(0, 1, 0,
                     (float) (-180 - prevPos.getAngle().getRadians() * 180 / Math.PI)).translate((float) -pos.getX(), -4f, (float) pos.getY());
         }
     }
 
     public Point2D getRobotPos(double x, double y) {
-        return new Point2D(x * inch / scale, y * inch / scale);
+        return new Point2D(x, y);
     }
 
     public void load() {
