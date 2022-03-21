@@ -84,8 +84,6 @@ public class Renderer3D {
 
         robotInstance.calculateBoundingBox(temp);
 
-        System.out.println(temp.getWidth() + " " + temp.getDepth() + " " + temp.getHeight());
-
         robotW = temp.getDepth() - 6.5;
 
         scale = (float) inch;
@@ -169,13 +167,13 @@ public class Renderer3D {
             for (double t = 0; t <= 1; t += 0.1) {
                 sphereInstance2 = new TimedModel(sphere2, posInstances);
                 Point2D cur = s.getPoint(t);
-                sphereInstance2.transform.translate((float) (cur.getX() * inch), 0f, (float) (-cur.getY() * inch));
+                sphereInstance2.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
                 posInstances.add(sphereInstance2);
             }
         } else {
             sphereInstance2 = new TimedModel(sphere2, posInstances);
             Point2D cur = pose.getPosition();
-            sphereInstance2.transform.translate((float) (cur.getX() * inch), 0f, (float) (-cur.getY() * inch));
+            sphereInstance2.transform.translate((float) (cur.getX() * inch), 10f, (float) (-cur.getY() * inch));
             posInstances.add(sphereInstance2);
         }
 
