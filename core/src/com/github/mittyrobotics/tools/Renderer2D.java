@@ -276,12 +276,6 @@ public class Renderer2D {
                         PathSim.pathManager.curOnPath = i;
                         PathSim.pathManager.curHoveringNode = k + 1;
                     }
-                    for (int t = 0; t <= 1; t += 1) {
-                        Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
-                        if (distance(x, y, v) < points.getWidth() / 2f) {
-                            PathSim.pathManager.curOnPath = i;
-                        }
-                    }
                 }
 
                 Point2D p = toPointOnScreen(group.getSpline(0).getPoint(0));

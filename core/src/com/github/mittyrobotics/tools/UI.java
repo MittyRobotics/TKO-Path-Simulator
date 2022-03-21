@@ -22,9 +22,9 @@ public class UI implements Disposable {
     public ScrollPane pane, ppane;
     public int right, prevState, prevEditing;
     public static int addingSpline;
-    public Label addingLabel;
+    public Label addingLabel, widget;
     public boolean splineMode, prevMode, purePursuitMode, showing;
-    public TextButton pathId, addNode1, addNode2, spline, path, addPath, export, delete, deleteNode, purePursuit, ramsete;
+    public TextButton pathId, addNode1, addNode2, spline, path, addPath, play, export, delete, deleteNode, purePursuit, ramsete;
     public ArrayList<TextField> splines = new ArrayList<>();
     ArrayList<TextField> paths = new ArrayList<>();
     public TextField.TextFieldStyle textFieldStyle;
@@ -32,6 +32,7 @@ public class UI implements Disposable {
     public ArrayList<Actor> toggle = new ArrayList<>();
     public ArrayList<Actor> splineEdit = new ArrayList<>();
     public ArrayList<Actor> pathEdit = new ArrayList<>();
+    public ArrayList<Actor> notPathEdit = new ArrayList<>();
     public DecimalFormat df, df2;
 
     public String[] purePursuitLabels = {"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
@@ -56,6 +57,20 @@ public class UI implements Disposable {
         container = new Table();
         table = new Table();
         ScrollPane.ScrollPaneStyle scrollPaneStyle = new ScrollPane.ScrollPaneStyle();
+        Label.LabelStyle lStyle = new Label.LabelStyle();
+        lStyle.font = PathSim.font;
+        lStyle.font.getData().setScale(0.5f);
+        lStyle.fontColor = new Color(104/255f,204/255f,220/255f, 1f);
+
+        lStyle2 = new Label.LabelStyle();
+        lStyle2.font = PathSim.font;
+        lStyle2.font.getData().setScale(0.6f);
+        lStyle2.fontColor = Color.WHITE;
+
+        Label.LabelStyle lStyle3 = new Label.LabelStyle();
+        lStyle3.font = PathSim.font;
+        lStyle3.font.getData().setScale(0.5f);
+        lStyle3.fontColor = Color.WHITE;
 //        scrollPaneStyle.vScrollKnob = PathSim.skin.getDrawable("scroll_vertical_knob");
 //        scrollPaneStyle.background = PathSim.skin.getDrawable("btn_default_normal");
 
@@ -116,6 +131,10 @@ public class UI implements Disposable {
         addPath.getLabel().setFontScale(0.7f);
         addPath.setBounds(right+50, Gdx.graphics.getHeight() - 265, 200, 50);
 
+        play = new TextButton("Pause Sim", textButtonStyle);
+        play.getLabel().setFontScale(0.7f);
+        play.setBounds(right+50, Gdx.graphics.getHeight() - 265, 200, 50);
+
         addNode1 = new TextButton("Add Start", textButtonStyle);
         addNode1.getLabel().setFontScale(0.5f);
         addNode1.setBounds(right+25, Gdx.graphics.getHeight() - 395, 130, 40);
@@ -156,6 +175,8 @@ public class UI implements Disposable {
         ramsete.getLabel().setFontScale(0.5f);
         ramsete.setBounds(right+145, Gdx.graphics.getHeight() - 395, 130, 40);
 
+        widget = new Label("Manage Paths", lStyle3);
+
         addListeners();
 
         toggle.add(path);
@@ -168,10 +189,14 @@ public class UI implements Disposable {
 
         pathEdit.add(purePursuit);
         pathEdit.add(ramsete);
+        pathEdit.add(play);
 
         stage.addActor(pathId);
-        stage.addActor(addPath);
+        notPathEdit.add(addPath);
+        notPathEdit.add(widget);
 
+
+        for(Actor a : notPathEdit) stage.addActor(a);
 
         textFieldStyle = new TextField.TextFieldStyle(PathSim.font, Color.WHITE,
                 PathSim.skin.getDrawable("textfield_cursor"), PathSim.skin.getDrawable("textfield_selection"), PathSim.skin.getDrawable("textfield_default"));
@@ -184,17 +209,8 @@ public class UI implements Disposable {
                }
         });
 
-        Label.LabelStyle lStyle = new Label.LabelStyle();
-        lStyle.font = PathSim.font;
-        lStyle.font.getData().setScale(0.5f);
-        lStyle.fontColor = new Color(104/255f,204/255f,220/255f, 1f);
-
-        lStyle2 = new Label.LabelStyle();
-        lStyle2.font = PathSim.font;
-        lStyle2.font.getData().setScale(0.6f);
-        lStyle2.fontColor = Color.WHITE;
-
         addingLabel = new Label("", lStyle);
+
         prevEditing = -1;
     }
 
@@ -253,16 +269,22 @@ public class UI implements Disposable {
             deleteNode.remove();
         }
 
-        if(splineMode && !prevMode && PathSim.pathManager.curEditingPath != -1) {
+        if(splineMode && !prevMode && PathSim.pathManager.editingPath()) {
             for(Actor a : splineEdit) stage.addActor(a);
             for(Actor a : pathEdit) a.remove();
             showing = true;
-        } else if (!splineMode && prevMode && PathSim.pathManager.curEditingPath != -1) {
+
+            for(Actor a : notPathEdit) stage.addActor(a);
+        } else if (!splineMode && prevMode && PathSim.pathManager.editingPath()) {
             for(Actor a : pathEdit) stage.addActor(a);
+            for(Actor a : notPathEdit) a.remove();
+            path.setText("Pause Sim");
             for(Actor a : splineEdit) a.remove();
             showing = true;
             populatePathEdit();
         }
+
+        widget.setBounds(PathSim.renderer2d.widgetX + 20, PathSim.renderer2d.widgetY + PathSim.renderer2d.wh - 15 - widget.getPrefHeight()/2, widget.getPrefWidth(), widget.getPrefHeight());
 
         prevEditing = PathSim.pathManager.curEditingPath;
         prevMode = splineMode;
@@ -780,6 +802,22 @@ public class UI implements Disposable {
                 if(addingSpline == 0) {
                     addingSpline = 2;
                     PathSim.pathManager.curEditingPath = -1;
+                }
+            }
+        });
+
+        play.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if(PathSim.renderer3d.running) {
+                    PathSim.renderer3d.running = false;
+                    play.setText("Resume Sim");
+                } else {
+                    if (PathSim.renderer3d.curInd == simulator.getEnd(purePursuitMode) - 1) {
+                        PathSim.renderer3d.curInd = 0;
+                    }
+                    PathSim.renderer3d.running = true;
+                    play.setText("Pause Sim");
                 }
             }
         });

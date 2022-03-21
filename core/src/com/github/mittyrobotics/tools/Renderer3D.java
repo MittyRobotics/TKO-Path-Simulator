@@ -139,6 +139,7 @@ public class Renderer3D {
                 if (curInd >= s.getEnd(tempui.purePursuitMode)) {
                     running = false;
                     curInd = s.getEnd(tempui.purePursuitMode) - 1;
+                    tempui.play.setText("Run Sim");
                 }
             }
         }
