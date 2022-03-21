@@ -16,7 +16,7 @@ import javax.swing.*;
 public class Renderer2D {
 
     public static CamController2D camController;
-    public boolean loading, addFront, addBack, wasJustPlaced, addNew, scrubbing, movingWidget;
+    public boolean loading, addFront, addBack, wasJustPlaced, addNew, scrubbing, movingWidget, widgetExpanded;
     public Texture field, title1, title2, pointl, points, pointp, pointw, pointh, pointt;
     public SpriteBatch batch, fontBatch, onBatch;
 
@@ -147,17 +147,21 @@ public class Renderer2D {
         int x = Gdx.input.getX();
         int y = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        uiRenderer.setColor(new Color(0f, 0f, 0f, 0.5f));
-
         int rwx = Math.max(0, Math.min(widgetX, right - ww));
         int rwy = Math.max(0, Math.min(widgetY, height - wh));
 
-        roundedRect(uiRenderer, rwx, rwy, ww, wh, 5);
-
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && UI.addingSpline == 0 && (x >= rwx && x <= rwx + ww && y >= rwy && y <= rwy + wh)) {
-            movingWidget = true;
+        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && UI.addingSpline == 0) {
+            if(x >= rwx + ww - 30 && x <= rwx + ww - 15 && y >= rwy + wh - 22.5f && y <= rwy + wh - 7.5f) {
+                widgetExpanded = !widgetExpanded;
+                wh = widgetExpanded ? 250 : 30;
+                widgetY += widgetExpanded ? -220 : 220;
+            }
+            if((x >= rwx && x <= rwx + ww && y >= rwy && y <= rwy + wh)) movingWidget = true;
         }
         if(!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) movingWidget = false;
+
+        rwx = Math.max(0, Math.min(widgetX, right - ww));
+        rwy = Math.max(0, Math.min(widgetY, height - wh));
 
         if(movingWidget) {
             widgetX += x - wx;
@@ -166,9 +170,19 @@ public class Renderer2D {
             widgetX = rwx;
             widgetY = rwy;
         }
+
+        uiRenderer.setColor(new Color(0f, 0f, 0f, 0.5f));
+        roundedRect(uiRenderer, rwx, rwy, ww, wh, 5);
+        uiRenderer.setColor(Color.WHITE);
+        if(widgetExpanded) {
+            uiRenderer.triangle(rwx + ww - 30, rwy + wh - 7.5f, rwx + ww - 15, rwy + wh - 7.5f, rwx + ww - 22.5f, rwy + wh - 22.5f);
+        } else {
+            uiRenderer.triangle(rwx + ww - 30, rwy + wh - 22.5f, rwx + ww - 30, rwy + wh - 7.5f, rwx + ww - 15, rwy  + wh - 15f);
+        }
+
+
         wx = x;
         wy = y;
-
         uiRenderer.end();
 
         Gdx.gl.glDisable(GL20.GL_BLEND);
