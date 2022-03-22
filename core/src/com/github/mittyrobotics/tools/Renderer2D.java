@@ -246,6 +246,7 @@ public class Renderer2D {
                 } else {
                     PathSim.pathManager.paths.remove(PathSim.pathManager.curEditingPath);
                     PathSim.pathManager.curEditingPath = -1;
+                    PathSim.renderer2d.ui.populateWidget();
                 }
             }
         }
@@ -508,7 +509,7 @@ public class Renderer2D {
                         onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
                     } else if (PathSim.pathManager.curEditingPath == f && ((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)) && UI.addingSpline == 0) {
                         onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
-                    } else if (PathSim.pathManager.curEditingPath == f || (PathSim.pathManager.curOnPath == f && PathSim.pathManager.notEditing()) && UI.addingSpline == 0) {
+                    } else if (PathSim.pathManager.curEditingPath == f && UI.addingSpline == 0) {
                         onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
                     } else {
                         onBatch.draw(pointt, (float) p.x - pointt.getWidth() / 2f, (float) p.y - pointt.getHeight() / 2f, pointt.getWidth(), pointt.getHeight());

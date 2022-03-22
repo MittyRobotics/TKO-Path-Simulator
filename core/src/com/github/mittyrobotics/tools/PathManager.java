@@ -31,7 +31,6 @@ public class PathManager {
 
     public void delayRemove(ExtendedPath path) {
         toBeDeleted.add(path);
-        System.out.println("hi");
     }
 
     public void updateRemove() {
