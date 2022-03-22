@@ -43,9 +43,9 @@ project(":desktop") {
 
     dependencies {
         implementation project(":core")
-        api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
-        api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
-        api "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+        implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+        implementation "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
 
     }
 }
@@ -54,8 +54,8 @@ project(":core") {
     apply plugin: "java-library"
 
     dependencies {
-        api "com.badlogicgames.gdx:gdx:$gdxVersion"
-        api 'com.github.MittyRobotics:path-following:1.3.3'
+        implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+        implementation 'com.github.MittyRobotics:path-following:1.3.3'
     }
 }
 
