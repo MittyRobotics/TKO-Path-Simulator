@@ -110,7 +110,10 @@ public class CamController2D extends GestureDetector {
 
     @Override
     public boolean scrolled (float amountX, float amountY) {
-        if(Gdx.input.getX() <= PathSim.LEFT_WIDTH) {
+        int x = Gdx.input.getX();
+        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        if(Gdx.input.getX() <= PathSim.LEFT_WIDTH && !(x >= PathSim.renderer2d.rwx && x <= PathSim.renderer2d.rwx +
+                PathSim.renderer2d.ww && y >= PathSim.renderer2d.rwy && y <= PathSim.renderer2d.rwy + PathSim.renderer2d.wh)) {
             return zoom(amountY);
         }
         return false;

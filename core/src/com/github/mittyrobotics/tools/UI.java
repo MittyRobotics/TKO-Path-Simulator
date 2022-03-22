@@ -3,10 +3,12 @@ package com.github.mittyrobotics.tools;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Disposable;
 import com.github.mittyrobotics.PathSim;
@@ -18,8 +20,8 @@ import java.util.ArrayList;
 public class UI implements Disposable {
 
     public Stage stage;
-    public Table container, table, pcontainer, ptable;
-    public ScrollPane pane, ppane;
+    public Table container, table, pcontainer, ptable, widgetTable, widgetContainer;
+    public ScrollPane pane, ppane, widgetPane;
     public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel, widget;
@@ -119,6 +121,28 @@ public class UI implements Disposable {
         pcontainer.setBounds(right+25, 82, 250, Gdx.graphics.getHeight() - 478);
         pathEdit.add(pcontainer);
 
+        widgetTable = new Table();
+        widgetContainer = new Table();
+
+        widgetPane = new ScrollPane(widgetTable, scrollPaneStyle);
+        widgetTable.align(Align.top);
+        widgetPane.setScrollingDisabled(true, false);
+        widgetPane.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                stage.setScrollFocus(widgetPane);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                stage.setScrollFocus(null);
+            }
+        });
+        widgetPane.setFlickScroll(false);
+        widgetPane.layout();
+        widgetContainer.add(widgetPane).fill().expand();
+        widgetContainer.row();
+
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = PathSim.font;
         textButtonStyle.up = PathSim.skin.getDrawable("btn_default_normal");
@@ -176,6 +200,7 @@ public class UI implements Disposable {
         ramsete.setBounds(right+145, Gdx.graphics.getHeight() - 395, 130, 40);
 
         widget = new Label("Manage Paths", lStyle3);
+        widget.setFontScale(0.65f);
 
         addListeners();
 
@@ -272,19 +297,24 @@ public class UI implements Disposable {
         if(splineMode && !prevMode && PathSim.pathManager.editingPath()) {
             for(Actor a : splineEdit) stage.addActor(a);
             for(Actor a : pathEdit) a.remove();
-            showing = true;
-
             for(Actor a : notPathEdit) stage.addActor(a);
+            showing = true;
         } else if (!splineMode && prevMode && PathSim.pathManager.editingPath()) {
             for(Actor a : pathEdit) stage.addActor(a);
             for(Actor a : notPathEdit) a.remove();
-            path.setText("Pause Sim");
             for(Actor a : splineEdit) a.remove();
+            path.setText("Pause Sim");
             showing = true;
             populatePathEdit();
         }
 
-        widget.setBounds(PathSim.renderer2d.widgetX + 20, PathSim.renderer2d.widgetY + PathSim.renderer2d.wh - 15 - widget.getPrefHeight()/2, widget.getPrefWidth(), widget.getPrefHeight());
+        widget.setBounds(PathSim.renderer2d.rwx + 20, PathSim.renderer2d.rwy + PathSim.renderer2d.wh - 20 - widget.getPrefHeight()/2, widget.getPrefWidth(), widget.getPrefHeight());
+        widgetContainer.setBounds(PathSim.renderer2d.rwx, PathSim.renderer2d.rwy+10, PathSim.renderer2d.ww, PathSim.renderer2d.wh - 55);
+        if(PathSim.renderer2d.widgetExpanded) {
+            stage.addActor(widgetContainer);
+        } else {
+            widgetContainer.remove();
+        }
 
         prevEditing = PathSim.pathManager.curEditingPath;
         prevMode = splineMode;
@@ -293,6 +323,45 @@ public class UI implements Disposable {
         stage.draw();
 
         updateExportFrame(false);
+    }
+
+    public void populateWidget() {
+        int i = 1;
+        widgetTable.clear();
+        for(ExtendedPath p : PathSim.pathManager.paths) {
+            Label l = new Label("Path " + i, lStyle2);
+            l.setFontScale(0.5f);
+            Image del = new Image(PathSim.renderer2d.trash);
+            del.addListener(new ClickListener() {
+                public void clicked(InputEvent event, float x, float y){
+                    PathSim.pathManager.delayRemove(p);
+                }
+            });
+            Image edit = new Image(PathSim.renderer2d.edit);
+            edit.addListener(new ClickListener() {
+                public void clicked(InputEvent event, float x, float y){
+                    PathSim.pathManager.chooseEditPath(p);
+                }
+            });
+            Image visible = new Image(p.visible ? PathSim.renderer2d.visible : PathSim.renderer2d.invisible);
+            visible.addListener(new ClickListener() {
+                public void clicked(InputEvent event, float x, float y){
+                    p.visible = !p.visible;
+                    if(p.visible) visible.setDrawable(new TextureRegionDrawable(PathSim.renderer2d.visible));
+                    else visible.setDrawable(new TextureRegionDrawable(PathSim.renderer2d.invisible));
+                    if(PathSim.pathManager.paths.indexOf(p) == PathSim.pathManager.curEditingPath) {
+                        PathSim.pathManager.curEditingPath = -1;
+                    }
+                }
+            });
+
+            widgetTable.add(l).height(30).width(140).align(Align.left).pad(0, 15, 0, 0);
+            widgetTable.add(visible).height(20).width(20).align(Align.right).pad(0, 0, 0, 5);
+            widgetTable.add(edit).height(20).width(20).align(Align.right).pad(0, 5, 0, 5);
+            widgetTable.add(del).height(20).width(20).align(Align.right).pad(0, 5, 0, 15);
+            widgetTable.row();
+            i++;
+        }
     }
 
     public void populateSplineEdit() {

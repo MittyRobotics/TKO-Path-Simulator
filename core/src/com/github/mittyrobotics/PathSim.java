@@ -51,6 +51,11 @@ public class PathSim extends ApplicationAdapter {
 		assets.load("img/pointp.png", Texture.class);
 		assets.load("img/pointh.png", Texture.class);
 		assets.load("img/pointt.png", Texture.class);
+		assets.load("img/trash.png", Texture.class);
+		assets.load("img/edit.png", Texture.class);
+		assets.load("img/visible.png", Texture.class);
+		assets.load("img/invisible.png", Texture.class);
+
 
 		TextureAtlas atlas = new TextureAtlas(Gdx.files.internal("skin/Holo-dark-xhdpi.atlas"));
 		skin = new Skin(atlas);
@@ -74,7 +79,6 @@ public class PathSim extends ApplicationAdapter {
 //		Gdx.input.setInputProcessor(Renderer2D.camController);
 
 		input = new InputMultiplexer();
-		input.addProcessor(renderer2d.ui.stage);
 		input.addProcessor(Renderer2D.camController);
 		Gdx.input.setInputProcessor(input);
 
@@ -145,7 +149,7 @@ public class PathSim extends ApplicationAdapter {
 			renderer2d.render();
 		}
 
-		if(debug) {
+		if(debug && !renderer2d.loading) {
 			debugText.setText("PATH VARS\n-----\nediting path: " + PathSim.pathManager.curEditingPath + "\nediting node: " + PathSim.pathManager.curEditingNode
 					+ "\nediting vel: " + PathSim.pathManager.curEditingVel + "\n\non path: " + PathSim.pathManager.curOnPath + "\nselected node: " + PathSim.pathManager.curSelectedNode + "\nhovering node: "
 					+ PathSim.pathManager.curHoveringNode + "\n\nadd front/back/new: " + renderer2d.addFront + " " + renderer2d.addBack + " " + renderer2d.addNew + "\njust placed: " +

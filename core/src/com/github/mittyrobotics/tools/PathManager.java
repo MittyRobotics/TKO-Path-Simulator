@@ -8,6 +8,8 @@ import java.util.ArrayList;
 public class PathManager {
 
     public ArrayList<ExtendedPath> paths = new ArrayList<>();
+    public ArrayList<ExtendedPath> toBeDeleted = new ArrayList<>();
+
     public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode, curHoveringNode, curUIHoveringNode;
 
     public Point2D storedPoint;
@@ -27,6 +29,24 @@ public class PathManager {
         storedPoint = null;
     }
 
+    public void delayRemove(ExtendedPath path) {
+        toBeDeleted.add(path);
+        System.out.println("hi");
+    }
+
+    public void updateRemove() {
+        for(ExtendedPath p : toBeDeleted) {
+            if(paths.indexOf(p) == curEditingPath) curEditingPath = -1;
+            else if (paths.indexOf(p) < curEditingPath) curEditingPath--;
+
+            if(paths.indexOf(p) == curOnPath) curOnPath = -1;
+            else if (paths.indexOf(p) < curOnPath) curOnPath--;
+            paths.remove(p);
+            PathSim.renderer2d.ui.populateWidget();
+        }
+        toBeDeleted.clear();
+    }
+
     public void storePoint(Point2D point) {
         storedPoint = point;
     }
@@ -35,8 +55,18 @@ public class PathManager {
         if(storedPoint != null) {
             Angle angle = new Angle(point.x - storedPoint.x, point.y - storedPoint.y);
             paths.add(new ExtendedPath(new QuinticHermiteSplineGroup(new QuinticHermiteSpline(new Pose2D(storedPoint, angle), new Pose2D(point, angle)))));
+            PathSim.renderer2d.ui.populateWidget();
         }
         storedPoint = null;
+    }
+
+    public void chooseEditPath(ExtendedPath p) {
+        if(paths.contains(p)) {
+            curEditingPath = paths.indexOf(p);
+            curSelectedNode = -1;
+            curEditingNode = -1;
+            curEditingVel = -1;
+        }
     }
 
     public QuinticHermiteSpline getNewPathPreview(Point2D point) {

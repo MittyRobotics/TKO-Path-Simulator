@@ -17,11 +17,11 @@ public class Renderer2D {
 
     public static CamController2D camController;
     public boolean loading, addFront, addBack, wasJustPlaced, addNew, scrubbing, movingWidget, widgetExpanded;
-    public Texture field, title1, title2, pointl, points, pointp, pointw, pointh, pointt;
+    public Texture field, title1, title2, pointl, points, pointp, pointw, pointh, pointt, trash, edit, visible, invisible;
     public SpriteBatch batch, fontBatch, onBatch;
 
     public double fieldWidth, fieldHeight, inch, zoom, centerx, centery, xc, yc, x, y, wx, wy;
-    public int width, height, right, prevx, prevy, widgetX, widgetY, ww, wh;
+    public int width, height, right, prevx, prevy, widgetX, widgetY, ww, wh, rwx, rwy;
     public Point2D temp;
 
     public ShapeRenderer uiRenderer, fieldRenderer;
@@ -59,7 +59,7 @@ public class Renderer2D {
         widgetX = 20;
         widgetY = height - 50;
         ww = 250;
-        wh = 30;
+        wh = 40;
 
 
         //fonts ----------
@@ -79,8 +79,6 @@ public class Renderer2D {
         }
         //end fonts ---------
 
-        ui = new UI();
-
     }
 
 
@@ -97,7 +95,14 @@ public class Renderer2D {
         pointw = PathSim.assets.get("img/pointw.png", Texture.class);
         pointh = PathSim.assets.get("img/pointh.png", Texture.class);
         pointt = PathSim.assets.get("img/pointt.png", Texture.class);
+        trash = PathSim.assets.get("img/trash.png", Texture.class);
+        edit = PathSim.assets.get("img/edit.png", Texture.class);
+        visible = PathSim.assets.get("img/visible.png", Texture.class);
+        invisible = PathSim.assets.get("img/invisible.png", Texture.class);
 
+
+        ui = new UI();
+        PathSim.input.addProcessor(ui.stage);
 
         loading = false;
     }
@@ -140,6 +145,8 @@ public class Renderer2D {
 
             //overlapping text
             drawText();
+
+            PathSim.pathManager.updateRemove();
         }
     }
 
@@ -147,14 +154,14 @@ public class Renderer2D {
         int x = Gdx.input.getX();
         int y = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-        int rwx = Math.max(0, Math.min(widgetX, right - ww));
-        int rwy = Math.max(0, Math.min(widgetY, height - wh));
+        rwx = Math.max(0, Math.min(widgetX, right - ww));
+        rwy = Math.max(0, Math.min(widgetY, height - wh));
 
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && UI.addingSpline == 0) {
-            if(x >= rwx + ww - 30 && x <= rwx + ww - 15 && y >= rwy + wh - 22.5f && y <= rwy + wh - 7.5f) {
+            if(x >= rwx + ww - 35 && x <= rwx + ww - 15 && y >= rwy + wh - 30 && y <= rwy + wh - 10) {
                 widgetExpanded = !widgetExpanded;
-                wh = widgetExpanded ? 250 : 30;
-                widgetY += widgetExpanded ? -220 : 220;
+                wh = widgetExpanded ? 250 : 40;
+                widgetY += widgetExpanded ? -210 : 210;
             }
             if((x >= rwx && x <= rwx + ww && y >= rwy && y <= rwy + wh)) movingWidget = true;
         }
@@ -171,13 +178,13 @@ public class Renderer2D {
             widgetY = rwy;
         }
 
-        uiRenderer.setColor(new Color(0f, 0f, 0f, 0.5f));
+        uiRenderer.setColor(new Color(0f, 0f, 0f, 0.7f));
         roundedRect(uiRenderer, rwx, rwy, ww, wh, 5);
         uiRenderer.setColor(Color.WHITE);
         if(widgetExpanded) {
-            uiRenderer.triangle(rwx + ww - 30, rwy + wh - 7.5f, rwx + ww - 15, rwy + wh - 7.5f, rwx + ww - 22.5f, rwy + wh - 22.5f);
+            uiRenderer.triangle(rwx + ww - 35, rwy + wh - 10, rwx + ww - 15, rwy + wh - 10, rwx + ww - 25f, rwy + wh - 30);
         } else {
-            uiRenderer.triangle(rwx + ww - 30, rwy + wh - 22.5f, rwx + ww - 30, rwy + wh - 7.5f, rwx + ww - 15, rwy  + wh - 15f);
+            uiRenderer.triangle(rwx + ww - 35, rwy + wh - 30, rwx + ww - 35, rwy + wh - 10, rwx + ww - 15, rwy  + wh - 20);
         }
 
 
@@ -255,18 +262,17 @@ public class Renderer2D {
             }
         }
 
-        int rwx = Math.max(0, Math.min(widgetX, right - ww));
-        int rwy = Math.max(0, Math.min(widgetY, height - wh));
         if(!(x >= rwx && x <= rwx + ww && y >= rwy && y <= rwy + wh)) {
             PathSim.pathManager.curOnPath = -1;
             PathSim.pathManager.curHoveringNode = -1;
             for (int i = 0; i < PathSim.pathManager.paths.size(); i++) {
+                if(PathSim.pathManager.paths.get(i).visible) {
                 QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.paths.get(i).purePursuitPath.getParametric();
 
                 Point2D pos = toPointInInches(x, y);
                 Point2D onscreen = toPointOnScreen(group.getPoint(group.findClosestPointOnSpline(pos, 50, 5)));
                 Point2D posscreen = new Point2D(x, y);
-                if (posscreen.distance(onscreen) <= 4) {
+                if (posscreen.distance(onscreen) <= 6) {
                     PathSim.pathManager.curOnPath = i;
                 }
 
@@ -283,18 +289,20 @@ public class Renderer2D {
                     PathSim.pathManager.curOnPath = i;
                     PathSim.pathManager.curHoveringNode = 0;
                 }
+                }
             }
 
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
                 int editingPath = -1, editingNode = -1, selectedNode = -1, editingVel = -1;
                 Point2D temptemp = new Point2D();
                 for (int i = 0; i < PathSim.pathManager.paths.size(); i++) {
+                    if(PathSim.pathManager.paths.get(i).visible) {
                     QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) PathSim.pathManager.paths.get(i).purePursuitPath.getParametric();
 
                     Point2D pos = toPointInInches(x, y);
                     Point2D onscreen = toPointOnScreen(group.getPoint(group.findClosestPointOnSpline(pos, 50, 5)));
                     Point2D posscreen = new Point2D(x, y);
-                    if (posscreen.distance(onscreen) <= 4) {
+                    if (posscreen.distance(onscreen) <= 6) {
                         editingPath = i;
                         editingNode = -2;
                         selectedNode = -1;
@@ -355,14 +363,19 @@ public class Renderer2D {
                         }
                         temptemp = group.getSpline(0).getPoint(0);
                     }
+                    }
                 }
 
-                if ((UI.addingSpline <= 0 && x < PathSim.LEFT_WIDTH) && (editingPath == PathSim.pathManager.curEditingPath || PathSim.pathManager.notEditing() || editingPath == -1)) {
-                    PathSim.pathManager.curEditingPath = editingPath;
-                    PathSim.pathManager.curSelectedNode = selectedNode;
-                    PathSim.pathManager.curEditingNode = editingNode;
-                    PathSim.pathManager.curEditingVel = editingVel;
-                    temp = temptemp;
+                if (UI.addingSpline <= 0 && x < PathSim.LEFT_WIDTH) {
+                    if (editingPath == PathSim.pathManager.curEditingPath || PathSim.pathManager.notEditing() || editingPath == -1) {
+                        PathSim.pathManager.curEditingPath = editingPath;
+                        PathSim.pathManager.curSelectedNode = selectedNode;
+                        PathSim.pathManager.curEditingNode = editingNode;
+                        PathSim.pathManager.curEditingVel = editingVel;
+                        temp = temptemp;
+                    } else {
+                        PathSim.pathManager.curEditingPath = -1;
+                    }
                 }
             }
         }
@@ -430,30 +443,31 @@ public class Renderer2D {
         }
 
         for(ExtendedPath epath : PathSim.pathManager.paths) {
-            Path path = epath.purePursuitPath;
-            fieldRenderer.setColor(green);
-            QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) path.getParametric();
-            for(double t = step; t <= 1; t += step) {
-                Point2D p1 = toPointOnScreen(group.getPoint(t-step));
-                Point2D p2 = toPointOnScreen(group.getPoint(t));
-                if(UI.addingSpline <= 0 && ((PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == j) || PathSim.pathManager.curEditingPath == j)) {
-                    fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
-                    fieldRenderer.setColor(transgreen);
-                    fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 8);
-                    fieldRenderer.setColor(green);
-                } else {
-                    fieldRenderer.setColor(transgreen);
-                    fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
+            if(epath.visible) {
+                Path path = epath.purePursuitPath;
+                QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) path.getParametric();
+                for (double t = step; t <= 1; t += step) {
+                    Point2D p1 = toPointOnScreen(group.getPoint(t - step));
+                    Point2D p2 = toPointOnScreen(group.getPoint(t));
+                    if (UI.addingSpline <= 0 && ((PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == j) || PathSim.pathManager.curEditingPath == j)) {
+                        if(PathSim.pathManager.curEditingPath == j) fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
+                        fieldRenderer.setColor(transgreen);
+                        fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 8);
+                        fieldRenderer.setColor(green);
+                    } else {
+                        fieldRenderer.setColor(transgreen);
+                        fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
+                    }
                 }
-            }
 
-            if(UI.addingSpline <= 0 && PathSim.pathManager.curEditingPath == j) {
-                fieldRenderer.setColor(blue);
-                for (int k = 0; k < group.getSplines().size(); k++) {
-                    for (int t = 0; t <= 1; t += 1) {
-                        Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
-                        Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
-                        fieldRenderer.rectLine((float) p.x, (float) p.y, (float) v.x, (float) v.y, 2);
+                if (UI.addingSpline <= 0 && PathSim.pathManager.curEditingPath == j) {
+                    fieldRenderer.setColor(blue);
+                    for (int k = 0; k < group.getSplines().size(); k++) {
+                        for (int t = 0; t <= 1; t += 1) {
+                            Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
+                            Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
+                            fieldRenderer.rectLine((float) p.x, (float) p.y, (float) v.x, (float) v.y, 2);
+                        }
                     }
                 }
             }
@@ -481,31 +495,31 @@ public class Renderer2D {
 
         int f = 0;
         for(ExtendedPath epath : PathSim.pathManager.paths) {
+            if(epath.visible) {
             Path path = epath.purePursuitPath;
             QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) path.getParametric();
-            for(int k = 0; k < group.getSplines().size(); k++) {
+            for (int k = 0; k < group.getSplines().size(); k++) {
                 for (int t = 0; t <= 1; t += 1) {
-                    if(t == 1 || k == 0) {
-                        Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
-                        if (((t == 0 && k == PathSim.pathManager.curSelectedNode) || (t == 1 && k == PathSim.pathManager.curSelectedNode - 1)) && PathSim.pathManager.curEditingPath == f && UI.addingSpline == 0) {
-                            onBatch.draw(pointp, (float) p.x - pointp.getWidth() / 2f, (float) p.y - pointp.getHeight() / 2f, pointp.getWidth(), pointp.getHeight());
-                        } else if ((((t == 0 && k == PathSim.pathManager.curHoveringNode) || (t == 1 && k == PathSim.pathManager.curHoveringNode - 1)))
-                                && ((PathSim.pathManager.curEditingPath == f && PathSim.pathManager.curOnPath == f) || (PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == f)) && UI.addingSpline == 0) {
-                            onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
-                        } else if (PathSim.pathManager.curEditingPath == f && ((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)) && UI.addingSpline == 0) {
-                            onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
-                        } else if (PathSim.pathManager.curEditingPath == f || (PathSim.pathManager.curOnPath == f && PathSim.pathManager.notEditing()) && UI.addingSpline == 0) {
-                            onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
-                        } else {
-                            onBatch.draw(pointt, (float) p.x - pointt.getWidth() / 2f, (float) p.y - pointt.getHeight() / 2f, pointt.getWidth(), pointt.getHeight());
-                        }
+                    Point2D p = toPointOnScreen(group.getSpline(k).getPoint(t));
+                    if (((t == 0 && k == PathSim.pathManager.curSelectedNode) || (t == 1 && k == PathSim.pathManager.curSelectedNode - 1)) && PathSim.pathManager.curEditingPath == f && UI.addingSpline == 0) {
+                        onBatch.draw(pointp, (float) p.x - pointp.getWidth() / 2f, (float) p.y - pointp.getHeight() / 2f, pointp.getWidth(), pointp.getHeight());
+                    } else if ((((t == 0 && k == PathSim.pathManager.curHoveringNode) || (t == 1 && k == PathSim.pathManager.curHoveringNode - 1)))
+                            && ((PathSim.pathManager.curEditingPath == f && PathSim.pathManager.curOnPath == f) || (PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == f)) && UI.addingSpline == 0) {
+                        onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
+                    } else if (PathSim.pathManager.curEditingPath == f && ((t == 0 && k == PathSim.pathManager.curUIHoveringNode) || (t == 1 && k == PathSim.pathManager.curUIHoveringNode - 1)) && UI.addingSpline == 0) {
+                        onBatch.draw(pointh, (float) p.x - pointh.getWidth() / 2f, (float) p.y - pointh.getHeight() / 2f, pointh.getWidth(), pointh.getHeight());
+                    } else if (PathSim.pathManager.curEditingPath == f || (PathSim.pathManager.curOnPath == f && PathSim.pathManager.notEditing()) && UI.addingSpline == 0) {
+                        onBatch.draw(pointl, (float) p.x - pointl.getWidth() / 2f, (float) p.y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
+                    } else {
+                        onBatch.draw(pointt, (float) p.x - pointt.getWidth() / 2f, (float) p.y - pointt.getHeight() / 2f, pointt.getWidth(), pointt.getHeight());
                     }
 
-                    if(UI.addingSpline <= 0 && PathSim.pathManager.curEditingPath == f) {
+                    if (UI.addingSpline <= 0 && PathSim.pathManager.curEditingPath == f) {
                         Point2D v = toPointOnScreen(group.getSpline(k).getDerivative(t, 1).multiply(t == 1 ? 1 / 5. : -1 / 5.).add(group.getSpline(k).getPoint(t)));
                         onBatch.draw(points, (float) (v.x - points.getWidth() / 2f), (float) (v.y - points.getHeight() / 2f), points.getWidth(), points.getHeight());
                     }
                 }
+            }
             }
             f++;
         }
