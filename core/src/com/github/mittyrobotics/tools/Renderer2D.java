@@ -450,7 +450,7 @@ public class Renderer2D {
                 for (double t = step; t <= 1; t += step) {
                     Point2D p1 = toPointOnScreen(group.getPoint(t - step));
                     Point2D p2 = toPointOnScreen(group.getPoint(t));
-                    if (UI.addingSpline <= 0 && ((PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == j) || PathSim.pathManager.curEditingPath == j)) {
+                    if (UI.addingSpline <= 0 && ((PathSim.pathManager.notEditing() && PathSim.pathManager.curOnPath == j) || PathSim.pathManager.curEditingPath == j || PathSim.pathManager.curUIOnPath == j)) {
                         if(PathSim.pathManager.curEditingPath == j) fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 3);
                         fieldRenderer.setColor(transgreen);
                         fieldRenderer.rectLine((float) p1.x, (float) p1.y, (float) p2.x, (float) p2.y, 8);

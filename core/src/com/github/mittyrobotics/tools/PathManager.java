@@ -10,7 +10,7 @@ public class PathManager {
     public ArrayList<ExtendedPath> paths = new ArrayList<>();
     public ArrayList<ExtendedPath> toBeDeleted = new ArrayList<>();
 
-    public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode, curHoveringNode, curUIHoveringNode;
+    public int curEditingPath, curEditingNode, curOnPath, curEditingVel, curSelectedNode, curHoveringNode, curUIHoveringNode, curUIOnPath;
 
     public Point2D storedPoint;
 
@@ -22,6 +22,7 @@ public class PathManager {
         curOnPath = -1;
         curHoveringNode = -1;
         curUIHoveringNode = -1;
+        curUIOnPath = -1;
         storedPoint = null;
     }
 

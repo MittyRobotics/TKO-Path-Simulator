@@ -125,7 +125,8 @@ public class Renderer3D {
 
         modelBatch.end();
 
-        Simulator s = tempui.simulator;
+        Simulator s = PathSim.renderer2d.ui.simulator;
+        tempui = PathSim.renderer2d.ui;
 
         if(s.getEnd(tempui.purePursuitMode) > 0) {
             moveRobotBack();

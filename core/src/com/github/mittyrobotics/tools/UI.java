@@ -25,7 +25,7 @@ public class UI implements Disposable {
     public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel, widget;
-    public boolean splineMode, prevMode, purePursuitMode, showing;
+    public boolean splineMode, prevMode, purePursuitMode, showing, inTable;
     public TextButton pathId, addNode1, addNode2, spline, path, addPath, play, export, delete, deleteNode, purePursuit, ramsete;
     public ArrayList<TextField> splines = new ArrayList<>();
     ArrayList<TextField> paths = new ArrayList<>();
@@ -40,9 +40,11 @@ public class UI implements Disposable {
     public String[] purePursuitLabels = {"Lookahead", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
     public String[] ramseteLabels = {"b (Convergence)", "Z (Dampening)", "End Threshold", "Max Acceleration", "Max Deceleration", "Max Velocity", "Max Angular Vel.", "Start Velocity", "End Velocity", "Adjust Threshold", "Newton's Steps"};
 
-    public Simulator simulator = new Simulator();
+    public Simulator simulator;
 
     public UI() {
+        simulator = new Simulator();
+
         stage = new Stage();
         purePursuitMode = true;
 
@@ -310,10 +312,12 @@ public class UI implements Disposable {
 
         widget.setBounds(PathSim.renderer2d.rwx + 20, PathSim.renderer2d.rwy + PathSim.renderer2d.wh - 20 - widget.getPrefHeight()/2, widget.getPrefWidth(), widget.getPrefHeight());
         widgetContainer.setBounds(PathSim.renderer2d.rwx, PathSim.renderer2d.rwy+10, PathSim.renderer2d.ww, PathSim.renderer2d.wh - 55);
-        if(PathSim.renderer2d.widgetExpanded) {
+        if(PathSim.renderer2d.widgetExpanded && !(!splineMode && PathSim.pathManager.editingPath())) {
             stage.addActor(widgetContainer);
         } else {
             widgetContainer.remove();
+            inTable = false;
+            PathSim.pathManager.curUIOnPath = -1;
         }
 
         prevEditing = PathSim.pathManager.curEditingPath;
@@ -329,6 +333,7 @@ public class UI implements Disposable {
         int i = 1;
         widgetTable.clear();
         for(ExtendedPath p : PathSim.pathManager.paths) {
+
             Label l = new Label("Path " + i, lStyle2);
             l.setFontScale(0.5f);
             Image del = new Image(PathSim.renderer2d.trash);
@@ -360,6 +365,28 @@ public class UI implements Disposable {
             widgetTable.add(edit).height(20).width(20).align(Align.right).pad(0, 5, 0, 5);
             widgetTable.add(del).height(20).width(20).align(Align.right).pad(0, 5, 0, 15);
             widgetTable.row();
+
+            widgetTable.addListener(new ClickListener() {
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    inTable = true;
+                }
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    PathSim.pathManager.curUIOnPath = -1;
+                    inTable = false;
+                }
+                @Override
+                public boolean mouseMoved(InputEvent event, float x, float y) {
+                    if(inTable) PathSim.pathManager.curUIOnPath = widgetTable.getRow(y);
+                    return inTable;
+                }
+                @Override
+                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                    if(inTable) PathSim.pathManager.curEditingPath = widgetTable.getRow(y);
+                    return inTable;
+                }
+            });
             i++;
         }
     }
