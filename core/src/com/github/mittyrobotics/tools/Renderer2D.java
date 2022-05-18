@@ -12,6 +12,7 @@ import com.github.mittyrobotics.PathSim;
 import com.github.mittyrobotics.pathfollowing.*;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class Renderer2D {
 
@@ -408,6 +409,39 @@ public class Renderer2D {
         wasJustPlaced = false;
     }
 
+    public Point2D getSnapPoint(int x, int y) {
+//        if(zoom < 0.22) {
+//            drawGrid(uiRenderer, centerx, centery, width, height, 24 * inch, 0.3f);
+//        } else if (zoom < 0.4) {
+//            drawGrid(uiRenderer, centerx, centery, width, height, 12 * inch, 0.3f);
+//        } else if (zoom < 0.7) {
+//            drawGrid(uiRenderer, centerx, centery, width, height, 12 * inch, 0.3f);
+//            drawGrid(uiRenderer, centerx, centery, width, height, 6 * inch, 0.2f);
+//        } else {
+//            drawGrid(uiRenderer, centerx, centery, width, height, 1 * inch, 0.1f);
+//            drawGrid(uiRenderer, centerx, centery, width, height, 6 * inch, 0.2f);
+//            drawGrid(uiRenderer, centerx, centery, width, height, 12 * inch, 0.3f);
+//        }
+//
+//        for(double i = centerx + increment; i <= width; i += increment) {
+//            renderer.rect((int) (i-0.5), 0, 1, height);
+//        }
+//
+//        for(double i = centerx - increment; i >= 0; i -= increment) {
+//            renderer.rect((int) (i-0.5), 0, 1, height);
+//        }
+//
+//        for(double i = centery + increment; i <= height; i += increment) {
+//            renderer.rect(0, (int) (i-0.5), width, 1);
+//        }
+//
+//        for(double i = centery - increment; i >= 0; i -= increment) {
+//            renderer.rect(0, (int) (i-0.5), width, 1);
+//        }
+//
+        return new Point2D();
+    }
+
     public void drawSprites() {
         fieldRenderer.begin(ShapeRenderer.ShapeType.Filled);
         double step = 0.001;
@@ -584,6 +618,72 @@ public class Renderer2D {
             }
         } else if (curNode == -2) {
             moveSplineGroup(group, dx / inch, dy / inch);
+        }
+    }
+
+    public void editAngle(int curPath, int curNode, double angle) {
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(curPath).purePursuitPath.getParametric());
+
+        Angle a = new Angle(angle);
+        Angle c = new Angle(angle + Math.PI);
+        if(curNode == 0) {
+            double prev = group.getSpline(curNode).getLength();
+            double l = (new Point2D(group.getSpline(curNode).getVelocity0())).magnitude();
+            group.getSpline(curNode).setPose0(new Pose2D(group.getSpline(curNode).getPose0().getPosition(), a));
+            group.getSpline(curNode).setVelocity0(new Vector2D(l * a.cos(), l * a.sin()));
+            boundSplinePose(group.getSpline(curNode), true);
+            group.updateSplineLength(curNode, prev);
+        } else if (curNode == group.getSplines().size()) {
+            double prev = group.getSpline(curNode - 1).getLength();
+            double l = (new Point2D(group.getSpline(curNode - 1).getVelocity1())).magnitude();
+            group.getSpline(curNode - 1).setPose1(new Pose2D(group.getSpline(curNode - 1).getPose1().getPosition(), a));
+            group.getSpline(curNode - 1).setVelocity1(new Vector2D(l * a.cos(), l * a.sin()));
+            boundSplinePose(group.getSpline(curNode - 1), false);
+            group.updateSplineLength(curNode - 1, prev);
+        } else {
+            double prev1 = group.getSpline(curNode-1).getLength();
+            double prev2 = group.getSpline(curNode).getLength();
+
+            double l = (new Point2D(group.getSpline(curNode).getVelocity0())).magnitude();
+            group.getSpline(curNode).setPose0(new Pose2D(group.getSpline(curNode).getPose0().getPosition(), a));
+            group.getSpline(curNode).setVelocity0(new Vector2D(l * a.cos(), l * a.sin()));
+            boundSplinePose(group.getSpline(curNode), true);
+
+            l = (new Point2D(group.getSpline(curNode - 1).getVelocity1())).magnitude();
+            group.getSpline(curNode - 1).setPose1(new Pose2D(group.getSpline(curNode - 1).getPose1().getPosition(), a));
+            group.getSpline(curNode - 1).setVelocity1(new Vector2D(l * a.cos(), l * a.sin()));
+            boundSplinePose(group.getSpline(curNode - 1), false);
+
+            group.updateSplineLength(curNode-1, prev1);
+            group.updateSplineLength(curNode, prev2);
+        }
+    }
+
+    public void editPoint(int curPath, int curNode, double x, double y) {
+        QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(curPath).purePursuitPath.getParametric());
+
+        Point2D tmp = new Point2D(x, y);
+        if(curNode == 0) {
+            double prev = group.getSpline(curNode).getLength();
+            group.getSpline(curNode).setPose0(new Pose2D(tmp, group.getSpline(curNode).getPose0().getAngle()));
+            boundSplinePose(group.getSpline(curNode), true);
+            group.updateSplineLength(curNode, prev);
+        } else if (curNode == group.getSplines().size()) {
+            double prev = group.getSpline(curNode - 1).getLength();
+            group.getSpline(curNode-1).setPose1(new Pose2D(tmp, group.getSpline(curNode-1).getPose1().getAngle()));
+            boundSplinePose(group.getSpline(curNode-1), false);
+            group.updateSplineLength(curNode-1, prev);
+        } else {
+            double prev1 = group.getSpline(curNode-1).getLength();
+            double prev2 = group.getSpline(curNode).getLength();
+
+            group.getSpline(curNode).setPose0(new Pose2D(tmp, group.getSpline(curNode).getPose0().getAngle()));
+            group.getSpline(curNode-1).setPose1(new Pose2D(tmp, group.getSpline(curNode-1).getPose1().getAngle()));
+            boundSplinePose(group.getSpline(curNode), true);
+            boundSplinePose(group.getSpline(curNode-1), false);
+
+            group.updateSplineLength(curNode-1, prev1);
+            group.updateSplineLength(curNode, prev2);
         }
     }
 
