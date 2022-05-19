@@ -21,8 +21,8 @@ public class Renderer2D {
     public Texture field, title1, title2, pointl, points, pointp, pointw, pointh, pointt, trash, edit, visible, invisible;
     public SpriteBatch batch, fontBatch, onBatch;
 
-    public double fieldWidth, fieldHeight, inch, zoom, centerx, centery, xc, yc, x, y, wx, wy;
-    public int width, height, right, prevx, prevy, widgetX, widgetY, ww, wh, rwx, rwy;
+    public double fieldWidth, fieldHeight, inch, zoom, centerx, centery, xc, yc, x, y, wx, wy, prevx, prevy;
+    public int width, height, right, widgetX, widgetY, ww, wh, rwx, rwy;
     public Point2D temp;
 
     public ShapeRenderer uiRenderer, fieldRenderer;
@@ -152,8 +152,8 @@ public class Renderer2D {
     }
 
     public void drawWidget() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        double x = getX();
+        double y = getY();
 
         rwx = Math.max(0, Math.min(widgetX, right - ww));
         rwy = Math.max(0, Math.min(widgetY, height - wh));
@@ -209,8 +209,8 @@ public class Renderer2D {
     }
 
     public void handleInput() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        double x = getX();
+        double y = getY();
         //general click handling --------------------
         if(x < PathSim.LEFT_WIDTH && inBounds(x, y) && UI.addingSpline > 0 && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (UI.addingSpline == 2) {
@@ -409,37 +409,43 @@ public class Renderer2D {
         wasJustPlaced = false;
     }
 
-    public Point2D getSnapPoint(int x, int y) {
-//        if(zoom < 0.22) {
-//            drawGrid(uiRenderer, centerx, centery, width, height, 24 * inch, 0.3f);
-//        } else if (zoom < 0.4) {
-//            drawGrid(uiRenderer, centerx, centery, width, height, 12 * inch, 0.3f);
-//        } else if (zoom < 0.7) {
-//            drawGrid(uiRenderer, centerx, centery, width, height, 12 * inch, 0.3f);
-//            drawGrid(uiRenderer, centerx, centery, width, height, 6 * inch, 0.2f);
-//        } else {
-//            drawGrid(uiRenderer, centerx, centery, width, height, 1 * inch, 0.1f);
-//            drawGrid(uiRenderer, centerx, centery, width, height, 6 * inch, 0.2f);
-//            drawGrid(uiRenderer, centerx, centery, width, height, 12 * inch, 0.3f);
-//        }
-//
-//        for(double i = centerx + increment; i <= width; i += increment) {
-//            renderer.rect((int) (i-0.5), 0, 1, height);
-//        }
-//
-//        for(double i = centerx - increment; i >= 0; i -= increment) {
-//            renderer.rect((int) (i-0.5), 0, 1, height);
-//        }
-//
-//        for(double i = centery + increment; i <= height; i += increment) {
-//            renderer.rect(0, (int) (i-0.5), width, 1);
-//        }
-//
-//        for(double i = centery - increment; i >= 0; i -= increment) {
-//            renderer.rect(0, (int) (i-0.5), width, 1);
-//        }
-//
-        return new Point2D();
+    public Point2D getSnapPoint(double x, double y) {
+
+        double increment;
+
+        if(zoom < 0.22) {
+            increment = 24 * inch;
+        } else if (zoom < 0.4) {
+            increment = 12 * inch;
+        } else if (zoom < 0.7) {
+            increment = 6 * inch;
+        } else {
+            increment = 1 * inch;
+        }
+
+        double lx = 0;
+        double cx = Integer.MAX_VALUE;
+
+        double ly = 0;
+        double cy = Integer.MAX_VALUE;
+
+        for(double i = centerx + increment; i <= width; i += increment) {
+            if(Math.abs(x - i) < cx) { lx = i; cx = Math.abs(x-i); }
+        }
+
+        for(double i = centerx - increment; i >= 0; i -= increment) {
+            if(Math.abs(x - i) < cx) { lx = i; cx = Math.abs(x-i); }
+        }
+
+        for(double i = centery + increment; i <= height; i += increment) {
+            if(Math.abs(y - i) < cy) { ly = i; cy = Math.abs(y-i); }
+        }
+
+        for(double i = centery - increment; i >= 0; i -= increment) {
+            if(Math.abs(y - i) < cy) { ly = i; cy = Math.abs(y-i); }
+        }
+
+        return new Point2D(lx, ly);
     }
 
     public void drawSprites() {
@@ -449,8 +455,8 @@ public class Renderer2D {
 
         int j = 0;
 
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        double x = getX();
+        double y = getY();
         if(UI.addingSpline == 3 || UI.addingSpline == 4) {
             QuinticHermiteSpline potential = new QuinticHermiteSpline(new Pose2D(0, 0, 0), new Pose2D(0, 0, 0));
             if (UI.addingSpline == 3) {
@@ -458,7 +464,7 @@ public class Renderer2D {
             } else if (UI.addingSpline == 4) {
                 potential = PathSim.pathManager.getPotentialSpline(toPointInInches(x, y), PathSim.pathManager.curEditingPath, false);
             }
-            if(inBounds(x, y)) fieldRenderer.setColor(transgreen2);
+            if(inBounds(x, y) && x < PathSim.LEFT_WIDTH) fieldRenderer.setColor(transgreen2);
             else fieldRenderer.setColor(transred);
             for(double t = smallStep; t <= 1; t += smallStep) {
                 Point2D p1 = toPointOnScreen(potential.getPoint(t-smallStep));
@@ -468,7 +474,7 @@ public class Renderer2D {
         }
         if(UI.addingSpline == 1) {
             QuinticHermiteSpline potential = PathSim.pathManager.getNewPathPreview(toPointInInches(x, y));
-            if(inBounds(x, y)) fieldRenderer.setColor(transgreen2);
+            if(inBounds(x, y) && x < PathSim.LEFT_WIDTH) fieldRenderer.setColor(transgreen2);
             else fieldRenderer.setColor(transred);
             for(double t = smallStep; t <= 1; t += smallStep) {
                 Point2D p1 = toPointOnScreen(potential.getPoint(t-smallStep));
@@ -513,11 +519,11 @@ public class Renderer2D {
 
         onBatch.begin();
 
-        if(x < PathSim.LEFT_WIDTH && UI.addingSpline > 0) {
-            if (inBounds(x, y)) {
-                onBatch.draw(pointl, x - pointl.getWidth() / 2f, y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
+        if(UI.addingSpline > 0) {
+            if (inBounds(x, y) && x < PathSim.LEFT_WIDTH) {
+                onBatch.draw(pointl, (float) x - pointl.getWidth() / 2f, (float) y - pointl.getHeight() / 2f, pointl.getWidth(), pointl.getHeight());
             } else {
-                onBatch.draw(pointw, x - pointw.getWidth() / 2f, y - pointw.getHeight() / 2f, pointw.getWidth(), pointw.getHeight());
+                onBatch.draw(pointw, (float) x - pointw.getWidth() / 2f, (float) y - pointw.getHeight() / 2f, pointw.getWidth(), pointw.getHeight());
             }
         }
 
@@ -701,7 +707,7 @@ public class Renderer2D {
         }
     }
 
-    public boolean inBounds(int x, int y) {
+    public boolean inBounds(double x, double y) {
         Point2D d = toPointInInches(x, y);
         return Math.abs(d.getX()) <= 324 && Math.abs(d.getY()) <= 162;
     }
@@ -728,7 +734,7 @@ public class Renderer2D {
         }
     }
 
-    public double distance(int mx, int my, Point2D p) {
+    public double distance(double mx, double my, Point2D p) {
         return Math.sqrt((mx - p.x) * (mx - p.x) + (my - p.y) * (my - p.y));
     }
 
@@ -751,8 +757,8 @@ public class Renderer2D {
     }
 
     public void drawUIOverlay() {
-        int x = Gdx.input.getX();
-        int y = Gdx.graphics.getHeight() - Gdx.input.getY();
+        double x = getX();
+        double y = getY();
 
         uiRenderer.begin(ShapeRenderer.ShapeType.Filled);
         uiRenderer.setColor(0.12f, 0.12f, 0.12f, 1f);
@@ -793,7 +799,7 @@ public class Renderer2D {
                 if(distance(x, y, new Point2D(circlePos, 47.5)) <= 7.5) {
                     scrubbing = true;
                 } else if(x >= barleft && x <= barleft + barwidth && y >= 40 && y <= 55) {
-                        circlePos = x;
+                        circlePos = (float) x;
                         change = true;
                 }
             } else if(!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
@@ -813,7 +819,7 @@ public class Renderer2D {
             }
 
             if(scrubbing) {
-                circlePos = Math.max(barleft, Math.min(x, barleft + barwidth));
+                circlePos = (float) Math.max(barleft, Math.min(x, barleft + barwidth));
                 change = true;
             }
 
@@ -875,8 +881,26 @@ public class Renderer2D {
         uiRenderer.end();
     }
 
+    public double getX() {
+        double x = Gdx.input.getX();
+
+        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+            x = getSnapPoint(x, 0).getX();
+        }
+        return x;
+    }
+
+    public double getY() {
+        double y = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+        if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) {
+            y = getSnapPoint(0, y).getY();
+        }
+        return y;
+    }
+
     //conversions
-    public Point2D toPointInInches(int screenx, int screeny) {
+    public Point2D toPointInInches(double screenx, double screeny) {
         return new Point2D((screenx - centerx) / inch, (screeny - centery) / inch);
     }
 
