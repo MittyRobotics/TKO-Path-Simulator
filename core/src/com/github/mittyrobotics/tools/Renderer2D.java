@@ -254,7 +254,7 @@ public class Renderer2D {
 
         if (PathSim.pathManager.editingPath()) {
             if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                editPoint(PathSim.pathManager.curEditingPath, PathSim.pathManager.curEditingNode, PathSim.pathManager.curEditingVel, x - prevx, y - prevy);
+                editPoint(PathSim.pathManager.curEditingPath, PathSim.pathManager.curEditingNode, PathSim.pathManager.curEditingVel, x - prevx, y - prevy, true);
             } else {
                 if(PathSim.pathManager.curEditingNode != -1) {
                     PathSim.pathManager.curSelectedNode = PathSim.pathManager.curEditingNode;
@@ -429,7 +429,7 @@ public class Renderer2D {
         double ly = 0;
         double cy = Integer.MAX_VALUE;
 
-        for(double i = centerx + increment; i <= width; i += increment) {
+        for(double i = centerx; i <= width; i += increment) {
             if(Math.abs(x - i) < cx) { lx = i; cx = Math.abs(x-i); }
         }
 
@@ -437,7 +437,7 @@ public class Renderer2D {
             if(Math.abs(x - i) < cx) { lx = i; cx = Math.abs(x-i); }
         }
 
-        for(double i = centery + increment; i <= height; i += increment) {
+        for(double i = centery; i <= height; i += increment) {
             if(Math.abs(y - i) < cy) { ly = i; cy = Math.abs(y-i); }
         }
 
@@ -568,8 +568,12 @@ public class Renderer2D {
         onBatch.end();
     }
 
-    public void editPoint(int curPath, int curNode, int curVel, double dx, double dy) {
+    public void editPoint(int curPath, int curNode, int curVel, double dx, double dy, boolean first) {
+
         QuinticHermiteSplineGroup group = (QuinticHermiteSplineGroup) (PathSim.pathManager.paths.get(curPath).purePursuitPath.getParametric());
+        double x = getX();
+        double y = getY();
+
         if (curVel != -1) {
             int splineId = curVel / 2;
             double prev = group.getSpline(splineId).getLength();
@@ -624,6 +628,30 @@ public class Renderer2D {
             }
         } else if (curNode == -2) {
             moveSplineGroup(group, dx / inch, dy / inch);
+        }
+
+        if(first && (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Gdx.input.isKeyPressed(Input.Keys.SHIFT_RIGHT))) {
+            Point2D p = new Point2D();
+
+            if(curVel != -1) {
+                int splineId = curVel / 2;
+                QuinticHermiteSpline spline = group.getSpline(splineId);
+                if(curVel % 2 == 0) {
+                    p = spline.getDerivative(0, 1).multiply(-1 / 5.).add(spline.getPoint(0));
+                } else {
+                    p = spline.getDerivative(1, 1).multiply(1 / 5.).add(spline.getPoint(1));
+                }
+            } else if (curNode >= 0) {
+                if(curNode == 0) {
+                    p = group.getSpline(0).getPose0().getPosition();
+                } else {
+                    p = group.getSpline(curNode - 1).getPose1().getPosition();
+                }
+            }
+            p = toPointOnScreen(p);
+            dx = (x - p.x);
+            dy = (y - p.y);
+            editPoint(curPath, curNode, curVel, dx, dy, false);
         }
     }
 
