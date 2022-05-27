@@ -15,6 +15,7 @@ public class Simulator {
 
     public void updatePath(ExtendedPath path) {
         this.path = path;
+        PathSim.renderer2d.ui.updateExportFrame(true);
 
         simulate();
     }

@@ -1,9 +1,6 @@
 package com.github.mittyrobotics.tools;
 
-import com.github.mittyrobotics.pathfollowing.Pose2D;
-import com.github.mittyrobotics.pathfollowing.QuinticHermiteSpline;
-import com.github.mittyrobotics.pathfollowing.QuinticHermiteSplineGroup;
-import com.github.mittyrobotics.pathfollowing.Vector2D;
+import com.github.mittyrobotics.pathfollowing.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +12,8 @@ public class PathImporter {
         ArrayList<ExtendedPath> result = new ArrayList<>();
         HashMap<String, QuinticHermiteSpline> splines = new HashMap<>();
         HashMap<String, QuinticHermiteSplineGroup> groups = new HashMap<>();
+        HashMap<String, Path> paths = new HashMap<>();
+        HashMap<String, ExtendedPath> epaths = new HashMap<>();
 
         for(String line : lines) {
             line = line.strip();
@@ -85,9 +84,7 @@ public class PathImporter {
                             throw e;
                         }
                     } else throw new Exception();
-                }
-
-                if(type.equals("QuinticHermiteSplineGroup")) {
+                } else if (type.equals("QuinticHermiteSplineGroup")) {
                     if(right.contains("new QuinticHermiteSplineGroup(") && right.contains(")")) {
                         String processable = right.substring(right.indexOf("new QuinticHermiteSplineGroup(") + "new QuinticHermiteSplineGroup(".length(), right.lastIndexOf(")"));
 
@@ -96,6 +93,69 @@ public class PathImporter {
                             splines.remove(processable);
                         } else {
                             groups.put(name, new QuinticHermiteSplineGroup());
+                        }
+                    } else throw new Exception();
+                } else if (type.equals("PurePursuitPath")) {
+                    if(right.contains("new PurePursuitPath(") && right.contains(")")) {
+                        String processable = right.substring(right.indexOf("new PurePursuitPath(") + "new PurePursuitPath(".length(), right.lastIndexOf(")"));
+
+                        String[] s = processable.split(",");
+                        Parametric p;
+                        if(s.length > 0) {
+                            String key = s[0].strip();
+                            if(splines.containsKey(key)) {
+                                p = splines.get(key);
+                                splines.remove(key);
+                            } else if (groups.containsKey(key)) {
+                                p = groups.get(key);
+                                groups.remove(key);
+                            } else throw new Exception();
+                        } else throw new Exception();
+
+                        try {
+                            if(s.length == 3) {
+                                paths.put(name, new PurePursuitPath(p, Double.parseDouble(s[1]), Double.parseDouble(s[2])));
+                            } else if (s.length == 5) {
+                                paths.put(name, new PurePursuitPath(p, Double.parseDouble(s[1]), Double.parseDouble(s[2]), Double.parseDouble(s[3]), Double.parseDouble(s[4])));
+                            } else if (s.length == 7) {
+                                paths.put(name, new PurePursuitPath(p, Double.parseDouble(s[1]), Double.parseDouble(s[2]), Double.parseDouble(s[3]), Double.parseDouble(s[4]), Double.parseDouble(s[5]), Double.parseDouble(s[6])));
+                            } else throw new Exception();
+                        } catch (Exception e) {
+                            throw e;
+                        }
+                    } else throw new Exception();
+                } else if (type.equals("PurePursuitPFCommand")) {
+                    if(right.contains("new PurePursuitPFCommand") && right.contains(")")) {
+                        String processable = right.substring(right.indexOf("new PurePursuitPFCommand(") + "new PurePursuitPFCommand(".length(), right.lastIndexOf(")"));
+
+                        String[] s = processable.split(",");
+                        PurePursuitPath p;
+                        if(s.length > 0) {
+                            String key = s[0].strip();
+                            if(paths.containsKey(key)) {
+                                p = (PurePursuitPath) paths.get(key);
+                                paths.remove(key);
+                            } else throw new Exception();
+                        } else throw new Exception();
+
+                        try {
+                            ExtendedPath e = new ExtendedPath(p);
+
+                            if(s.length == 3) {
+                                e.lookahead = Double.parseDouble(s[1]);
+                                e.reverse = Boolean.parseBoolean(s[2]);
+                                e.end_threshold = 1;
+                                e.adjust_threshold = 3;
+                            } else if (s.length == 5) {
+                                e.lookahead = Double.parseDouble(s[1]);
+                                e.end_threshold = Double.parseDouble(s[2]);
+                                e.adjust_threshold = Double.parseDouble(s[3]);
+                                e.reverse = Boolean.parseBoolean(s[4]);
+                            }
+
+                            epaths.put(name, e);
+                        } catch (Exception e) {
+                            throw e;
                         }
                     } else throw new Exception();
                 }
@@ -117,6 +177,12 @@ public class PathImporter {
         for(QuinticHermiteSplineGroup g : groups.values()) {
             if(g.getSplines().size() > 0) result.add(new ExtendedPath(g));
         }
+
+        for(Path p : paths.values()) {
+            if(p instanceof PurePursuitPath) result.add(new ExtendedPath((PurePursuitPath) p));
+        }
+
+        for(ExtendedPath e : epaths.values()) result.add(e);
 
         System.out.println(result);
         return result;
