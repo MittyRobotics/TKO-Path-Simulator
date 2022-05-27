@@ -295,6 +295,8 @@ public class Renderer2D {
             }
 
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                x = Gdx.input.getX();
+                y = Gdx.graphics.getHeight() - Gdx.input.getY();
                 int editingPath = -1, editingNode = -1, selectedNode = -1, editingVel = -1;
                 Point2D temptemp = new Point2D();
                 for (int i = 0; i < PathSim.pathManager.paths.size(); i++) {
@@ -379,6 +381,8 @@ public class Renderer2D {
                         PathSim.pathManager.curEditingPath = -1;
                     }
                 }
+                x = getX();
+                y = getY();
             }
         }
 

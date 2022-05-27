@@ -16,6 +16,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class PathSim extends ApplicationAdapter {
 
@@ -123,6 +125,19 @@ public class PathSim extends ApplicationAdapter {
 		exportFrame.setLocation(0, 0);
 		exportFrame.pack();
 		exportFrame.setVisible(false);
+
+
+
+
+		try {
+			ArrayList<ExtendedPath> a = PathImporter.parse("     QuinticHermiteSpline     sp =   new QuinticHermiteSpline(\n" +
+					"    new Pose2D(184.039, 46.623, 2.874), new Pose2D(65.436, 97.336, 3.636), \n" +
+					"    new Vector2D(-179.131, 49.077), new Vector2D(-432.695, -233.116)\n" +
+					");");
+			PathSim.pathManager.paths.addAll(a);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 

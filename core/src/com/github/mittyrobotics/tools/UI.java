@@ -305,7 +305,7 @@ public class UI implements Disposable {
             for(Actor a : pathEdit) stage.addActor(a);
             for(Actor a : notPathEdit) a.remove();
             for(Actor a : splineEdit) a.remove();
-            path.setText("Pause Sim");
+            play.setText("Pause Sim");
             showing = true;
             populatePathEdit();
         }
