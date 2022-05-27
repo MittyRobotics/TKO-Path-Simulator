@@ -29,9 +29,8 @@ public class PathImporter {
                 String type = lefts[0];
                 String name = lefts[1];
                 if(type.equals("QuinticHermiteSpline")) {
-
-                    if(right.contains("new QuinticHermiteSpline(")) {
-                        String processable = right.substring(right.indexOf("QuinticHermiteSpline(") + "QuinticHermiteSpline(".length(), right.lastIndexOf(")"));
+                    if(right.contains("new QuinticHermiteSpline(") && right.contains(")")) {
+                        String processable = right.substring(right.indexOf("new QuinticHermiteSpline(") + "new QuinticHermiteSpline(".length(), right.lastIndexOf(")"));
 
                         String cur = "";
                         Object curObj = null;
@@ -85,16 +84,38 @@ public class PathImporter {
                         } catch (Exception e) {
                             throw e;
                         }
-                    }
+                    } else throw new Exception();
                 }
 
-            } else if (line.contains(".add")) {
+                if(type.equals("QuinticHermiteSplineGroup")) {
+                    if(right.contains("new QuinticHermiteSplineGroup(") && right.contains(")")) {
+                        String processable = right.substring(right.indexOf("new QuinticHermiteSplineGroup(") + "new QuinticHermiteSplineGroup(".length(), right.lastIndexOf(")"));
 
+                        if(splines.containsKey(processable)) {
+                            groups.put(name, new QuinticHermiteSplineGroup(splines.get(processable)));
+                            splines.remove(processable);
+                        } else {
+                            groups.put(name, new QuinticHermiteSplineGroup());
+                        }
+                    } else throw new Exception();
+                }
+
+            } else if (line.contains(".addSpline(") && line.contains(")")) {
+                String left = line.substring(0, line.indexOf(".addSpline("));
+                String right = line.substring(line.indexOf(".addSpline(") + ".addSpline(".length(), line.lastIndexOf(")"));
+                if(groups.containsKey(left) && splines.containsKey(right)) {
+                    groups.get(left).addSpline(splines.get(right));
+                    splines.remove(right);
+                }
             }
         }
 
         for(QuinticHermiteSpline s : splines.values()) {
             result.add(new ExtendedPath(new QuinticHermiteSplineGroup(s)));
+        }
+
+        for(QuinticHermiteSplineGroup g : groups.values()) {
+            if(g.getSplines().size() > 0) result.add(new ExtendedPath(g));
         }
 
         System.out.println(result);
