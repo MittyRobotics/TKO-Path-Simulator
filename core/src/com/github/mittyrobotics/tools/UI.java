@@ -1089,6 +1089,13 @@ public class UI implements Disposable {
             }
         });
 
+        import_.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                PathSim.renderer2d.importScreen();
+            }
+        });
+
         exportAll.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

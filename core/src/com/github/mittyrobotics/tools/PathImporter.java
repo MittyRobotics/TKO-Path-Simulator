@@ -11,7 +11,6 @@ public class PathImporter {
         String[] t = input.split("\n");
         for(int i = 0; i < t.length; ++i) if (t[i].strip().startsWith("//")) t[i] = "";
         input = String.join(" ", t).trim().replaceAll(" +", " ");
-        System.out.println(input);
 
         String[] lines = input.split(";");
         ArrayList<ExtendedPath> result = new ArrayList<>();
@@ -188,7 +187,7 @@ public class PathImporter {
         }
 
         result.addAll(epaths.values());
-        
+
         return result;
     }
 }

@@ -8,6 +8,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.github.mittyrobotics.PathSim;
 import com.github.mittyrobotics.pathfollowing.*;
 
@@ -17,9 +26,10 @@ import java.util.ArrayList;
 public class Renderer2D {
 
     public static CamController2D camController;
-    public boolean loading, addFront, addBack, wasJustPlaced, addNew, scrubbing, movingWidget, widgetExpanded;
+    public boolean loading, addFront, addBack, wasJustPlaced, addNew, scrubbing, movingWidget, widgetExpanded, importShown;
     public Texture field, title1, title2, pointl, points, pointp, pointw, pointh, pointt, trash, edit, visible, invisible;
     public SpriteBatch batch, fontBatch, onBatch;
+    public Stage imports;
 
     public double fieldWidth, fieldHeight, inch, zoom, centerx, centery, xc, yc, x, y, wx, wy, prevx, prevy;
     public int width, height, right, widgetX, widgetY, ww, wh, rwx, rwy;
@@ -35,6 +45,10 @@ public class Renderer2D {
     public Color transgreen = new Color(67/255f, 1f, 170/255f, 0.3f);
     public Color transgreen2 = new Color(67/255f, 1f, 170/255f, 0.6f);
     public Color transred = new Color(1f, 100f/255f, 80/255f, 0.6f);
+
+    public Label.LabelStyle lStyle;
+    public TextField.TextFieldStyle tfStyle;
+    public TextArea a;
 
     public UI ui;
 
@@ -80,6 +94,61 @@ public class Renderer2D {
             Gdx.app.error("fontShader", "compilation failed:\n" + fontShader.getLog());
         }
         //end fonts ---------
+
+        imports = new Stage();
+
+        lStyle = new Label.LabelStyle();
+        lStyle.font = PathSim.font;
+        lStyle.fontColor = Color.WHITE;
+
+        Label title = new Label("Import Paths", lStyle);
+        title.setBounds(0, Gdx.graphics.getHeight() - 150, Gdx.graphics.getWidth(), 50);
+        title.setAlignment(Align.center);
+        title.setFontScale(1.2f);
+        imports.addActor(title);
+
+        tfStyle = new TextField.TextFieldStyle(PathSim.font, Color.WHITE,
+                PathSim.skin.getDrawable("textfield_cursor"), PathSim.skin.getDrawable("textfield_selection"), null);
+        tfStyle.font.getData().setScale(0.55f);
+        a = new TextArea("", tfStyle);
+        a.setBounds(250, 140, Gdx.graphics.getWidth() - 500, Gdx.graphics.getHeight() - 320);
+        imports.addActor(a);
+
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.font = PathSim.font;
+        textButtonStyle.up = PathSim.skin.getDrawable("btn_default_normal");
+        textButtonStyle.down = PathSim.skin.getDrawable("btn_default_focused");
+
+        TextButton importButton = new TextButton("Import", textButtonStyle);
+        importButton.setBounds(Gdx.graphics.getWidth() / 2f - 200f, 90, 195, 50);
+        importButton.getLabel().setFontScale(0.7f);
+        imports.addActor(importButton);
+
+        TextButton cancel = new TextButton("Cancel", textButtonStyle);
+        cancel.setBounds(Gdx.graphics.getWidth() / 2f + 5f, 90, 195, 50);
+        cancel.getLabel().setFontScale(0.7f);
+        imports.addActor(cancel);
+
+        importButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                try {
+                    PathSim.pathManager.paths.addAll(PathImporter.parse(a.getText()));
+                } catch (Exception e) {
+
+                }
+                a.setText("");
+                closeImportScreen();
+                ui.populateWidget();
+            }
+        });
+
+        cancel.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                closeImportScreen();
+            }
+        });
 
     }
 
@@ -128,7 +197,7 @@ public class Renderer2D {
             inch = fieldWidth * zoom / 864;
             //end calc--------------
 
-            handleInput();
+            if(!importShown) handleInput();
 
             //draw field
             drawFieldOverlay();
@@ -148,8 +217,24 @@ public class Renderer2D {
             //overlapping text
             drawText();
 
+            if(importShown) drawImport();
+
             PathSim.pathManager.updateRemove();
         }
+    }
+
+    public void drawImport() {
+        uiRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        uiRenderer.setColor(new Color(0.5f, 0.5f, 0.5f, 1f));
+        roundedRect(uiRenderer, 200, 75, Gdx.graphics.getWidth() - 400, Gdx.graphics.getHeight() - 150, 50);
+        uiRenderer.setColor(new Color(0.16f, 0.16f, 0.16f, 1f));
+        roundedRect(uiRenderer, 205, 80, Gdx.graphics.getWidth() - 410, Gdx.graphics.getHeight() - 160, 50);
+        uiRenderer.setColor(new Color(0.2f, 0.2f, 0.2f, 1f));
+        roundedRect(uiRenderer, 240, 150, Gdx.graphics.getWidth() - 480, Gdx.graphics.getHeight() - 320, 10);
+        uiRenderer.end();
+
+        imports.act(Gdx.graphics.getDeltaTime());
+        imports.draw();
     }
 
     public void drawWidget() {
@@ -159,7 +244,7 @@ public class Renderer2D {
         rwx = Math.max(0, Math.min(widgetX, right - ww));
         rwy = Math.max(0, Math.min(widgetY, height - wh));
 
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && UI.addingSpline == 0) {
+        if(justClicked() && UI.addingSpline == 0) {
             if(x >= rwx + ww - 35 && x <= rwx + ww - 15 && y >= rwy + wh - 30 && y <= rwy + wh - 10) {
                 widgetExpanded = !widgetExpanded;
                 wh = widgetExpanded ? 280 : 40;
@@ -213,7 +298,7 @@ public class Renderer2D {
         double x = getX();
         double y = getY();
         //general click handling --------------------
-        if(x < PathSim.LEFT_WIDTH && inBounds(x, y) && UI.addingSpline > 0 && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+        if(x < PathSim.LEFT_WIDTH && inBounds(x, y) && UI.addingSpline > 0 && justClicked()) {
             if (UI.addingSpline == 2) {
                 PathSim.pathManager.storePoint(toPointInInches(x, y));
                 UI.addingSpline = 1;
@@ -295,7 +380,7 @@ public class Renderer2D {
                 }
             }
 
-            if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (justClicked()) {
                 x = Gdx.input.getX();
                 y = Gdx.graphics.getHeight() - Gdx.input.getY();
                 int editingPath = -1, editingNode = -1, selectedNode = -1, editingVel = -1;
@@ -390,7 +475,7 @@ public class Renderer2D {
         prevx = x;
         prevy = y;
 
-        if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && PathSim.pathManager.curOnPath == -1 && UI.addingSpline == 0 && x < PathSim.LEFT_WIDTH && inBounds(x, y)
+        if(justClicked() && PathSim.pathManager.curOnPath == -1 && UI.addingSpline == 0 && x < PathSim.LEFT_WIDTH && inBounds(x, y)
                         && !(x >= rwx && x <= rwx + ww && y >= rwy && y <= rwy + wh)) {
             if(addNew) {
                 PathSim.pathManager.storePoint(toPointInInches(x, y));
@@ -1015,6 +1100,31 @@ public class Renderer2D {
         renderer.arc(x + width - radius, y + radius, radius, 270f, 90f);
         renderer.arc(x + width - radius, y + height - radius, radius, 0f, 90f);
         renderer.arc(x + radius, y + height - radius, radius, 90f, 90f);
+    }
+
+    public boolean justClicked() {
+        return !importShown && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT);
+    }
+
+    public void importScreen() {
+        importShown = true;
+        movingWidget = false;
+        UI.addingSpline = 0;
+        PathSim.pathManager.removeStoredPoint();
+        PathSim.pathManager.curEditingPath = -1;
+        PathSim.pathManager.curSelectedNode = -1;
+        PathSim.pathManager.curEditingNode = -1;
+        PathSim.input.removeProcessor(ui.stage);
+        PathSim.input.removeProcessor(camController);
+        PathSim.input.addProcessor(imports);
+        imports.setKeyboardFocus(a);
+    }
+
+    public void closeImportScreen() {
+        importShown = false;
+        PathSim.input.addProcessor(ui.stage);
+        PathSim.input.addProcessor(camController);
+        PathSim.input.removeProcessor(imports);
     }
 
     public void dispose () {
