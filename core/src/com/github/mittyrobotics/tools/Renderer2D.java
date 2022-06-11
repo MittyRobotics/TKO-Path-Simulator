@@ -132,11 +132,7 @@ public class Renderer2D {
         importButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                try {
-                    PathSim.pathManager.paths.addAll(PathImporter.parse(a.getText()));
-                } catch (Exception e) {
-
-                }
+                PathSim.pathManager.paths.addAll(PathImporter.parse(a.getText()));
                 a.setText("");
                 closeImportScreen();
                 ui.populateWidget();
@@ -146,6 +142,7 @@ public class Renderer2D {
         cancel.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                a.setText("");
                 closeImportScreen();
             }
         });
