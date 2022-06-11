@@ -58,9 +58,10 @@ public class Renderer2D {
 
         right = Gdx.graphics.getWidth() - PathSim.RIGHT_WIDTH;
         widgetX = 20;
-        widgetY = height - 50;
+        widgetY = height - 290;
         ww = 250;
-        wh = 40;
+        wh = 280;
+        widgetExpanded = true;
 
 
         //fonts ----------
@@ -161,15 +162,12 @@ public class Renderer2D {
         if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && UI.addingSpline == 0) {
             if(x >= rwx + ww - 35 && x <= rwx + ww - 15 && y >= rwy + wh - 30 && y <= rwy + wh - 10) {
                 widgetExpanded = !widgetExpanded;
-                wh = widgetExpanded ? 250 : 40;
-                widgetY += widgetExpanded ? -210 : 210;
+                wh = widgetExpanded ? 280 : 40;
+                widgetY += widgetExpanded ? -240 : 240;
             }
             if((x >= rwx && x <= rwx + ww && y >= rwy && y <= rwy + wh)) movingWidget = true;
         }
         if(!Gdx.input.isButtonPressed(Input.Buttons.LEFT)) movingWidget = false;
-
-        rwx = Math.max(0, Math.min(widgetX, right - ww));
-        rwy = Math.max(0, Math.min(widgetY, height - wh));
 
         if(movingWidget) {
             widgetX += x - wx;
@@ -178,6 +176,9 @@ public class Renderer2D {
             widgetX = rwx;
             widgetY = rwy;
         }
+
+        rwx = Math.max(0, Math.min(widgetX, right - ww));
+        rwy = Math.max(0, Math.min(widgetY, height - wh));
 
         uiRenderer.setColor(new Color(0f, 0f, 0f, 0.7f));
         roundedRect(uiRenderer, rwx, rwy, ww, wh, 5);

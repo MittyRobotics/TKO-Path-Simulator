@@ -7,7 +7,12 @@ import java.util.HashMap;
 
 public class PathImporter {
     public static ArrayList<ExtendedPath> parse(String input) throws Exception {
-        input = input.trim().replaceAll("\n", " ").replaceAll(" +", " ");
+
+        String[] t = input.split("\n");
+        for(int i = 0; i < t.length; ++i) if (t[i].strip().startsWith("//")) t[i] = "";
+        input = String.join(" ", t).trim().replaceAll(" +", " ");
+        System.out.println(input);
+
         String[] lines = input.split(";");
         ArrayList<ExtendedPath> result = new ArrayList<>();
         HashMap<String, QuinticHermiteSpline> splines = new HashMap<>();
@@ -104,7 +109,7 @@ public class PathImporter {
                         if(s.length > 0) {
                             String key = s[0].strip();
                             if(splines.containsKey(key)) {
-                                p = splines.get(key);
+                                p = new QuinticHermiteSplineGroup(splines.get(key));
                                 splines.remove(key);
                             } else if (groups.containsKey(key)) {
                                 p = groups.get(key);
@@ -182,9 +187,8 @@ public class PathImporter {
             if(p instanceof PurePursuitPath) result.add(new ExtendedPath((PurePursuitPath) p));
         }
 
-        for(ExtendedPath e : epaths.values()) result.add(e);
-
-        System.out.println(result);
+        result.addAll(epaths.values());
+        
         return result;
     }
 }

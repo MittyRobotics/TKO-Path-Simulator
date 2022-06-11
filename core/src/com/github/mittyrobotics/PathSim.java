@@ -130,27 +130,75 @@ public class PathSim extends ApplicationAdapter {
 
 
 		try {
-			ArrayList<ExtendedPath> a = PathImporter.parse("QuinticHermiteSplineGroup spline = new QuinticHermiteSplineGroup();\n" +
+			ArrayList<ExtendedPath> a = PathImporter.parse("// spline 1\n" +
+					"\n" +
+					"QuinticHermiteSplineGroup spline1 = new QuinticHermiteSplineGroup();\n" +
 					"\n" +
 					"QuinticHermiteSpline s1 = new QuinticHermiteSpline(\n" +
-					"    new Pose2D(111.506, -68.286, 1.042), new Pose2D(175.179, 40.656, 3.432), \n" +
-					"    new Vector2D(63.673, 108.943), new Vector2D(-359.476, -107.457)\n" +
+					"    new Pose2D(-202.851, -21.267, 0.998), new Pose2D(-124.328, 100.608, 0.524), \n" +
+					"    new Vector2D(78.523, 121.874), new Vector2D(125.505, 72.580)\n" +
 					");\n" +
-					"spline.addSpline(s1);\n" +
+					"spline1.addSpline(s1);\n" +
 					"\n" +
 					"QuinticHermiteSpline s2 = new QuinticHermiteSpline(\n" +
-					"    new Pose2D(175.179, 40.656, 3.432), new Pose2D(-105.485, 81.673, 3.755), \n" +
-					"    new Vector2D(-177.952, -53.194), new Vector2D(-301.042, -212.132)\n" +
+					"    new Pose2D(-124.328, 100.608, 0.524), new Pose2D(-66.963, 99.790, 3.930), \n" +
+					"    new Vector2D(107.507, 62.171), new Vector2D(-37.105, -37.293)\n" +
 					");\n" +
-					"spline.addSpline(s2);\n" +
+					"spline1.addSpline(s2);\n" +
 					"\n" +
-					"PurePursuitPath path = new PurePursuitPath(\n" +
-					"    spline, 199.0, 50.0, 50.0, 1000.0, 0.0, 0.0\n" +
+					"// spline 2\n" +
+					"\n" +
+					"QuinticHermiteSplineGroup spline2 = new QuinticHermiteSplineGroup();\n" +
+					"\n" +
+					"QuinticHermiteSpline s1 = new QuinticHermiteSpline(\n" +
+					"    new Pose2D(-144.565, -31.812, 5.649), new Pose2D(-87.563, 60.596, 5.649), \n" +
+					"    new Vector2D(54.878, -40.362), new Vector2D(54.878, -40.362)\n" +
+					");\n" +
+					"spline2.addSpline(s1);\n" +
+					"\n" +
+					"QuinticHermiteSpline s2 = new QuinticHermiteSpline(\n" +
+					"    new Pose2D(-87.563, 60.596, 5.649), new Pose2D(-22.417, 110.872, 1.510), \n" +
+					"    new Vector2D(66.291, -48.756), new Vector2D(6.727, 110.464)\n" +
+					");\n" +
+					"spline2.addSpline(s2);\n" +
+					"\n" +
+					"// spline 3\n" +
+					"\n" +
+					"QuinticHermiteSpline spline3 = new QuinticHermiteSpline(\n" +
+					"    new Pose2D(16.883, 99.896, 5.566), new Pose2D(113.185, 15.985, 2.684), \n" +
+					"    new Vector2D(96.302, -83.910), new Vector2D(-261.291, 128.521)\n" +
 					");\n" +
 					"\n" +
-					"PurePursuitPFCommand pathCommand = new PurePursuitPFCommand(path, \n" +
-					"    5.0, 10.0, 12.0, false\n" +
-					");");
+					"// path 1 ———————————————————————————————————————————————————\n" +
+					"\n" +
+					"PurePursuitPath path1 = new PurePursuitPath(\n" +
+					"    spline1, 50.0, 50.0, 50.0, 1000.0, 0.0, 0.0\n" +
+					");\n" +
+					"\n" +
+					"PurePursuitPFCommand pathCommand1 = new PurePursuitPFCommand(path1, \n" +
+					"    15.0, 3.0, 12.0, false\n" +
+					");\n" +
+					"\n" +
+					"// path 2\n" +
+					"\n" +
+					"PurePursuitPath path2 = new PurePursuitPath(\n" +
+					"    spline2, 50.0, 50.0, 50.0, 1000.0, 0.0, 0.0\n" +
+					");\n" +
+					"\n" +
+					"PurePursuitPFCommand pathCommand2 = new PurePursuitPFCommand(path2, \n" +
+					"    15.0, 3.0, 12.0, false\n" +
+					");\n" +
+					"\n" +
+					"// path 3\n" +
+					"\n" +
+					"PurePursuitPath path3 = new PurePursuitPath(\n" +
+					"    spline3, 50.0, 50.0, 50.0, 1000.0, 0.0, 0.0\n" +
+					");\n" +
+					"\n" +
+					"PurePursuitPFCommand pathCommand3 = new PurePursuitPFCommand(path3, \n" +
+					"    15.0, 3.0, 12.0, false\n" +
+					");\n" +
+					"\n");
 			PathSim.pathManager.paths.addAll(a);
 			//NULLPOINTER HERE BUT REMEMBER TO POPULATE WIDGET !!!!!
 		} catch (Exception e) {
