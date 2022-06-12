@@ -3,6 +3,7 @@ package com.github.mittyrobotics.tools;
 import com.github.mittyrobotics.pathfollowing.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class PathImporter {
@@ -19,6 +20,14 @@ public class PathImporter {
         HashMap<String, Path> paths = new HashMap<>();
         HashMap<String, ExtendedPath> epaths = new HashMap<>();
 
+        ArrayList<String> ts = new ArrayList<>();
+        ts.add("final");
+        ts.add("protected");
+        ts.add("private");
+        ts.add("public");
+        ts.add("final");
+        ts.add("transient");
+
         for(String line : lines) {
             line = line.strip();
             try {
@@ -29,7 +38,16 @@ public class PathImporter {
                     String left = l[0].strip();
                     String[] lefts = left.split(" ");
                     String right = l[1].strip();
-                    if (lefts.length != 2) throw new Exception();
+
+                    int k = 0;
+                    while(ts.contains(lefts[k])) {
+                        k++;
+                    }
+                    lefts = Arrays.copyOfRange(lefts, k, lefts.length);
+
+                    if (lefts.length != 2) {
+                        throw new Exception();
+                    }
                     String type = lefts[0];
                     String name = lefts[1];
 
