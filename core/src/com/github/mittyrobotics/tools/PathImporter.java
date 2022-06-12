@@ -10,7 +10,7 @@ public class PathImporter {
 
         String[] t = input.split("\n");
         for(int i = 0; i < t.length; ++i) if (t[i].strip().startsWith("//")) t[i] = "";
-        input = String.join(" ", t).trim().replaceAll(" +", " ");
+        input = String.join(" ", t).trim().replaceAll(" +", " ").replaceAll("Math\\.PI", "3.14159265358979323846");
 
         String[] lines = input.split(";");
         ArrayList<ExtendedPath> result = new ArrayList<>();
@@ -34,6 +34,12 @@ public class PathImporter {
                     String name = lefts[1];
 
                     switch (type) {
+                        case "double": case "int":
+                            double val = Calc.calc(right);
+                            for(int i = 0; i < lines.length; ++i) {
+                                lines[i] = lines[i].replaceAll("(?<![a-zA-Z0-9$_])" + name+"(?![a-zA-Z0-9$_])", String.valueOf(val));
+                            }
+                            break;
                         case "QuinticHermiteSpline":
                             if (right.contains("new QuinticHermiteSpline(") && right.contains(")")) {
                                 String processable = right.substring(right.indexOf("new QuinticHermiteSpline(") + "new QuinticHermiteSpline(".length(), right.lastIndexOf(")"));
@@ -41,6 +47,7 @@ public class PathImporter {
                                 String cur = "";
                                 Object curObj = null;
                                 boolean n = false, b = false;
+                                int p = 0;
                                 ArrayList<Object> objs = new ArrayList<>();
                                 ArrayList<Double> params = new ArrayList<>();
 
@@ -59,29 +66,37 @@ public class PathImporter {
                                             } else throw new Exception();
                                             cur = "";
                                             n = false;
-                                        } else throw new Exception();
+                                        } else {
+                                            cur += c;
+                                            p++;
+                                        }
                                     } else if (c == ',') {
                                         if (!b) try {
-                                            params.add(Double.parseDouble(cur));
+                                            params.add(Calc.calc(cur));
                                         } catch (Exception e) {
                                             throw e;
                                         }
                                         else b = false;
                                         cur = "";
                                     } else if (c == ')') {
-                                        try {
-                                            params.add(Double.parseDouble(cur));
-                                        } catch (Exception e) {
-                                            throw e;
+                                        if(p == 0) {
+                                            try {
+                                                params.add(Calc.calc(cur));
+                                            } catch (Exception e) {
+                                                throw e;
+                                            }
+                                            cur = "";
+                                            if (curObj instanceof Pose2D && params.size() == 3) {
+                                                objs.add(new Pose2D(params.get(0), params.get(1), params.get(2)));
+                                            } else if (curObj instanceof Vector2D && params.size() == 2) {
+                                                objs.add(new Vector2D(params.get(0), params.get(1)));
+                                            } else throw new Exception();
+                                            params.clear();
+                                            b = true;
+                                        } else {
+                                            cur += c;
+                                            p--;
                                         }
-                                        cur = "";
-                                        if (curObj instanceof Pose2D && params.size() == 3) {
-                                            objs.add(new Pose2D(params.get(0), params.get(1), params.get(2)));
-                                        } else if (curObj instanceof Vector2D && params.size() == 2) {
-                                            objs.add(new Vector2D(params.get(0), params.get(1)));
-                                        } else throw new Exception();
-                                        params.clear();
-                                        b = true;
                                     } else {
                                         cur += c;
                                     }
@@ -131,11 +146,11 @@ public class PathImporter {
 
                                 try {
                                     if (s.length == 3) {
-                                        paths.put(name, new PurePursuitPath(p, Double.parseDouble(s[1]), Double.parseDouble(s[2])));
+                                        paths.put(name, new PurePursuitPath(p, Calc.calc(s[1]), Calc.calc(s[2])));
                                     } else if (s.length == 5) {
-                                        paths.put(name, new PurePursuitPath(p, Double.parseDouble(s[1]), Double.parseDouble(s[2]), Double.parseDouble(s[3]), Double.parseDouble(s[4])));
+                                        paths.put(name, new PurePursuitPath(p, Calc.calc(s[1]), Calc.calc(s[2]), Calc.calc(s[3]), Calc.calc(s[4])));
                                     } else if (s.length == 7) {
-                                        paths.put(name, new PurePursuitPath(p, Double.parseDouble(s[1]), Double.parseDouble(s[2]), Double.parseDouble(s[3]), Double.parseDouble(s[4]), Double.parseDouble(s[5]), Double.parseDouble(s[6])));
+                                        paths.put(name, new PurePursuitPath(p, Calc.calc(s[1]), Calc.calc(s[2]), Calc.calc(s[3]), Calc.calc(s[4]), Calc.calc(s[5]), Calc.calc(s[6])));
                                     } else throw new Exception();
                                 } catch (Exception e) {
                                     throw e;
@@ -160,14 +175,14 @@ public class PathImporter {
                                     ExtendedPath e = new ExtendedPath(p);
 
                                     if (s.length == 3) {
-                                        e.lookahead = Double.parseDouble(s[1]);
+                                        e.lookahead = Calc.calc(s[1]);
                                         e.reverse = Boolean.parseBoolean(s[2]);
                                         e.end_threshold = 1;
                                         e.adjust_threshold = 3;
                                     } else if (s.length == 5) {
-                                        e.lookahead = Double.parseDouble(s[1]);
-                                        e.end_threshold = Double.parseDouble(s[2]);
-                                        e.adjust_threshold = Double.parseDouble(s[3]);
+                                        e.lookahead = Calc.calc(s[1]);
+                                        e.end_threshold = Calc.calc(s[2]);
+                                        e.adjust_threshold = Calc.calc(s[3]);
                                         e.reverse = Boolean.parseBoolean(s[4]);
                                     } else throw new Exception();
 
