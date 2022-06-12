@@ -194,14 +194,14 @@ public class PathImporter {
 
                                     if (s.length == 3) {
                                         e.lookahead = Calc.calc(s[1]);
-                                        e.reverse = Boolean.parseBoolean(s[2]);
+                                        e.reverse = Boolean.parseBoolean(s[2].strip());
                                         e.end_threshold = 1;
                                         e.adjust_threshold = 3;
                                     } else if (s.length == 5) {
                                         e.lookahead = Calc.calc(s[1]);
                                         e.end_threshold = Calc.calc(s[2]);
                                         e.adjust_threshold = Calc.calc(s[3]);
-                                        e.reverse = Boolean.parseBoolean(s[4]);
+                                        e.reverse = Boolean.parseBoolean(s[4].strip());
                                     } else throw new Exception();
 
                                     epaths.put(name, e);

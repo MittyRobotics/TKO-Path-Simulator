@@ -25,6 +25,8 @@ public class Calc {
         for(int i = 0; i < s.length(); i++) {
             char cur = s.charAt(i);
 
+            boolean ignore = false;
+
             if(Character.isDigit(cur)) {
                 if(!decimal) operand = 10 * operand + (cur - '0');
                 else operand = operand + (Math.pow(10, -n) * (cur - '0'));
@@ -33,8 +35,9 @@ public class Calc {
                 if (cur == '.') {
                     decimal = true;
                     n = 1;
-                } else if (cur == '-') {
+                } else if (cur == '-' && n == 0) {
                     negative = true;
+                    ignore = true;
                 } else if (n != 0) {
                     if(negative) operand = -1 * operand;
                     ans.append(operand).append(" ");
@@ -49,7 +52,7 @@ public class Calc {
                 } else if (cur == ')') {
                     while(!stack.isEmpty() && stack.peek() != '(') ans.append(stack.pop()).append(" ");
                     stack.pop();
-                } else if (!(cur == '.') && !(cur == '-')) {
+                } else if (!(cur == '.') && !(ignore)) {
                     while(!stack.isEmpty() && pref(cur) <= pref(stack.peek())) {
                         ans.append(stack.pop()).append(" ");
                     }

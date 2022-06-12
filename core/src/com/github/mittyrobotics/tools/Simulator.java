@@ -28,14 +28,20 @@ public class Simulator {
 
         double cur_time = 0;
         PurePursuitPath pp = path.purePursuitPath;
+        boolean reverse = path.reverse;
+        System.out.println(reverse);
         Pose2D robotPosition = pp.getParametric().getPose(0);
+
+        Pose2D actual = pp.getParametric().getPose(0);
+        if(reverse) actual.getAngle().add(Math.PI);
+
         double LOOKAHEAD = path.lookahead;
         int NEWTONS_STEPS = path.newtonsSteps;
         double ADJUST_THRESHOLD = path.adjust_threshold;
         double END_THRESHOLD = path.end_threshold;
         double TRACKWIDTH = 28;
 
-        ppStates.add(new pState(robotPosition, pp.getLookaheadFromRobotPose(robotPosition, LOOKAHEAD, NEWTONS_STEPS), pp.getParametric().getPoint(0),
+        ppStates.add(new pState(actual, pp.getLookaheadFromRobotPose(robotPosition, LOOKAHEAD, NEWTONS_STEPS), pp.getParametric().getPoint(0),
                 new Vector2D(pp.getStartVelocity(), pp.getStartVelocity()), pp.getAngularVelocityAtPoint(0, pp.getStartVelocity()), pp.getCurvature(0),
                 pp.getStartVelocity(), pp.getParametric()));
 
@@ -62,7 +68,10 @@ public class Simulator {
             robotPosition = new Pose2D(new_x, new_y, newAngle);
             cur_time += DT;
 
-            ppStates.add(new pState(robotPosition, pp.getLookaheadFromRobotPose(robotPosition, LOOKAHEAD, NEWTONS_STEPS),
+            actual = new Pose2D(new_x, new_y, newAngle);
+            if(reverse) actual.getAngle().add(Math.PI);
+
+            ppStates.add(new pState(actual, pp.getLookaheadFromRobotPose(robotPosition, LOOKAHEAD, NEWTONS_STEPS),
                     pp.getParametric().getPoint(pp.getParametric().findClosestPointOnSpline(robotPosition.getPosition(), NEWTONS_STEPS, 5)),
                     new Vector2D(dds.getLeftVelocity(), dds.getRightVelocity()), dds.getAngularVelocity(), pp.getCurvature(),
                     dds.getLinearVelocity(), pp.getParametric()));
@@ -77,6 +86,10 @@ public class Simulator {
         cur_time = 0;
         RamsetePath rp = path.ramsetePath;
         robotPosition = rp.getParametric().getPose(0);
+
+        actual = rp.getParametric().getPose(0);
+        if(reverse) actual.getAngle().add(Math.PI);
+
         double b = path.b;
         double Z = path.Z;
         NEWTONS_STEPS = path.r_newtonsSteps;
@@ -84,7 +97,7 @@ public class Simulator {
         END_THRESHOLD = path.r_end_threshold;
         TRACKWIDTH = 28;
 
-        rStates.add(new rState(robotPosition, rp.getParametric().getPoint(0),
+        rStates.add(new rState(actual, rp.getParametric().getPoint(0),
                 new Vector2D(rp.getStartVelocity(), rp.getStartVelocity()), rp.getAngularVelocityAtPoint(0, rp.getStartVelocity()), rp.getCurvature(0),
                 rp.getStartVelocity(), rp.getParametric()));
 
@@ -111,7 +124,10 @@ public class Simulator {
             robotPosition = new Pose2D(new_x, new_y, newAngle);
             cur_time += DT;
 
-            rStates.add(new rState(robotPosition,
+            actual = new Pose2D(new_x, new_y, newAngle);
+            if(reverse) actual.getAngle().add(Math.PI);
+
+            rStates.add(new rState(actual,
                     rp.getParametric().getPoint(rp.getParametric().findClosestPointOnSpline(robotPosition.getPosition(), NEWTONS_STEPS, 5)),
                     new Vector2D(dds.getLeftVelocity(), dds.getRightVelocity()), dds.getAngularVelocity(), rp.getCurvature(),
                     dds.getLinearVelocity(), rp.getParametric()));
