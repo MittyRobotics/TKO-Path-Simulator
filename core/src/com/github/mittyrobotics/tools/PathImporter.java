@@ -11,7 +11,10 @@ public class PathImporter {
 
         String[] t = input.split("\n");
         for(int i = 0; i < t.length; ++i) if (t[i].strip().startsWith("//")) t[i] = "";
-        input = String.join(" ", t).trim().replaceAll(" +", " ").replaceAll("Math\\.PI", "3.14159265358979323846");
+        input = String.join(" ", t).trim().replaceAll(" +", " ")
+                .replaceAll("Math\\.PI", "3.14159265358979323846")
+                .replaceAll("Path\\.TO_INCHES", "39.3700787401")
+                .replaceAll("Path\\.TO_METERS", "0.0254");
 
         String[] lines = input.split(";");
         ArrayList<ExtendedPath> result = new ArrayList<>();
@@ -55,7 +58,7 @@ public class PathImporter {
                         case "double": case "int":
                             double val = Calc.calc(right);
                             for(int i = 0; i < lines.length; ++i) {
-                                lines[i] = lines[i].replaceAll("(?<![a-zA-Z0-9$_])" + name+"(?![a-zA-Z0-9$_])", String.valueOf(val));
+                                lines[i] = lines[i].replaceAll("(?<![a-zA-Z0-9$_])" + name + "(?![a-zA-Z0-9$_])", String.valueOf(val));
                             }
                             break;
                         case "QuinticHermiteSpline":

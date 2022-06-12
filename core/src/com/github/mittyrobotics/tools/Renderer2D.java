@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextArea;
@@ -113,6 +115,35 @@ public class Renderer2D {
         a = new TextArea("", tfStyle);
         a.setBounds(250, 140, Gdx.graphics.getWidth() - 500, Gdx.graphics.getHeight() - 320);
         imports.addActor(a);
+
+        a.addListener(new InputListener() {
+            @Override
+            public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY) {
+                boolean shown = imports.getKeyboardFocus() != null;
+                if(!shown) imports.setKeyboardFocus(a);
+                if(amountY > 0 && a.getCursorLine() < a.getLines()) {
+                    if(!shown) a.moveCursorLine(a.getFirstLineShowing() + a.getLinesShowing() + 1);
+                    else a.moveCursorLine(a.getCursorLine() + 1);
+                } else if (a.getCursorLine() > 0) {
+                    if(!shown) a.moveCursorLine(a.getFirstLineShowing() - 1);
+                    else a.moveCursorLine(a.getCursorLine() - 1);
+                }
+                if(!shown) imports.setKeyboardFocus(null);
+                return true;
+            }
+        });
+
+        a.addListener(new ClickListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                imports.setScrollFocus(a);
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                imports.setScrollFocus(null);
+            }
+        });
 
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = PathSim.font;
@@ -221,6 +252,11 @@ public class Renderer2D {
     }
 
     public void drawImport() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            if(imports.getKeyboardFocus() != null) imports.setKeyboardFocus(null);
+            else closeImportScreen();
+        }
+
         uiRenderer.begin(ShapeRenderer.ShapeType.Filled);
         uiRenderer.setColor(new Color(0.5f, 0.5f, 0.5f, 1f));
         roundedRect(uiRenderer, 200, 75, Gdx.graphics.getWidth() - 400, Gdx.graphics.getHeight() - 150, 50);
@@ -232,6 +268,9 @@ public class Renderer2D {
 
         imports.act(Gdx.graphics.getDeltaTime());
         imports.draw();
+
+        if(imports.getKeyboardFocus() != null) imports.setScrollFocus(a);
+        else imports.setKeyboardFocus(null);
     }
 
     public void drawWidget() {
