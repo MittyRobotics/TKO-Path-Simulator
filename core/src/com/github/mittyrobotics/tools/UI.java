@@ -25,7 +25,7 @@ public class UI implements Disposable {
     public int right, prevState, prevEditing;
     public static int addingSpline;
     public Label addingLabel, widget;
-    public boolean splineMode, prevMode, purePursuitMode, showing, inTable, showingAll;
+    public boolean splineMode, prevMode, purePursuitMode, showing, inTable, showingAll, inVisible;
     public TextButton pathId, addNode1, addNode2, spline, path, addPath, play, export, delete, deleteNode, purePursuit, ramsete, exportAll, import_;
     public ArrayList<TextField> splines = new ArrayList<>();
     ArrayList<TextField> paths = new ArrayList<>();
@@ -370,6 +370,15 @@ public class UI implements Disposable {
                         PathSim.pathManager.curEditingPath = -1;
                     }
                 }
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    inVisible = true;
+                }
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    PathSim.pathManager.curUIOnPath = -1;
+                    inVisible = false;
+                }
             });
 
             widgetTable.add(l).height(30).width(140).align(Align.left).pad(0, 15, 0, 0);
@@ -395,7 +404,7 @@ public class UI implements Disposable {
                 }
                 @Override
                 public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    if(inTable) PathSim.pathManager.curEditingPath = widgetTable.getRow(y);
+                    if(inTable && !inVisible) PathSim.pathManager.curEditingPath = widgetTable.getRow(y);
                     return inTable;
                 }
             });
